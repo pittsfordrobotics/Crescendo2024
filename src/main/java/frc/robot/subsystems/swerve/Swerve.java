@@ -118,7 +118,7 @@ public class Swerve extends SubsystemBase {
     targetFieldRelativeSpeeds = new ChassisSpeeds(targetSpeedX, targetSpeedY, targetAngularVelocity);
     targetRobotRelativeChassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(targetFieldRelativeSpeeds, robotRelativeAngle); // Convert target field relative speeds into chassis speeds
     wantedModuleStates = kinematics.toSwerveModuleStates(targetRobotRelativeChassisSpeeds); // Use inverse kinematics to get target swerve module states.
-    SwerveDriveKinematics.desaturateWheelSpeeds(wantedModuleStates, SwerveConstants.MAX_LINEAR_VELOCITY_METERS_PER_SECOND);
+    SecondOrderKinematics.desaturateWheelSpeeds(wantedModuleStates, SwerveConstants.MAX_LINEAR_VELOCITY_METERS_PER_SECOND);
     for (int i = 0; i < 4; i++) {
       //TODO: this is more of a hack WE NEED TO FIND THE ACTUAL omegaRadPerSecond FOR FULL SECOND ORDER
       SwerveModuleState temp = BetterSwerveModuleState.optimize(wantedModuleStates[i], actualStates[i].angle);
