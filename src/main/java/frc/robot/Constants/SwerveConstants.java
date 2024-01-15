@@ -19,6 +19,7 @@ import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import frc.robot.lib.SecondOrderKinematics;
 /** Constants for Swerve Drive */
 public final class SwerveConstants {
 
@@ -96,6 +97,7 @@ public final class SwerveConstants {
         new Translation2d(-X_LENGTH_METERS / 2, -Y_LENGTH_METERS / 2), // BR
     };
     public static final SwerveDriveKinematics DRIVE_KINEMATICS = new SwerveDriveKinematics(MODULE_OFFSETS);
+    public static final SecondOrderKinematics BETTER_DRIVE_KINEMATICS = new SecondOrderKinematics(MODULE_OFFSETS);
 
     // Measured module angles when using alignment tool
     public static final Rotation2d FL_PURE_OFFSET = Rotation2d.fromDegrees(swerveOffsetsMap.getOrDefault("FL_PURE_OFFSET", 0.0));
