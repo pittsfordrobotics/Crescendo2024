@@ -13,9 +13,10 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.SwerveConstants;
-import frc.robot.commands.DisabledInstantCommand;
 import frc.robot.commands.SwerveDriveXbox;
 import frc.robot.commands.SwerveSetZeroOffsets;
+import frc.robot.lib.BetterSwerveModuleState;
+import frc.robot.lib.SecondOrderKinematics;
 import edu.wpi.first.math.controller.PIDController;
 
 public class Swerve extends SubsystemBase {
@@ -27,7 +28,7 @@ public class Swerve extends SubsystemBase {
   private SwerveModuleIO moduleBR;
 
   private final SwerveModuleIO[] moduleIO;
-  private final SwerveModuleState[] lastModuleStates = new SwerveModuleState[4];
+  private final BetterSwerveModuleState[] lastModuleStates = new BetterSwerveModuleState[4];
   private ChassisSpeeds actualRobotRelativeChassisSpeeds;
   private ChassisSpeeds targetFieldRelativeSpeeds;
   private ChassisSpeeds targetRobotRelativeChassisSpeeds;
@@ -35,9 +36,8 @@ public class Swerve extends SubsystemBase {
 
   // Initialize a PID controller for calculating the wanted angular velocity based on the desired angle
   PIDController SwerveTargetAnglePID = new PIDController(SwerveConstants.ROBOT_ANG_P, SwerveConstants.ROBOT_ANG_I, SwerveConstants.ROBOT_ANG_D);
-
-  SwerveModuleState[] wantedModuleStates = new SwerveModuleState[4];
-  private final SwerveDriveKinematics kinematics = SwerveConstants.DRIVE_KINEMATICS;
+  BetterSwerveModuleState[] wantedModuleStates = new BetterSwerveModuleState[4];
+  private final SecondOrderKinematics kinematics = SwerveConstants.BETTER_DRIVE_KINEMATICS;
 
 
   private Rotation2d robotRelativeAngle = new Rotation2d();
@@ -57,7 +57,7 @@ public class Swerve extends SubsystemBase {
     moduleIO = new SwerveModuleIO[]{moduleFL, moduleFR, moduleBL, moduleBR}; // initializes motors and encoders for all 4 swerve modules.
     for (int i = 0; i < 4; i++) {
       moduleIO[i].updateInputs();
-      lastModuleStates[i] = new SwerveModuleState();
+      lastModuleStates[i] = new BetterSwerveModuleState();
     }
     // TODO: figure out what the pose estimator is used for.
     // poseEstimator = new SwerveDrivePoseEstimator(kinematics, getRobotRelativeAngle(), modulePositions, new Pose2d(), VecBuilder.fill(0.003, 0.003, 0.0002), VecBuilder.fill(0.9, 0.9, 0.9));
@@ -92,10 +92,10 @@ public class Swerve extends SubsystemBase {
     double targetSpeedX = xAxis * SwerveConstants.MAX_LINEAR_VELOCITY_METERS_PER_SECOND;
     double targetSpeedY = yAxis * SwerveConstants.MAX_LINEAR_VELOCITY_METERS_PER_SECOND;
 
-    SwerveModuleState[] actualStates = new SwerveModuleState[4];
+    BetterSwerveModuleState[] actualStates = new BetterSwerveModuleState[4];
     for (int i = 0; i < 4; i++) {
       moduleIO[i].updateInputs();
-      actualStates[i] = new SwerveModuleState(moduleIO[i].driveVelocityMetersPerSec, Rotation2d.fromRadians(moduleIO[i].steerAbsolutePositionRad));
+      actualStates[i] = new BetterSwerveModuleState(moduleIO[i].driveVelocityMetersPerSec, Rotation2d.fromRadians(moduleIO[i].steerAbsolutePositionRad), moduleIO[i].steerAbsoluteVelocityRadPerSec);
     }
     robotRelativeAngle = getRobotRelativeAngle();
 
@@ -120,14 +120,16 @@ public class Swerve extends SubsystemBase {
     wantedModuleStates = kinematics.toSwerveModuleStates(targetRobotRelativeChassisSpeeds); // Use inverse kinematics to get target swerve module states.
     SwerveDriveKinematics.desaturateWheelSpeeds(wantedModuleStates, SwerveConstants.MAX_LINEAR_VELOCITY_METERS_PER_SECOND);
     for (int i = 0; i < 4; i++) {
-      wantedModuleStates[i] = SwerveModuleState.optimize(wantedModuleStates[i], actualStates[i].angle);
+      //TODO: this is more of a hack WE NEED TO FIND THE ACTUAL omegaRadPerSecond FOR FULL SECOND ORDER
+      SwerveModuleState temp = BetterSwerveModuleState.optimize(wantedModuleStates[i], actualStates[i].angle);
+      wantedModuleStates[i] = new BetterSwerveModuleState(temp.speedMetersPerSecond, temp.angle, actualStates[i].omegaRadPerSecond);
     }
     
   };
   /** Used for testing alignment, stops all modules and points them forward */
   public void driveZeroOffset() {
     for (int i = 0; i < 4; i++) {
-      wantedModuleStates[i] = new SwerveModuleState(0, new Rotation2d());
+      wantedModuleStates[i] = new BetterSwerveModuleState(0, new Rotation2d(), 0);
       moduleIO[i].drive(wantedModuleStates[i], false);
     }
   }

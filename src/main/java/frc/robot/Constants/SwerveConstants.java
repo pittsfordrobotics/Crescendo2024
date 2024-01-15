@@ -16,6 +16,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.util.Units;
 /** Add your docs here. */
+import frc.robot.lib.SecondOrderKinematics;
 public final class SwerveConstants {
     ObjectMapper objectMapper = new ObjectMapper();
     File swerveOffsetsFile = new File("/temp/SwerveOffsets.json");
@@ -82,6 +83,7 @@ public final class SwerveConstants {
         new Translation2d(-X_LENGTH_METERS / 2, -Y_LENGTH_METERS / 2), // BR
     };
     public static final SwerveDriveKinematics DRIVE_KINEMATICS = new SwerveDriveKinematics(MODULE_OFFSETS);
+    public static final SecondOrderKinematics BETTER_DRIVE_KINEMATICS = new SecondOrderKinematics(MODULE_OFFSETS);
 
     // Measured module angles when using alignment tool
     public static final Rotation2d FL_PURE_OFFSET = Rotation2d.fromDegrees(swerveOffsetsMap.getOrDefault("FL_PURE_OFFSET", 0.0));
