@@ -15,19 +15,33 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.util.Units;
-/** Add your docs here. */
+import edu.wpi.first.networktables.GenericEntry;
+import edu.wpi.first.util.sendable.Sendable;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+/** Constants for Swerve Drive */
 public final class SwerveConstants {
+
+    // Get offsets from file
     ObjectMapper objectMapper = new ObjectMapper();
     File swerveOffsetsFile = new File("/temp/SwerveOffsets.json");
     static Map<String, Double> swerveOffsetsMap = new HashMap<String, Double>();
-    {
-    try {
+    {try {
         swerveOffsetsMap = objectMapper.readValue(swerveOffsetsFile, new TypeReference<Map<String, Double>>(){});
     } catch (Exception e) {
         e.printStackTrace();
-    }
-    }
+    }}
     
+    //If the Shuffleboard data exists, use it instead of file.
+    ShuffleboardTab configTab = Shuffleboard.getTab("CONFIG");
+    private Double[] offsetsEntry = configTab.add("Swerve Offsets", 1).getEntry().getDoubleArray(new Double[]{7.0,7.0,7.0,7.0});
+    {if(offsetsEntry[0] != 7.0){
+        swerveOffsetsMap.clear();
+        swerveOffsetsMap.put("FL_PURE_OFFSET", offsetsEntry[0]);
+        swerveOffsetsMap.put("FR_PURE_OFFSET", offsetsEntry[1]);
+        swerveOffsetsMap.put("BL_PURE_OFFSET", offsetsEntry[2]);
+        swerveOffsetsMap.put("BR_PURE_OFFSET", offsetsEntry[3]);
+    }}
     
     public static final double driverControllerLeftDeadband = 0.1;
     public static final double driverControllerRightDeadband = 0.95;

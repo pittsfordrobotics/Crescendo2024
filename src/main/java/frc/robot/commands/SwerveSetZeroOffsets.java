@@ -7,11 +7,16 @@ package frc.robot.commands;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.DoubleSupplier;
+import java.util.function.Supplier;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.SwerveConstants;
 import frc.robot.subsystems.swerve.Swerve;
@@ -45,6 +50,22 @@ public class SwerveSetZeroOffsets extends Command {
     swerveOffsetsMap.put("FR_PURE_OFFSET", moduleFR.getCurrentAngleDeg());
     swerveOffsetsMap.put("BL_PURE_OFFSET", moduleBL.getCurrentAngleDeg());
     swerveOffsetsMap.put("BR_PURE_OFFSET", moduleBR.getCurrentAngleDeg());
+
+    //Save these values to the SmartDashboard
+    ShuffleboardTab configTab = Shuffleboard.getTab("CONFIG"); //Creating the smartdashboard tab if not already created
+    Supplier<double[]> offsetSupplier = new Supplier<double[]>() {
+      @Override
+      public double[] get(){
+        double[] doubleArray = new double[4];
+        doubleArray[0] = swerveOffsetsMap.get("FL_PURE_OFFSET");
+        doubleArray[1] = swerveOffsetsMap.get("FR_PURE_OFFSET");
+        doubleArray[2] = swerveOffsetsMap.get("BL_PURE_OFFSET");
+        doubleArray[3] = swerveOffsetsMap.get("BR_PURE_OFFSET");
+        return doubleArray;
+      }
+    };
+    configTab.addDoubleArray("Swerve Offsets", offsetSupplier); //Adding them to the smartdashboard tab
+
     //Save these values in the JSON file
     try {
       objectMapper.writeValue(swerveOffsetsFile, new TypeReference<Map<String, Double>>(){});
