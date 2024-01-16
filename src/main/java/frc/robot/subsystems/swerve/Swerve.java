@@ -7,6 +7,8 @@ package frc.robot.subsystems.swerve;
 import com.ctre.phoenix6.hardware.Pigeon2;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.*;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -29,15 +31,20 @@ public class Swerve extends SubsystemBase {
 
   private final SwerveModuleIO[] moduleIO;
   private final BetterSwerveModuleState[] lastModuleStates = new BetterSwerveModuleState[4];
+  private SwerveModulePosition[] modulePositions = new SwerveModulePosition[4];
+  private ChassisSpeeds actualFieldRelativeSpeeds;
   private ChassisSpeeds actualRobotRelativeChassisSpeeds;
   private ChassisSpeeds targetFieldRelativeSpeeds;
   private ChassisSpeeds targetRobotRelativeChassisSpeeds;
-  // private final SwerveDrivePoseEstimator poseEstimator;
+  private Pose2d pose;
+  //private final SwerveDrivePoseEstimator poseEstimator;
 
   // Initialize a PID controller for calculating the wanted angular velocity based on the desired angle
-  PIDController SwerveTargetAnglePID = new PIDController(SwerveConstants.ROBOT_ANG_P, SwerveConstants.ROBOT_ANG_I, SwerveConstants.ROBOT_ANG_D);
-  BetterSwerveModuleState[] wantedModuleStates = new BetterSwerveModuleState[4];
+  private PIDController SwerveTargetAnglePID = new PIDController(SwerveConstants.ROBOT_ANG_P, SwerveConstants.ROBOT_ANG_I, SwerveConstants.ROBOT_ANG_D);
+  private BetterSwerveModuleState[] wantedModuleStates = new BetterSwerveModuleState[4];
+  private BetterSwerveModuleState[] actualStates = new BetterSwerveModuleState[4];
   private final SecondOrderKinematics kinematics = SwerveConstants.BETTER_DRIVE_KINEMATICS;
+  private final SwerveDriveOdometry odometry = SwerveConstants.SWERVE_DRIVE_ODOMETRY;
 
 
   private Rotation2d robotRelativeAngle = new Rotation2d();
@@ -61,7 +68,6 @@ public class Swerve extends SubsystemBase {
     }
     // TODO: figure out what the pose estimator is used for.
     // poseEstimator = new SwerveDrivePoseEstimator(kinematics, getRobotRelativeAngle(), modulePositions, new Pose2d(), VecBuilder.fill(0.003, 0.003, 0.0002), VecBuilder.fill(0.9, 0.9, 0.9));
-  
     Shuffleboard.getTab("CONFIG").add("Record Wheel Offsets", new SwerveSetZeroOffsets(this));
   }
   @Override
@@ -92,12 +98,14 @@ public class Swerve extends SubsystemBase {
     double targetSpeedX = xAxis * SwerveConstants.MAX_LINEAR_VELOCITY_METERS_PER_SECOND;
     double targetSpeedY = yAxis * SwerveConstants.MAX_LINEAR_VELOCITY_METERS_PER_SECOND;
 
-    BetterSwerveModuleState[] actualStates = new BetterSwerveModuleState[4];
     for (int i = 0; i < 4; i++) {
       moduleIO[i].updateInputs();
       actualStates[i] = new BetterSwerveModuleState(moduleIO[i].driveVelocityMetersPerSec, Rotation2d.fromRadians(moduleIO[i].steerAbsolutePositionRad), moduleIO[i].steerAbsoluteVelocityRadPerSec);
+      modulePositions[i] = new SwerveModulePosition(actualStates[i].speedMetersPerSecond * 0.02, actualStates[i].angle);
     }
     robotRelativeAngle = getRobotRelativeAngle();
+    odometry.update(robotRelativeAngle, modulePositions);
+    pose = odometry.getPoseMeters();
 
     // New code
     // Decides how to calculate the target angular velocity based on the controller inputs (2 variable booleons and a constant boolean)
@@ -114,7 +122,7 @@ public class Swerve extends SubsystemBase {
     targetAngularVelocity = MathUtil.clamp(targetAngularVelocity, -SwerveConstants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND, SwerveConstants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND); // Clamp the angular velocity at the max allowed value.
 
     actualRobotRelativeChassisSpeeds = kinematics.toChassisSpeeds(actualStates);
-    ChassisSpeeds.fromFieldRelativeSpeeds(actualRobotRelativeChassisSpeeds, new Rotation2d().minus(robotRelativeAngle));
+    actualFieldRelativeSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(actualRobotRelativeChassisSpeeds, new Rotation2d().minus(robotRelativeAngle)); //Find actual field relative speeds
     targetFieldRelativeSpeeds = new ChassisSpeeds(targetSpeedX, targetSpeedY, targetAngularVelocity);
     targetRobotRelativeChassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(targetFieldRelativeSpeeds, robotRelativeAngle); // Convert target field relative speeds into chassis speeds
     wantedModuleStates = kinematics.toSwerveModuleStates(targetRobotRelativeChassisSpeeds); // Use inverse kinematics to get target swerve module states.
@@ -126,6 +134,31 @@ public class Swerve extends SubsystemBase {
     }
     
   };
+
+  /** Drive with ChassisSpeeds input */
+  public void updateSwerveModuleStates(ChassisSpeeds chassisSpeeds) {
+    for (int i = 0; i < 4; i++) {
+      moduleIO[i].updateInputs();
+      actualStates[i] = new BetterSwerveModuleState(moduleIO[i].driveVelocityMetersPerSec, Rotation2d.fromRadians(moduleIO[i].steerAbsolutePositionRad), moduleIO[i].steerAbsoluteVelocityRadPerSec);
+      modulePositions[i] = new SwerveModulePosition(actualStates[i].speedMetersPerSecond * 0.02, actualStates[i].angle);
+    }
+    robotRelativeAngle = getRobotRelativeAngle();
+    odometry.update(robotRelativeAngle, modulePositions);
+    pose = odometry.getPoseMeters();
+    //forward kinematics for odometry
+    actualRobotRelativeChassisSpeeds = kinematics.toChassisSpeeds(actualStates);
+    actualFieldRelativeSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(actualRobotRelativeChassisSpeeds, new Rotation2d().minus(robotRelativeAngle)); //Find actual field relative speeds
+    targetRobotRelativeChassisSpeeds = chassisSpeeds; // Input is chassis speeds so there is no conversion
+    wantedModuleStates = kinematics.toSwerveModuleStates(targetRobotRelativeChassisSpeeds); // Use inverse kinematics to get target swerve module states.
+    SecondOrderKinematics.desaturateWheelSpeeds(wantedModuleStates, SwerveConstants.MAX_LINEAR_VELOCITY_METERS_PER_SECOND);
+    for (int i = 0; i < 4; i++) {
+      //TODO: this is more of a hack WE NEED TO FIND THE ACTUAL omegaRadPerSecond FOR FULL SECOND ORDER
+      SwerveModuleState temp = BetterSwerveModuleState.optimize(wantedModuleStates[i], actualStates[i].angle);
+      wantedModuleStates[i] = new BetterSwerveModuleState(temp.speedMetersPerSecond, temp.angle, actualStates[i].omegaRadPerSecond);
+    }
+
+  }
+
   /** Used for testing alignment, stops all modules and points them forward */
   public void driveZeroOffset() {
     for (int i = 0; i < 4; i++) {
@@ -142,5 +175,9 @@ public class Swerve extends SubsystemBase {
   /** Reset the pigeon angle */
   public void zeroGyro() {
     pigeon.setYaw(0);
+  }
+  /** Get robot pose */
+  public Pose2d getRobotPose() {
+    return pose;
   }
 }
