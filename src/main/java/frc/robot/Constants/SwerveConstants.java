@@ -5,6 +5,7 @@
 package frc.robot.Constants;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -23,11 +24,20 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import frc.robot.lib.SecondOrderKinematics;
 /** Constants for Swerve Drive */
+import frc.robot.subsystems.swerve.Swerve;
 public final class SwerveConstants {
-
+    public SwerveConstants(){}
     // Get offsets from file
     ObjectMapper objectMapper = new ObjectMapper();
-    File swerveOffsetsFile = new File("/temp/SwerveOffsets.json");
+    File swerveOffsetsFile = new File("/home/lvuser/SwerveOffsets.json");
+    {if(!swerveOffsetsFile.exists()) {
+        try {
+            swerveOffsetsFile.createNewFile();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }}
     static Map<String, Double> swerveOffsetsMap = new HashMap<String, Double>();
     {try {
         swerveOffsetsMap = objectMapper.readValue(swerveOffsetsFile, new TypeReference<Map<String, Double>>(){});
@@ -36,15 +46,15 @@ public final class SwerveConstants {
     }}
     
     //If the Shuffleboard data exists, use it instead of file.
-    ShuffleboardTab configTab = Shuffleboard.getTab("CONFIG");
-    private Double[] offsetsEntry = configTab.add("Swerve Offsets", 1).getEntry().getDoubleArray(new Double[]{7.0,7.0,7.0,7.0});
-    {if(offsetsEntry[0] != 7.0){
-        swerveOffsetsMap.clear();
-        swerveOffsetsMap.put("FL_PURE_OFFSET", offsetsEntry[0]);
-        swerveOffsetsMap.put("FR_PURE_OFFSET", offsetsEntry[1]);
-        swerveOffsetsMap.put("BL_PURE_OFFSET", offsetsEntry[2]);
-        swerveOffsetsMap.put("BR_PURE_OFFSET", offsetsEntry[3]);
-    }}
+    // ShuffleboardTab configTab = Shuffleboard.getTab("CONFIG");
+    // private Double[] offsetsEntry = configTab.add("Swerve Offsets", 1).getEntry().getDoubleArray(new Double[]{7.0,7.0,7.0,7.0});
+    // {if(offsetsEntry[0] != 7.0){
+    //     swerveOffsetsMap.clear();
+    //     swerveOffsetsMap.put("FL_PURE_OFFSET", offsetsEntry[0]);
+    //     swerveOffsetsMap.put("FR_PURE_OFFSET", offsetsEntry[1]);
+    //     swerveOffsetsMap.put("BL_PURE_OFFSET", offsetsEntry[2]);
+    //     swerveOffsetsMap.put("BR_PURE_OFFSET", offsetsEntry[3]);
+    // }}
     
     public static final double driverControllerLeftDeadband = 0.1;
     public static final double driverControllerRightDeadband = 0.95;
@@ -53,14 +63,14 @@ public final class SwerveConstants {
     public static int driveMaxRPM = 5676;
 
     // CAN ID of each motor
-    public static final int CAN_BL_DRIVE = 5;
-    public static final int CAN_BL_STEER = 6;
-    public static final int CAN_BR_DRIVE = 1;
-    public static final int CAN_BR_STEER = 2;
-    public static final int CAN_FL_DRIVE = 7;
-    public static final int CAN_FL_STEER = 8;
+    public static final int CAN_FL_DRIVE = 1;
+    public static final int CAN_FL_STEER = 2;
     public static final int CAN_FR_DRIVE = 3;
     public static final int CAN_FR_STEER = 4;
+    public static final int CAN_BL_DRIVE = 5;
+    public static final int CAN_BL_STEER = 6;
+    public static final int CAN_BR_DRIVE = 7;
+    public static final int CAN_BR_STEER = 8;
     /**
      *  Pinon    Gear Ratio    Max Speed [m/s] (approximate)
      *   12T 	   5.50:1 	      4.12
@@ -100,7 +110,6 @@ public final class SwerveConstants {
     };
     // public static final SwerveDriveKinematics DRIVE_KINEMATICS = new SwerveDriveKinematics(MODULE_OFFSETS);
     public static final SecondOrderKinematics BETTER_DRIVE_KINEMATICS = new SecondOrderKinematics(MODULE_OFFSETS);
-    public static final SwerveDriveOdometry SWERVE_DRIVE_ODOMETRY = new SwerveDriveOdometry(BETTER_DRIVE_KINEMATICS, new Rotation2d(),new SwerveModulePosition[4]);
 
     // Measured module angles when using alignment tool
     public static final Rotation2d FL_PURE_OFFSET = Rotation2d.fromDegrees(swerveOffsetsMap.getOrDefault("FL_PURE_OFFSET", 0.0));

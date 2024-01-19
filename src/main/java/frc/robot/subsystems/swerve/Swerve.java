@@ -5,6 +5,7 @@
 package frc.robot.subsystems.swerve;
 
 import com.ctre.phoenix6.hardware.Pigeon2;
+import com.ctre.phoenix6.mechanisms.swerve.SwerveModule;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.VecBuilder;
@@ -44,7 +45,7 @@ public class Swerve extends SubsystemBase {
   private BetterSwerveModuleState[] wantedModuleStates = new BetterSwerveModuleState[4];
   private BetterSwerveModuleState[] actualStates = new BetterSwerveModuleState[4];
   private final SecondOrderKinematics kinematics = SwerveConstants.BETTER_DRIVE_KINEMATICS;
-  private final SwerveDriveOdometry odometry = SwerveConstants.SWERVE_DRIVE_ODOMETRY;
+  private final SwerveDriveOdometry odometry;
 
 
   private Rotation2d robotRelativeAngle = new Rotation2d();
@@ -65,7 +66,10 @@ public class Swerve extends SubsystemBase {
     for (int i = 0; i < 4; i++) {
       moduleIO[i].updateInputs();
       lastModuleStates[i] = new BetterSwerveModuleState();
+      modulePositions[i] = new SwerveModulePosition();
     }
+    
+    odometry = new SwerveDriveOdometry(kinematics, new Rotation2d(), modulePositions);
     // TODO: figure out what the pose estimator is used for.
     // poseEstimator = new SwerveDrivePoseEstimator(kinematics, getRobotRelativeAngle(), modulePositions, new Pose2d(), VecBuilder.fill(0.003, 0.003, 0.0002), VecBuilder.fill(0.9, 0.9, 0.9));
     Shuffleboard.getTab("CONFIG").add("Record Wheel Offsets", new SwerveSetZeroOffsets(this));
@@ -134,7 +138,7 @@ public class Swerve extends SubsystemBase {
     }
     
   };
-
+  
   /** Drive with ChassisSpeeds input */
   public void updateSwerveModuleStates(ChassisSpeeds chassisSpeeds) {
     for (int i = 0; i < 4; i++) {
@@ -179,5 +183,14 @@ public class Swerve extends SubsystemBase {
   /** Get robot pose */
   public Pose2d getRobotPose() {
     return pose;
+  }
+  /** Get angles of swerve modules */
+  public Rotation2d[] getModuleAngle() {
+    Rotation2d[] moduleAngles = new Rotation2d[4];
+    for(int i = 0; i < 4; i++) {
+      moduleIO[i].updateInputs();
+      moduleAngles[i] = Rotation2d.fromRadians(moduleIO[i].steerAbsolutePositionRad);
+    }
+    return moduleAngles;
   }
 }

@@ -18,15 +18,16 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.SwerveConstants;
 import frc.robot.subsystems.swerve.Swerve;
-import frc.robot.subsystems.swerve.SwerveModuleIO;
 
 public class SwerveSetZeroOffsets extends Command {
+  private Swerve swerveDrive;
 
   /** Saves the zero offsets of all swerve modules as their current angle.
    *  Only call this command when using swerve alignment tool.
    */
   public SwerveSetZeroOffsets(Swerve swerveDrive) {
     addRequirements(swerveDrive);
+    this.swerveDrive = swerveDrive;
   }
 
   // Called when the command is initially scheduled.
@@ -34,20 +35,17 @@ public class SwerveSetZeroOffsets extends Command {
   public void initialize() {
     // Open the JSON file containing swerve module offsets
     ObjectMapper objectMapper = new ObjectMapper();
-    File swerveOffsetsFile = new File("/temp/SwerveOffsets.json");
+    File swerveOffsetsFile = new File("/home/lvuser/SwerveOffsets.json");
     Map<String, Double> swerveOffsetsMap = new HashMap<String, Double>();
     
 
     //Create SwerveModuleIO objects to measure the current angle of the swerve modules
-    SwerveModuleIO moduleFL = new SwerveModuleIO(SwerveConstants.CAN_FL_DRIVE, SwerveConstants.CAN_FL_STEER, new Rotation2d());
-    SwerveModuleIO moduleFR = new SwerveModuleIO(SwerveConstants.CAN_FR_DRIVE, SwerveConstants.CAN_FR_STEER, new Rotation2d());
-    SwerveModuleIO moduleBL = new SwerveModuleIO(SwerveConstants.CAN_BL_DRIVE, SwerveConstants.CAN_BL_STEER, new Rotation2d());
-    SwerveModuleIO moduleBR = new SwerveModuleIO(SwerveConstants.CAN_BR_DRIVE, SwerveConstants.CAN_BR_STEER, new Rotation2d());
+    Rotation2d[] moduleAngles = swerveDrive.getModuleAngle();
     //Check the angle of modules and put them in the hashmap
-    swerveOffsetsMap.put("FL_PURE_OFFSET", moduleFL.getCurrentAngleDeg());
-    swerveOffsetsMap.put("FR_PURE_OFFSET", moduleFR.getCurrentAngleDeg());
-    swerveOffsetsMap.put("BL_PURE_OFFSET", moduleBL.getCurrentAngleDeg());
-    swerveOffsetsMap.put("BR_PURE_OFFSET", moduleBR.getCurrentAngleDeg());
+    swerveOffsetsMap.put("FL_PURE_OFFSET", moduleAngles[0].getDegrees());
+    swerveOffsetsMap.put("FR_PURE_OFFSET", moduleAngles[0].getDegrees());
+    swerveOffsetsMap.put("BL_PURE_OFFSET", moduleAngles[0].getDegrees());
+    swerveOffsetsMap.put("BR_PURE_OFFSET", moduleAngles[0].getDegrees());
 
     //Save these values to the SmartDashboard
     ShuffleboardTab configTab = Shuffleboard.getTab("CONFIG"); //Creating the smartdashboard tab if not already created
@@ -62,11 +60,11 @@ public class SwerveSetZeroOffsets extends Command {
         return doubleArray;
       }
     };
-    configTab.addDoubleArray("Swerve Offsets", offsetSupplier); //Adding them to the smartdashboard tab
+    //configTab.addDoubleArray("Swerve Offsets", offsetSupplier); //Adding them to the smartdashboard tab
 
     //Save these values in the JSON file
     try {
-      objectMapper.writeValue(swerveOffsetsFile, new TypeReference<Map<String, Double>>(){});
+      objectMapper.writeValue(swerveOffsetsFile, swerveOffsetsMap);
     } catch (Exception e) {
       e.printStackTrace();
     }
