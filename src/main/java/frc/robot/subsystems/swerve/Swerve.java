@@ -185,7 +185,7 @@ public class Swerve extends SubsystemBase {
     return pose;
   }
   /** Get angles of swerve modules */
-  public Rotation2d[] getModuleAngle() {
+  public Rotation2d[] getModuleAngles() {
     Rotation2d[] moduleAngles = new Rotation2d[4];
     for(int i = 0; i < 4; i++) {
       moduleIO[i].updateInputs();

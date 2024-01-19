@@ -40,12 +40,12 @@ public class SwerveSetZeroOffsets extends Command {
     
 
     //Create SwerveModuleIO objects to measure the current angle of the swerve modules
-    Rotation2d[] moduleAngles = swerveDrive.getModuleAngle();
+    Rotation2d[] moduleAngles = swerveDrive.getModuleAngles();
     //Check the angle of modules and put them in the hashmap
     swerveOffsetsMap.put("FL_PURE_OFFSET", moduleAngles[0].getDegrees());
-    swerveOffsetsMap.put("FR_PURE_OFFSET", moduleAngles[0].getDegrees());
-    swerveOffsetsMap.put("BL_PURE_OFFSET", moduleAngles[0].getDegrees());
-    swerveOffsetsMap.put("BR_PURE_OFFSET", moduleAngles[0].getDegrees());
+    swerveOffsetsMap.put("FR_PURE_OFFSET", moduleAngles[1].getDegrees());
+    swerveOffsetsMap.put("BL_PURE_OFFSET", moduleAngles[2].getDegrees());
+    swerveOffsetsMap.put("BR_PURE_OFFSET", moduleAngles[3].getDegrees());
 
     //Save these values to the SmartDashboard
     ShuffleboardTab configTab = Shuffleboard.getTab("CONFIG"); //Creating the smartdashboard tab if not already created
