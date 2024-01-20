@@ -219,13 +219,15 @@ public class Swerve extends SubsystemBase {
   public Rotation2d[] getModuleAngles() {
     Rotation2d[] moduleAngles = new Rotation2d[4];
     for(int i = 0; i < 4; i++) {
-      moduleIO[i].updateInputs();
+      // 'getCurrentAngleDeg()' will call updateInputs internally.
+      //moduleIO[i].updateInputs();
       moduleAngles[i] = Rotation2d.fromDegrees(moduleIO[i].getCurrentAngleDeg());
       // System.out.println(moduleAngles[i].getDegrees());
       SmartDashboard.putNumber("moduleAngles" + i, moduleAngles[i].getDegrees());
     }
     return moduleAngles;
   }
+  
   public void resetSwerveOffsets() {
     for(int i = 0; i < 4; i++) {
       moduleIO[i].setZeroOffset(0);

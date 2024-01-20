@@ -150,10 +150,8 @@ public class SwerveModuleIO {
         }
         else { // use closed loop PID to determine drive speed and steer position
             drivePID.setReference(targetState.speedMetersPerSecond, ControlType.kVelocity);
-
             steerPID.setReference(angleRateLimiter.calculate(targetState.angle.getRadians()), ControlType.kPosition, 0); // Set steering angle, with slew rate limiter.
         }
-
     }
     public void setDriveBrakeMode(boolean enable) {
         driveMotor.setIdleMode(enable ? IdleMode.kBrake : IdleMode.kCoast);
@@ -166,7 +164,8 @@ public class SwerveModuleIO {
         steerMotor.stopMotor();
     }
     public void setZeroOffset(double offset) {
-        System.out.println("SetZeroOffset: setting offset to " + (offset * 180 / Math.PI) + " degrees.");
-        steerAbsoluteEncoder.setZeroOffset(offset);
+        System.out.println("SetZeroOffset: setting offset of " + steerMotor.getDeviceId() + " to " + (offset * 180 / Math.PI) + " degrees.");
+        REVLibError result = steerAbsoluteEncoder.setZeroOffset(offset);
+        System.out.println("SetOffset result: " + result.value);
     }
 }
