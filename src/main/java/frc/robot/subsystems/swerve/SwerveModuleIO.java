@@ -82,11 +82,7 @@ public class SwerveModuleIO {
         // converts to rad/s
         steerAbsoluteEncoder.setPositionConversionFactor(2*Math.PI);
         steerAbsoluteEncoder.setVelocityConversionFactor(2*Math.PI / 60);
-        double offsetModulusRad = MathUtil.inputModulus(offset.getRadians(), 0, 2*Math.PI);
-        
-        System.out.println("SwerveModuleIO: Setting absolute encoder offset of " + steerID + " to " + (offsetModulusRad * 180 / Math.PI) + " degrees.");
-        REVLibError result = steerAbsoluteEncoder.setZeroOffset(offsetModulusRad);
-        System.out.println("Offset result: " + result.value);
+        setZeroOffset(offset);
         
         drivePID = driveMotor.getPIDController();
         steerPID = steerMotor.getPIDController();
@@ -163,9 +159,11 @@ public class SwerveModuleIO {
         driveMotor.stopMotor();
         steerMotor.stopMotor();
     }
-    public void setZeroOffset(double offset) {
-        System.out.println("SetZeroOffset: setting offset of " + steerMotor.getDeviceId() + " to " + (offset * 180 / Math.PI) + " degrees.");
-        REVLibError result = steerAbsoluteEncoder.setZeroOffset(offset);
+    public void setZeroOffset(Rotation2d offset) {
+        double offsetModulusRad = MathUtil.inputModulus(offset.getRadians(), 0, 2*Math.PI);
+        
+        System.out.println("SetZeroOffset: setting offset of " + steerMotor.getDeviceId() + " to " + offsetModulusRad + " radians.");
+        REVLibError result = steerAbsoluteEncoder.setZeroOffset(offsetModulusRad);
         System.out.println("SetOffset result: " + result.value);
     }
 }

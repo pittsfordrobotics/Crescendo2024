@@ -71,10 +71,10 @@ public class Swerve extends SubsystemBase {
     Rotation2d blOffset = offsets.BLOffset.plus(Rotation2d.fromDegrees(-180));
     Rotation2d brOffset = offsets.BROffset.plus(Rotation2d.fromDegrees(-270));
     
-    moduleFL = new SwerveModuleIO(SwerveConstants.CAN_FL_DRIVE, SwerveConstants.CAN_FL_STEER, offsets.FLOffset);
-    moduleFR = new SwerveModuleIO(SwerveConstants.CAN_FR_DRIVE, SwerveConstants.CAN_FR_STEER, offsets.FROffset);
-    moduleBL = new SwerveModuleIO(SwerveConstants.CAN_BL_DRIVE, SwerveConstants.CAN_BL_STEER, offsets.BLOffset);
-    moduleBR = new SwerveModuleIO(SwerveConstants.CAN_BR_DRIVE, SwerveConstants.CAN_BR_STEER, offsets.BROffset);
+    moduleFL = new SwerveModuleIO(SwerveConstants.CAN_FL_DRIVE, SwerveConstants.CAN_FL_STEER, flOffset);
+    moduleFR = new SwerveModuleIO(SwerveConstants.CAN_FR_DRIVE, SwerveConstants.CAN_FR_STEER, frOffset);
+    moduleBL = new SwerveModuleIO(SwerveConstants.CAN_BL_DRIVE, SwerveConstants.CAN_BL_STEER, blOffset);
+    moduleBR = new SwerveModuleIO(SwerveConstants.CAN_BR_DRIVE, SwerveConstants.CAN_BR_STEER, brOffset);
 
     SmartDashboard.putNumber("FL_PURE_OFFSET", offsets.FLOffset.getDegrees());
     SmartDashboard.putNumber("FR_PURE_OFFSET", offsets.FROffset.getDegrees());
@@ -227,10 +227,10 @@ public class Swerve extends SubsystemBase {
     }
     return moduleAngles;
   }
-  
+
   public void resetSwerveOffsets() {
     for(int i = 0; i < 4; i++) {
-      moduleIO[i].setZeroOffset(0);
+      moduleIO[i].setZeroOffset(Rotation2d.fromDegrees(0));
     }
   }
   // public void updateSwerveOffsets() {

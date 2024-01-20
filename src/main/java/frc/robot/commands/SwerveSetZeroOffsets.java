@@ -50,13 +50,13 @@ public class SwerveSetZeroOffsets extends Command {
     offsets.saveToConfigFile();
 
     // Display these values to the SmartDashboard
-    ShuffleboardTab configTab = Shuffleboard.getTab("CONFIG"); // Creating the smartdashboard tab if not already created
-    configTab.addDoubleArray("Swerve Offsets", () -> new double[] {
-        offsets.FLOffset.getDegrees(),
-        offsets.FROffset.getDegrees(),
-        offsets.BROffset.getDegrees(),
-        offsets.BLOffset.getDegrees()
-    }); 
+    // ShuffleboardTab configTab = Shuffleboard.getTab("CONFIG"); // Creating the smartdashboard tab if not already created
+    // configTab.addDoubleArray("Swerve Offsets", () -> new double[] {
+    //     offsets.FLOffset.getDegrees(),
+    //     offsets.FROffset.getDegrees(),
+    //     offsets.BROffset.getDegrees(),
+    //     offsets.BLOffset.getDegrees()
+    // });
 
     // Set the new offsets
     // swerveDrive.updateSwerveOffsets();
