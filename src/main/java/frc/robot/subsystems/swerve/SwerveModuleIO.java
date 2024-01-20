@@ -7,6 +7,7 @@ package frc.robot.subsystems.swerve;
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.CANSparkBase;
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.REVLibError;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkPIDController;
 import com.revrobotics.CANSparkBase.ControlType;
@@ -81,8 +82,11 @@ public class SwerveModuleIO {
         // converts to rad/s
         steerAbsoluteEncoder.setPositionConversionFactor(2*Math.PI);
         steerAbsoluteEncoder.setVelocityConversionFactor(2*Math.PI / 60);
-        System.out.println(MathUtil.inputModulus(offset.getRadians(), 0, 2*Math.PI)*180/Math.PI);
-        steerAbsoluteEncoder.setZeroOffset(MathUtil.inputModulus(offset.getRadians(), 0, 2*Math.PI));
+        double offsetModulusRad = MathUtil.inputModulus(offset.getRadians(), 0, 2*Math.PI);
+        
+        System.out.println("SwerveModuleIO: Setting absolute encoder offset of " + steerID + " to " + (offsetModulusRad * 180 / Math.PI) + " degrees.");
+        REVLibError result = steerAbsoluteEncoder.setZeroOffset(offsetModulusRad);
+        System.out.println("Offset result: " + result.value);
         
         drivePID = driveMotor.getPIDController();
         steerPID = steerMotor.getPIDController();
@@ -162,6 +166,7 @@ public class SwerveModuleIO {
         steerMotor.stopMotor();
     }
     public void setZeroOffset(double offset) {
+        System.out.println("SetZeroOffset: setting offset to " + (offset * 180 / Math.PI) + " degrees.");
         steerAbsoluteEncoder.setZeroOffset(offset);
     }
 }

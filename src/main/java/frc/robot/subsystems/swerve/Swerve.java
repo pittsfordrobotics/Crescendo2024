@@ -49,8 +49,8 @@ public class Swerve extends SubsystemBase {
   // private final SecondOrderKinematics kinematics = SwerveConstants.BETTER_DRIVE_KINEMATICS;
   private final SwerveDriveKinematics kinematics = SwerveConstants.DRIVE_KINEMATICS;
   private final SwerveDriveOdometry odometry;
-  private final SwerveOffsets moduleOffsets;
-  Rotation2d[] offsets;
+  //private final SwerveOffsets moduleOffsets;
+  //Rotation2d[] offsets;
 
 
   private Rotation2d robotRelativeAngle = new Rotation2d();
@@ -62,16 +62,24 @@ public class Swerve extends SubsystemBase {
     this.setDefaultCommand(new SwerveDriveXbox(this)); // when no command scheduled
     this.zeroGyro();
 
-    moduleOffsets = new SwerveOffsets();
-    offsets = moduleOffsets.getSwerveOffsets();
-    moduleFL = new SwerveModuleIO(SwerveConstants.CAN_FL_DRIVE, SwerveConstants.CAN_FL_STEER, offsets[0]);
-    moduleFR = new SwerveModuleIO(SwerveConstants.CAN_FR_DRIVE, SwerveConstants.CAN_FR_STEER, offsets[1]);
-    moduleBL = new SwerveModuleIO(SwerveConstants.CAN_BL_DRIVE, SwerveConstants.CAN_BL_STEER, offsets[2]);
-    moduleBR = new SwerveModuleIO(SwerveConstants.CAN_BR_DRIVE, SwerveConstants.CAN_BR_STEER, offsets[3]);
-    SmartDashboard.putNumber("FL_OFFSET", offsets[0].getDegrees());
-    SmartDashboard.putNumber("FR_OFFSET", offsets[1].getDegrees());
-    SmartDashboard.putNumber("BL_OFFSET", offsets[2].getDegrees());
-    SmartDashboard.putNumber("BR_OFFSET", offsets[3].getDegrees());
+    SwerveOffsets offsets = SwerveOffsets.readFromConfig();
+
+    // Add angles of offset based on mounting angle of modules
+    // Add in later?
+    Rotation2d flOffset = offsets.FLOffset.plus(Rotation2d.fromDegrees(-90));
+    Rotation2d frOffset = offsets.FROffset.plus(Rotation2d.fromDegrees(0));
+    Rotation2d blOffset = offsets.BLOffset.plus(Rotation2d.fromDegrees(-180));
+    Rotation2d brOffset = offsets.BROffset.plus(Rotation2d.fromDegrees(-270));
+    
+    moduleFL = new SwerveModuleIO(SwerveConstants.CAN_FL_DRIVE, SwerveConstants.CAN_FL_STEER, offsets.FLOffset);
+    moduleFR = new SwerveModuleIO(SwerveConstants.CAN_FR_DRIVE, SwerveConstants.CAN_FR_STEER, offsets.FROffset);
+    moduleBL = new SwerveModuleIO(SwerveConstants.CAN_BL_DRIVE, SwerveConstants.CAN_BL_STEER, offsets.BLOffset);
+    moduleBR = new SwerveModuleIO(SwerveConstants.CAN_BR_DRIVE, SwerveConstants.CAN_BR_STEER, offsets.BROffset);
+
+    SmartDashboard.putNumber("FL_PURE_OFFSET", offsets.FLOffset.getDegrees());
+    SmartDashboard.putNumber("FR_PURE_OFFSET", offsets.FROffset.getDegrees());
+    SmartDashboard.putNumber("BL_PURE_OFFSET", offsets.BLOffset.getDegrees());
+    SmartDashboard.putNumber("BR_PURE_OFFSET", offsets.BROffset.getDegrees());
 
     moduleIO = new SwerveModuleIO[]{moduleFL, moduleFR, moduleBL, moduleBR}; // initializes motors and encoders for all 4 swerve modules.
     for (int i = 0; i < 4; i++) {
@@ -87,10 +95,10 @@ public class Swerve extends SubsystemBase {
   }
   @Override
   public void periodic() {
-    SmartDashboard.putNumber("FL_OFFSET", offsets[0].getDegrees());
-    SmartDashboard.putNumber("FR_OFFSET", offsets[1].getDegrees());
-    SmartDashboard.putNumber("BL_OFFSET", offsets[2].getDegrees());
-    SmartDashboard.putNumber("BR_OFFSET", offsets[3].getDegrees());
+    // SmartDashboard.putNumber("FL_OFFSET", offsets[0].getDegrees());
+    // SmartDashboard.putNumber("FR_OFFSET", offsets[1].getDegrees());
+    // SmartDashboard.putNumber("BL_OFFSET", offsets[2].getDegrees());
+    // SmartDashboard.putNumber("BR_OFFSET", offsets[3].getDegrees());
     this.getModuleAngles();
     // This method will be called once per scheduler run
   }
@@ -114,6 +122,7 @@ public class Swerve extends SubsystemBase {
     this.targetAngle = targetAngleRad;
     updateSwerveModuleStates(xAxis, yAxis);
   };
+
   public void updateSwerveModuleStates(double xAxis, double yAxis) {
     // Set X and Y speeds based on max motor RPM.
     double targetSpeedX = xAxis * SwerveConstants.MAX_LINEAR_VELOCITY_METERS_PER_SECOND;
@@ -203,9 +212,9 @@ public class Swerve extends SubsystemBase {
     pigeon.setYaw(0);
   }
   /** Get robot pose */
-  public Pose2d getRobotPose() {
-    return pose;
-  }
+   public Pose2d getRobotPose() {
+     return pose;
+   }
   /** Get angles of swerve modules */
   public Rotation2d[] getModuleAngles() {
     Rotation2d[] moduleAngles = new Rotation2d[4];
@@ -222,9 +231,9 @@ public class Swerve extends SubsystemBase {
       moduleIO[i].setZeroOffset(0);
     }
   }
-  public void updateSwerveOffsets() {
-    for(int i = 0; i < 4; i++) {
-      moduleIO[i].setZeroOffset(moduleOffsets.getSwerveOffsets()[i].getRadians());
-    }
-  }
+  // public void updateSwerveOffsets() {
+  //   for(int i = 0; i < 4; i++) {
+  //     moduleIO[i].setZeroOffset(moduleOffsets.getSwerveOffsets()[i].getRadians());
+  //   }
+  // }
 }
