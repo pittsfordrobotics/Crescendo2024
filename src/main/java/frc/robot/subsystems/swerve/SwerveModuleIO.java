@@ -155,6 +155,11 @@ public class SwerveModuleIO {
     public void setSteerBrakeMode(boolean enable) {
         steerMotor.setIdleMode(enable ? IdleMode.kBrake : IdleMode.kCoast);
     }
+
+    public void toggleSteerBrakeMode() {
+        this.setSteerBrakeMode(steerMotor.getIdleMode()==IdleMode.kCoast);
+    }
+
     public void stopMotors() {
         driveMotor.stopMotor();
         steerMotor.stopMotor();
