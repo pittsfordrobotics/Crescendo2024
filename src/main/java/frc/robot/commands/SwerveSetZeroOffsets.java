@@ -93,6 +93,8 @@ public class SwerveSetZeroOffsets extends Command {
     } catch (Exception e) {
       e.printStackTrace();
     }
+    //Set the new offsets
+    swerveDrive.updateSwerveOffsets();
   }
 
   // Called once the command ends or is interrupted.

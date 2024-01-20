@@ -43,10 +43,14 @@ public class Swerve extends SubsystemBase {
 
   // Initialize a PID controller for calculating the wanted angular velocity based on the desired angle
   private PIDController SwerveTargetAnglePID = new PIDController(SwerveConstants.ROBOT_ANG_P, SwerveConstants.ROBOT_ANG_I, SwerveConstants.ROBOT_ANG_D);
-  private BetterSwerveModuleState[] wantedModuleStates = new BetterSwerveModuleState[4];
+  // private BetterSwerveModuleState[] wantedModuleStates = new BetterSwerveModuleState[4];
+  private SwerveModuleState[] wantedModuleStates = new SwerveModuleState[4];
   private BetterSwerveModuleState[] actualStates = new BetterSwerveModuleState[4];
-  private final SecondOrderKinematics kinematics = SwerveConstants.BETTER_DRIVE_KINEMATICS;
+  // private final SecondOrderKinematics kinematics = SwerveConstants.BETTER_DRIVE_KINEMATICS;
+  private final SwerveDriveKinematics kinematics = SwerveConstants.DRIVE_KINEMATICS;
   private final SwerveDriveOdometry odometry;
+  private final SwerveOffsets moduleOffsets;
+  Rotation2d[] offsets;
 
 
   private Rotation2d robotRelativeAngle = new Rotation2d();
@@ -58,13 +62,16 @@ public class Swerve extends SubsystemBase {
     this.setDefaultCommand(new SwerveDriveXbox(this)); // when no command scheduled
     this.zeroGyro();
 
-    SwerveOffsets moduleOffsets = new SwerveOffsets();
-    Rotation2d[] offsets = moduleOffsets.getSwerveOffsets();
-    
+    moduleOffsets = new SwerveOffsets();
+    offsets = moduleOffsets.getSwerveOffsets();
     moduleFL = new SwerveModuleIO(SwerveConstants.CAN_FL_DRIVE, SwerveConstants.CAN_FL_STEER, offsets[0]);
     moduleFR = new SwerveModuleIO(SwerveConstants.CAN_FR_DRIVE, SwerveConstants.CAN_FR_STEER, offsets[1]);
     moduleBL = new SwerveModuleIO(SwerveConstants.CAN_BL_DRIVE, SwerveConstants.CAN_BL_STEER, offsets[2]);
     moduleBR = new SwerveModuleIO(SwerveConstants.CAN_BR_DRIVE, SwerveConstants.CAN_BR_STEER, offsets[3]);
+    SmartDashboard.putNumber("FL_OFFSET", offsets[0].getDegrees());
+    SmartDashboard.putNumber("FR_OFFSET", offsets[1].getDegrees());
+    SmartDashboard.putNumber("BL_OFFSET", offsets[2].getDegrees());
+    SmartDashboard.putNumber("BR_OFFSET", offsets[3].getDegrees());
 
     moduleIO = new SwerveModuleIO[]{moduleFL, moduleFR, moduleBL, moduleBR}; // initializes motors and encoders for all 4 swerve modules.
     for (int i = 0; i < 4; i++) {
@@ -80,6 +87,11 @@ public class Swerve extends SubsystemBase {
   }
   @Override
   public void periodic() {
+    SmartDashboard.putNumber("FL_OFFSET", offsets[0].getDegrees());
+    SmartDashboard.putNumber("FR_OFFSET", offsets[1].getDegrees());
+    SmartDashboard.putNumber("BL_OFFSET", offsets[2].getDegrees());
+    SmartDashboard.putNumber("BR_OFFSET", offsets[3].getDegrees());
+    this.getModuleAngles();
     // This method will be called once per scheduler run
   }
    /**Gets the robot's current orientation. Returns the CCW+ angle in a Rotation2d object. */
@@ -123,6 +135,9 @@ public class Swerve extends SubsystemBase {
     SmartDashboard.putNumber("Target Angular Velocity", targetAngularVelocity);
     SmartDashboard.putNumber("Target Angle", targetAngle.getDegrees());
     SmartDashboard.putNumber("Robot Relative Angle", robotRelativeAngle.getDegrees());
+    SmartDashboard.putNumber("targetSpeedX", targetSpeedX);
+    SmartDashboard.putNumber("targetSpeedY", targetSpeedY);
+    
 
     // // Just RightJoystick Code but with PID
     SwerveTargetAnglePID.enableContinuousInput(-Math.PI, Math.PI);
@@ -134,13 +149,15 @@ public class Swerve extends SubsystemBase {
     actualFieldRelativeSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(actualRobotRelativeChassisSpeeds, new Rotation2d().minus(robotRelativeAngle)); //Find actual field relative speeds
     targetFieldRelativeSpeeds = new ChassisSpeeds(targetSpeedX, targetSpeedY, targetAngularVelocity);
     targetRobotRelativeChassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(targetFieldRelativeSpeeds, robotRelativeAngle); // Convert target field relative speeds into chassis speeds
-    wantedModuleStates = kinematics.toSwerveModuleStates(targetRobotRelativeChassisSpeeds); // Use inverse kinematics to get target swerve module states.
-    SecondOrderKinematics.desaturateWheelSpeeds(wantedModuleStates, SwerveConstants.MAX_LINEAR_VELOCITY_METERS_PER_SECOND);
-    for (int i = 0; i < 4; i++) {
-      //TODO: this is more of a hack WE NEED TO FIND THE ACTUAL omegaRadPerSecond FOR FULL SECOND ORDER
-      SwerveModuleState temp = BetterSwerveModuleState.optimize(wantedModuleStates[i], actualStates[i].angle);
-      wantedModuleStates[i] = new BetterSwerveModuleState(temp.speedMetersPerSecond, temp.angle, actualStates[i].omegaRadPerSecond);
-    }
+    // wantedModuleStates = kinematics.toSwerveModuleStates(targetRobotRelativeChassisSpeeds); // Use inverse kinematics to get target swerve module states.
+    wantedModuleStates = kinematics.toSwerveModuleStates(targetRobotRelativeChassisSpeeds);
+    // SecondOrderKinematics.desaturateWheelSpeeds(wantedModuleStates, SwerveConstants.MAX_LINEAR_VELOCITY_METERS_PER_SECOND);
+    // for (int i = 0; i < 4; i++) {
+    //   //TODO: this is more of a hack WE NEED TO FIND THE ACTUAL omegaRadPerSecond FOR FULL SECOND ORDER
+    //   SwerveModuleState temp = BetterSwerveModuleState.optimize(wantedModuleStates[i], actualStates[i].angle);
+    //   wantedModuleStates[i] = new BetterSwerveModuleState(temp.speedMetersPerSecond, temp.angle, actualStates[i].omegaRadPerSecond);
+    //   SmartDashboard.putNumber("wheel target speed" + i, wantedModuleStates[i].speedMetersPerSecond);
+    // }
     
   };
   
@@ -195,13 +212,19 @@ public class Swerve extends SubsystemBase {
     for(int i = 0; i < 4; i++) {
       moduleIO[i].updateInputs();
       moduleAngles[i] = Rotation2d.fromDegrees(moduleIO[i].getCurrentAngleDeg());
-      System.out.println(moduleAngles[i].getDegrees());
+      // System.out.println(moduleAngles[i].getDegrees());
+      SmartDashboard.putNumber("moduleAngles" + i, moduleAngles[i].getDegrees());
     }
     return moduleAngles;
   }
   public void resetSwerveOffsets() {
     for(int i = 0; i < 4; i++) {
-      moduleIO[i].resetOffset();
+      moduleIO[i].setZeroOffset(0);
+    }
+  }
+  public void updateSwerveOffsets() {
+    for(int i = 0; i < 4; i++) {
+      moduleIO[i].setZeroOffset(moduleOffsets.getSwerveOffsets()[i].getRadians());
     }
   }
 }

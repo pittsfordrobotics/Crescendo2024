@@ -79,7 +79,7 @@ public final class SwerveConstants {
         new Translation2d(-X_LENGTH_METERS / 2, Y_LENGTH_METERS / 2), // BL
         new Translation2d(-X_LENGTH_METERS / 2, -Y_LENGTH_METERS / 2), // BR
     };
-    // public static final SwerveDriveKinematics DRIVE_KINEMATICS = new SwerveDriveKinematics(MODULE_OFFSETS);
+    public static final SwerveDriveKinematics DRIVE_KINEMATICS = new SwerveDriveKinematics(MODULE_OFFSETS);
     public static final SecondOrderKinematics BETTER_DRIVE_KINEMATICS = new SecondOrderKinematics(MODULE_OFFSETS);
     
     // controlling module wheel speed

@@ -130,9 +130,6 @@ public class SwerveModuleIO {
         updateInputs();
         return MathUtil.inputModulus(Math.toDegrees(steerAbsolutePositionRad), 0, 360);
     }
-    public void resetOffset() {
-        steerAbsoluteEncoder.setZeroOffset(0);
-    }
     /** <p>Drives the swerve drive based on desired swerve module state.</p>
      * <p>If using closed loop PID, set isOpenLoop to false.</p>
      * @param targetState Target swerve module state.
@@ -163,5 +160,8 @@ public class SwerveModuleIO {
     public void stopMotors() {
         driveMotor.stopMotor();
         steerMotor.stopMotor();
+    }
+    public void setZeroOffset(double offset) {
+        steerAbsoluteEncoder.setZeroOffset(offset);
     }
 }

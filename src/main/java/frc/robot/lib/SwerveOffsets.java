@@ -16,6 +16,10 @@ import edu.wpi.first.math.geometry.Rotation2d;
 
 /** Add your docs here. */
 public class SwerveOffsets {
+    public Rotation2d[] swerveOffsets;
+    public SwerveOffsets() {
+        Rotation2d[] swerveOffsets = new Rotation2d[]{new Rotation2d(), new Rotation2d(), new Rotation2d(), new Rotation2d()};
+    }
     public Rotation2d[] getSwerveOffsets() {
         Map<String, Double> swerveOffsetsMap = new HashMap<String, Double>();
         ObjectMapper objectMapper = new ObjectMapper();
@@ -51,6 +55,8 @@ public class SwerveOffsets {
         Rotation2d BL_OFFSET = BL_PURE_OFFSET.plus(Rotation2d.fromDegrees(-180));
         Rotation2d BR_OFFSET = BR_PURE_OFFSET.plus(Rotation2d.fromDegrees(-270));
 
-        return new Rotation2d[]{FL_PURE_OFFSET, FR_PURE_OFFSET, BL_PURE_OFFSET, BR_PURE_OFFSET};
+        swerveOffsets = new Rotation2d[]{FL_OFFSET, FR_OFFSET, BL_OFFSET, BR_OFFSET};
+
+        return new Rotation2d[]{FL_OFFSET, FR_OFFSET, BL_OFFSET, BR_OFFSET};
     }
     }
