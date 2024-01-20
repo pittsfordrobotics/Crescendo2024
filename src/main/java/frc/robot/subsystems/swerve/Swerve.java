@@ -20,6 +20,7 @@ import frc.robot.commands.SwerveDriveXbox;
 import frc.robot.commands.SwerveSetZeroOffsets;
 import frc.robot.lib.BetterSwerveModuleState;
 import frc.robot.lib.SecondOrderKinematics;
+import frc.robot.lib.SwerveOffsets;
 import edu.wpi.first.math.controller.PIDController;
 
 public class Swerve extends SubsystemBase {
@@ -56,11 +57,14 @@ public class Swerve extends SubsystemBase {
   public Swerve() {
     this.setDefaultCommand(new SwerveDriveXbox(this)); // when no command scheduled
     this.zeroGyro();
+
+    SwerveOffsets moduleOffsets = new SwerveOffsets();
+    Rotation2d[] offsets = moduleOffsets.getSwerveOffsets();
     
-    moduleFL = new SwerveModuleIO(SwerveConstants.CAN_FL_DRIVE, SwerveConstants.CAN_FL_STEER, SwerveConstants.FL_OFFSET);
-    moduleFR = new SwerveModuleIO(SwerveConstants.CAN_FR_DRIVE, SwerveConstants.CAN_FR_STEER, SwerveConstants.FR_OFFSET);
-    moduleBL = new SwerveModuleIO(SwerveConstants.CAN_BL_DRIVE, SwerveConstants.CAN_BL_STEER, SwerveConstants.BL_OFFSET);
-    moduleBR = new SwerveModuleIO(SwerveConstants.CAN_BR_DRIVE, SwerveConstants.CAN_BR_STEER, SwerveConstants.BR_OFFSET);
+    moduleFL = new SwerveModuleIO(SwerveConstants.CAN_FL_DRIVE, SwerveConstants.CAN_FL_STEER, offsets[0]);
+    moduleFR = new SwerveModuleIO(SwerveConstants.CAN_FR_DRIVE, SwerveConstants.CAN_FR_STEER, offsets[1]);
+    moduleBL = new SwerveModuleIO(SwerveConstants.CAN_BL_DRIVE, SwerveConstants.CAN_BL_STEER, offsets[2]);
+    moduleBR = new SwerveModuleIO(SwerveConstants.CAN_BR_DRIVE, SwerveConstants.CAN_BR_STEER, offsets[3]);
 
     moduleIO = new SwerveModuleIO[]{moduleFL, moduleFR, moduleBL, moduleBR}; // initializes motors and encoders for all 4 swerve modules.
     for (int i = 0; i < 4; i++) {
@@ -80,7 +84,8 @@ public class Swerve extends SubsystemBase {
   }
    /**Gets the robot's current orientation. Returns the CCW+ angle in a Rotation2d object. */
   private Rotation2d getRobotRelativeAngle(){
-    double robotRelativeAngleDeg = pigeon.getYaw().getValueAsDouble();
+    // double robotRelativeAngleDeg = pigeon.getYaw().getValueAsDouble();
+    double robotRelativeAngleDeg = 0; //TODO PUT THE OLD CODE BACK WHEN PIGEON IS AVAILABLE
     
     return Rotation2d.fromRadians(MathUtil.angleModulus(Math.toRadians(robotRelativeAngleDeg)));
   }
@@ -189,8 +194,14 @@ public class Swerve extends SubsystemBase {
     Rotation2d[] moduleAngles = new Rotation2d[4];
     for(int i = 0; i < 4; i++) {
       moduleIO[i].updateInputs();
-      moduleAngles[i] = Rotation2d.fromRadians(moduleIO[i].steerAbsolutePositionRad);
+      moduleAngles[i] = Rotation2d.fromDegrees(moduleIO[i].getCurrentAngleDeg());
+      System.out.println(moduleAngles[i].getDegrees());
     }
     return moduleAngles;
+  }
+  public void resetSwerveOffsets() {
+    for(int i = 0; i < 4; i++) {
+      moduleIO[i].resetOffset();
+    }
   }
 }

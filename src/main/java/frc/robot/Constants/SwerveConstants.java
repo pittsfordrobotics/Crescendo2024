@@ -26,35 +26,6 @@ import frc.robot.lib.SecondOrderKinematics;
 /** Constants for Swerve Drive */
 import frc.robot.subsystems.swerve.Swerve;
 public final class SwerveConstants {
-    public SwerveConstants(){}
-    // Get offsets from file
-    ObjectMapper objectMapper = new ObjectMapper();
-    File swerveOffsetsFile = new File("/home/lvuser/SwerveOffsets.json");
-    {if(!swerveOffsetsFile.exists()) {
-        try {
-            swerveOffsetsFile.createNewFile();
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-    }}
-    static Map<String, Double> swerveOffsetsMap = new HashMap<String, Double>();
-    {try {
-        swerveOffsetsMap = objectMapper.readValue(swerveOffsetsFile, new TypeReference<Map<String, Double>>(){});
-    } catch (Exception e) {
-        e.printStackTrace();
-    }}
-    
-    //If the Shuffleboard data exists, use it instead of file.
-    // ShuffleboardTab configTab = Shuffleboard.getTab("CONFIG");
-    // private Double[] offsetsEntry = configTab.add("Swerve Offsets", 1).getEntry().getDoubleArray(new Double[]{7.0,7.0,7.0,7.0});
-    // {if(offsetsEntry[0] != 7.0){
-    //     swerveOffsetsMap.clear();
-    //     swerveOffsetsMap.put("FL_PURE_OFFSET", offsetsEntry[0]);
-    //     swerveOffsetsMap.put("FR_PURE_OFFSET", offsetsEntry[1]);
-    //     swerveOffsetsMap.put("BL_PURE_OFFSET", offsetsEntry[2]);
-    //     swerveOffsetsMap.put("BR_PURE_OFFSET", offsetsEntry[3]);
-    // }}
     
     public static final double driverControllerLeftDeadband = 0.1;
     public static final double driverControllerRightDeadband = 0.95;
@@ -110,18 +81,6 @@ public final class SwerveConstants {
     };
     // public static final SwerveDriveKinematics DRIVE_KINEMATICS = new SwerveDriveKinematics(MODULE_OFFSETS);
     public static final SecondOrderKinematics BETTER_DRIVE_KINEMATICS = new SecondOrderKinematics(MODULE_OFFSETS);
-
-    // Measured module angles when using alignment tool
-    public static final Rotation2d FL_PURE_OFFSET = Rotation2d.fromDegrees(swerveOffsetsMap.getOrDefault("FL_PURE_OFFSET", 0.0));
-    public static final Rotation2d FR_PURE_OFFSET = Rotation2d.fromDegrees(swerveOffsetsMap.getOrDefault("FR_PURE_OFFSET", 0.0));
-    public static final Rotation2d BL_PURE_OFFSET = Rotation2d.fromDegrees(swerveOffsetsMap.getOrDefault("BL_PURE_OFFSET", 0.0));
-    public static final Rotation2d BR_PURE_OFFSET = Rotation2d.fromDegrees(swerveOffsetsMap.getOrDefault("BR_PURE_OFFSET", 0.0));
-
-    // Add angles of offset based on mounting angle of modules
-    public static final Rotation2d FL_OFFSET = FL_PURE_OFFSET.plus(Rotation2d.fromDegrees(-90));
-    public static final Rotation2d FR_OFFSET = FR_PURE_OFFSET.plus(Rotation2d.fromDegrees(0));
-    public static final Rotation2d BL_OFFSET = BL_PURE_OFFSET.plus(Rotation2d.fromDegrees(-180));
-    public static final Rotation2d BR_OFFSET = BR_PURE_OFFSET.plus(Rotation2d.fromDegrees(-270));
     
     // controlling module wheel speed
     public static final double MODULE_DRIVE_P = 0.1;

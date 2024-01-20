@@ -81,6 +81,7 @@ public class SwerveModuleIO {
         // converts to rad/s
         steerAbsoluteEncoder.setPositionConversionFactor(2*Math.PI);
         steerAbsoluteEncoder.setVelocityConversionFactor(2*Math.PI / 60);
+        System.out.println(MathUtil.inputModulus(offset.getRadians(), 0, 2*Math.PI)*180/Math.PI);
         steerAbsoluteEncoder.setZeroOffset(MathUtil.inputModulus(offset.getRadians(), 0, 2*Math.PI));
         
         drivePID = driveMotor.getPIDController();
@@ -128,6 +129,9 @@ public class SwerveModuleIO {
     public double getCurrentAngleDeg() {
         updateInputs();
         return MathUtil.inputModulus(Math.toDegrees(steerAbsolutePositionRad), 0, 360);
+    }
+    public void resetOffset() {
+        steerAbsoluteEncoder.setZeroOffset(0);
     }
     /** <p>Drives the swerve drive based on desired swerve module state.</p>
      * <p>If using closed loop PID, set isOpenLoop to false.</p>

@@ -33,6 +33,15 @@ public class SwerveSetZeroOffsets extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
+  }
+  @Override
+  public boolean runsWhenDisabled(){
+    return true;
+  }
+
+  // Called every time the scheduler runs while the command is scheduled.
+  @Override
+  public void execute() {
     // Open the JSON file containing swerve module offsets
     ObjectMapper objectMapper = new ObjectMapper();
     File swerveOffsetsFile = new File("/home/lvuser/SwerveOffsets.json");
@@ -40,6 +49,7 @@ public class SwerveSetZeroOffsets extends Command {
     
 
     //Create SwerveModuleIO objects to measure the current angle of the swerve modules
+    swerveDrive.resetSwerveOffsets();
     Rotation2d[] moduleAngles = swerveDrive.getModuleAngles();
     //Check the angle of modules and put them in the hashmap
     swerveOffsetsMap.put("FL_PURE_OFFSET", moduleAngles[0].getDegrees());
@@ -49,34 +59,41 @@ public class SwerveSetZeroOffsets extends Command {
 
     //Save these values to the SmartDashboard
     ShuffleboardTab configTab = Shuffleboard.getTab("CONFIG"); //Creating the smartdashboard tab if not already created
-    Supplier<double[]> offsetSupplier = new Supplier<double[]>() {
-      @Override
-      public double[] get(){
-        double[] doubleArray = new double[4];
-        doubleArray[0] = swerveOffsetsMap.get("FL_PURE_OFFSET");
-        doubleArray[1] = swerveOffsetsMap.get("FR_PURE_OFFSET");
-        doubleArray[2] = swerveOffsetsMap.get("BL_PURE_OFFSET");
-        doubleArray[3] = swerveOffsetsMap.get("BR_PURE_OFFSET");
-        return doubleArray;
+    // Supplier<double[]> offsetSupplier = new Supplier<double[]>() {
+    //   @Override
+    //   public double[] get(){
+    //     double[] doubleArray = new double[4];
+    //     doubleArray[0] = swerveOffsetsMap.get("FL_PURE_OFFSET");
+    //     doubleArray[1] = swerveOffsetsMap.get("FR_PURE_OFFSET");
+    //     doubleArray[2] = swerveOffsetsMap.get("BL_PURE_OFFSET");
+    //     doubleArray[3] = swerveOffsetsMap.get("BR_PURE_OFFSET");
+    //     return doubleArray;
+    //   }
+    // };
+    configTab.addDoubleArray("Swerve Offsets", () -> new double[]{
+        swerveOffsetsMap.get("FL_PURE_OFFSET"),
+        swerveOffsetsMap.get("FR_PURE_OFFSET"),
+        swerveOffsetsMap.get("BL_PURE_OFFSET"),
+        swerveOffsetsMap.get("BR_PURE_OFFSET")
       }
-    };
-    //configTab.addDoubleArray("Swerve Offsets", offsetSupplier); //Adding them to the smartdashboard tab
+    ); //Adding them to the smartdashboard tab
 
     //Save these values in the JSON file
     try {
+      System.out.println("Checking file");
+      System.out.println(swerveOffsetsFile.getAbsolutePath());
+      if(swerveOffsetsFile.exists()) {
+        System.out.println("Deleting file");
+        swerveOffsetsFile.delete();
+      }
+      System.out.println("Creating file");
+      swerveOffsetsFile.createNewFile();
+      System.out.println("Writing values");
       objectMapper.writeValue(swerveOffsetsFile, swerveOffsetsMap);
     } catch (Exception e) {
       e.printStackTrace();
     }
   }
-  @Override
-  public boolean runsWhenDisabled(){
-    return true;
-  }
-
-  // Called every time the scheduler runs while the command is scheduled.
-  @Override
-  public void execute() {}
 
   // Called once the command ends or is interrupted.
   @Override
@@ -85,6 +102,6 @@ public class SwerveSetZeroOffsets extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return false;
+    return true;
   }
 }
