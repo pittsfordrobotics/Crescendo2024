@@ -22,6 +22,7 @@ import frc.robot.commands.SwerveSetZeroOffsets;
 import frc.robot.lib.BetterSwerveModuleState;
 import frc.robot.lib.SecondOrderKinematics;
 import frc.robot.lib.SwerveOffsets;
+import frc.robot.lib.SwerveOptimizer;
 import edu.wpi.first.math.controller.PIDController;
 
 public class Swerve extends SubsystemBase {
@@ -162,6 +163,10 @@ public class Swerve extends SubsystemBase {
     targetRobotRelativeChassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(targetFieldRelativeSpeeds, robotRelativeAngle); // Convert target field relative speeds into chassis speeds
     // wantedModuleStates = kinematics.toSwerveModuleStates(targetRobotRelativeChassisSpeeds); // Use inverse kinematics to get target swerve module states.
     wantedModuleStates = kinematics.toSwerveModuleStates(targetRobotRelativeChassisSpeeds);
+    for (int i = 0; i < 4; i++) {
+      wantedModuleStates[i] = SwerveOptimizer.optimize(wantedModuleStates[i], robotRelativeAngle);
+    }
+
     // SecondOrderKinematics.desaturateWheelSpeeds(wantedModuleStates, SwerveConstants.MAX_LINEAR_VELOCITY_METERS_PER_SECOND);
     // for (int i = 0; i < 4; i++) {
     //   //TODO: this is more of a hack WE NEED TO FIND THE ACTUAL omegaRadPerSecond FOR FULL SECOND ORDER
