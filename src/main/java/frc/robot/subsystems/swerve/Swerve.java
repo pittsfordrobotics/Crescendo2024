@@ -54,7 +54,6 @@ public class Swerve extends SubsystemBase {
   //private final SwerveOffsets moduleOffsets;
   //Rotation2d[] offsets;
 
-
   private Rotation2d robotRelativeAngle = new Rotation2d();
   private Rotation2d targetAngle = new Rotation2d();
   private Pigeon2 pigeon= new Pigeon2(SwerveConstants.CAN_PIGEON);
@@ -150,7 +149,6 @@ public class Swerve extends SubsystemBase {
     SmartDashboard.putNumber("targetSpeedX", targetSpeedX);
     SmartDashboard.putNumber("targetSpeedY", targetSpeedY);
     
-
     // // Just RightJoystick Code but with PID
     SwerveTargetAnglePID.enableContinuousInput(-Math.PI, Math.PI);
     SwerveTargetAnglePID.setTolerance(1/120);

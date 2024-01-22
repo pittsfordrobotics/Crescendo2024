@@ -164,7 +164,8 @@ public class SwerveModuleIO {
         driveMotor.stopMotor();
         steerMotor.stopMotor();
     }
-    public void setZeroOffset(Rotation2d offset) {
+
+  public void setZeroOffset(Rotation2d offset) {
         double offsetModulusRad = MathUtil.inputModulus(offset.getRadians(), 0, 2*Math.PI);
         
         System.out.println("SetZeroOffset: setting offset of " + steerMotor.getDeviceId() + " to " + offsetModulusRad + " radians.");
