@@ -30,7 +30,7 @@ public class SwerveDriveXbox extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    swerveDrive.zeroGyro();
+    // swerveDrive.zeroGyro();
   }
 
   // Called every time the scheduler runs while the command is scheduled.

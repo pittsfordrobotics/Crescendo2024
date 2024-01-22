@@ -7,6 +7,7 @@ package frc.robot.subsystems.swerve;
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.CANSparkBase;
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.REVLibError;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkPIDController;
 import com.revrobotics.CANSparkBase.ControlType;
@@ -81,7 +82,7 @@ public class SwerveModuleIO {
         // converts to rad/s
         steerAbsoluteEncoder.setPositionConversionFactor(2*Math.PI);
         steerAbsoluteEncoder.setVelocityConversionFactor(2*Math.PI / 60);
-        steerAbsoluteEncoder.setZeroOffset(MathUtil.inputModulus(offset.getRadians(), 0, 2*Math.PI));
+        setZeroOffset(offset);
         
         drivePID = driveMotor.getPIDController();
         steerPID = steerMotor.getPIDController();
@@ -145,10 +146,8 @@ public class SwerveModuleIO {
         }
         else { // use closed loop PID to determine drive speed and steer position
             drivePID.setReference(targetState.speedMetersPerSecond, ControlType.kVelocity);
-
             steerPID.setReference(angleRateLimiter.calculate(targetState.angle.getRadians()), ControlType.kPosition, 0); // Set steering angle, with slew rate limiter.
         }
-
     }
     public void setDriveBrakeMode(boolean enable) {
         driveMotor.setIdleMode(enable ? IdleMode.kBrake : IdleMode.kCoast);
@@ -156,8 +155,21 @@ public class SwerveModuleIO {
     public void setSteerBrakeMode(boolean enable) {
         steerMotor.setIdleMode(enable ? IdleMode.kBrake : IdleMode.kCoast);
     }
+
+    public void toggleSteerBrakeMode() {
+        this.setSteerBrakeMode(steerMotor.getIdleMode()==IdleMode.kCoast);
+    }
+
     public void stopMotors() {
         driveMotor.stopMotor();
         steerMotor.stopMotor();
+    }
+
+  public void setZeroOffset(Rotation2d offset) {
+        double offsetModulusRad = MathUtil.inputModulus(offset.getRadians(), 0, 2*Math.PI);
+        
+        System.out.println("SetZeroOffset: setting offset of " + steerMotor.getDeviceId() + " to " + offsetModulusRad + " radians.");
+        REVLibError result = steerAbsoluteEncoder.setZeroOffset(offsetModulusRad);
+        System.out.println("SetOffset result: " + result.value);
     }
 }

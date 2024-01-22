@@ -6,10 +6,9 @@ package frc.robot;
 
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.Autos;
-import frc.robot.commands.Intake;
+import frc.robot.commands.DriveShooter;
 import frc.robot.commands.ZeroGyro;
-import frc.robot.subsystems.EndEffector;
-import frc.robot.subsystems.ExampleSubsystem;
+import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.swerve.Swerve;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -23,9 +22,8 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
  */
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
-  private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
-  private final EndEffector m_endEffector = new EndEffector(); 
   private final Swerve m_swerveDrive = new Swerve();
+  //private final Shooter m_shooter = new Shooter();
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final CommandXboxController m_driverController =
@@ -47,16 +45,11 @@ public class RobotContainer {
    * joysticks}.
    */
   private void configureBindings() {
-
-    // Schedule `exampleMethodCommand` when the Xbox controller's B button is pressed,
-    // cancelling on release.
-    Intake intakeCommand = new Intake(m_endEffector);
-    m_driverController.a().whileTrue(intakeCommand);
-
     // Calls the command ZeroGyro when the right bumper on the drivers controller is pressed
     ZeroGyro zeroGyro = new ZeroGyro(m_swerveDrive);
     m_driverController.rightBumper().whileTrue(zeroGyro);
- 
+    //DriveShooter shooterCommand = new DriveShooter(m_shooter, m_driverController::getRightTriggerAxis, m_driverController::getLeftTriggerAxis);
+    //m_shooter.setDefaultCommand(shooterCommand);
   }
 
   /**
@@ -65,7 +58,7 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    // An example command will be run in autonomous
-    return Autos.exampleAuto(m_exampleSubsystem);
+    // Choreo swerve auto
+    return Autos.choreoSwerveAuto(m_swerveDrive, "NewPath");
   }
 }

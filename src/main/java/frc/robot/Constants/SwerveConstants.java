@@ -5,6 +5,7 @@
 package frc.robot.Constants;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -14,21 +15,17 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.util.Units;
-/** Add your docs here. */
-public final class SwerveConstants {
-    ObjectMapper objectMapper = new ObjectMapper();
-    File swerveOffsetsFile = new File("/temp/SwerveOffsets.json");
-    static Map<String, Double> swerveOffsetsMap = new HashMap<String, Double>();
-    {
-    try {
-        swerveOffsetsMap = objectMapper.readValue(swerveOffsetsFile, new TypeReference<Map<String, Double>>(){});
-    } catch (Exception e) {
-        e.printStackTrace();
-    }
-    }
-    
-    
+import edu.wpi.first.networktables.GenericEntry;
+import edu.wpi.first.util.sendable.Sendable;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import frc.robot.lib.SecondOrderKinematics;
+/** Constants for Swerve Drive */
+import frc.robot.subsystems.swerve.Swerve;
+public final class SwerveConstants {    
     public static final double driverControllerLeftDeadband = 0.1;
     public static final double driverControllerRightDeadband = 0.95;
     public static final int CAN_PIGEON = 0;
@@ -36,14 +33,14 @@ public final class SwerveConstants {
     public static int driveMaxRPM = 5676;
 
     // CAN ID of each motor
-    public static final int CAN_BL_DRIVE = 5;
-    public static final int CAN_BL_STEER = 6;
-    public static final int CAN_BR_DRIVE = 1;
-    public static final int CAN_BR_STEER = 2;
-    public static final int CAN_FL_DRIVE = 7;
-    public static final int CAN_FL_STEER = 8;
+    public static final int CAN_FL_DRIVE = 1;
+    public static final int CAN_FL_STEER = 2;
     public static final int CAN_FR_DRIVE = 3;
     public static final int CAN_FR_STEER = 4;
+    public static final int CAN_BL_DRIVE = 5;
+    public static final int CAN_BL_STEER = 6;
+    public static final int CAN_BR_DRIVE = 7;
+    public static final int CAN_BR_STEER = 8;
     /**
      *  Pinon    Gear Ratio    Max Speed [m/s] (approximate)
      *   12T 	   5.50:1 	      4.12
@@ -82,18 +79,7 @@ public final class SwerveConstants {
         new Translation2d(-X_LENGTH_METERS / 2, -Y_LENGTH_METERS / 2), // BR
     };
     public static final SwerveDriveKinematics DRIVE_KINEMATICS = new SwerveDriveKinematics(MODULE_OFFSETS);
-
-    // Measured module angles when using alignment tool
-    public static final Rotation2d FL_PURE_OFFSET = Rotation2d.fromDegrees(swerveOffsetsMap.getOrDefault("FL_PURE_OFFSET", 0.0));
-    public static final Rotation2d FR_PURE_OFFSET = Rotation2d.fromDegrees(swerveOffsetsMap.getOrDefault("FR_PURE_OFFSET", 0.0));
-    public static final Rotation2d BL_PURE_OFFSET = Rotation2d.fromDegrees(swerveOffsetsMap.getOrDefault("BL_PURE_OFFSET", 0.0));
-    public static final Rotation2d BR_PURE_OFFSET = Rotation2d.fromDegrees(swerveOffsetsMap.getOrDefault("BR_PURE_OFFSET", 0.0));
-
-    // Add angles of offset based on mounting angle of modules
-    public static final Rotation2d FL_OFFSET = FL_PURE_OFFSET.plus(Rotation2d.fromDegrees(-90));
-    public static final Rotation2d FR_OFFSET = FR_PURE_OFFSET.plus(Rotation2d.fromDegrees(0));
-    public static final Rotation2d BL_OFFSET = BL_PURE_OFFSET.plus(Rotation2d.fromDegrees(-180));
-    public static final Rotation2d BR_OFFSET = BR_PURE_OFFSET.plus(Rotation2d.fromDegrees(-270));
+    public static final SecondOrderKinematics BETTER_DRIVE_KINEMATICS = new SecondOrderKinematics(MODULE_OFFSETS);
     
     // controlling module wheel speed
     public static final double MODULE_DRIVE_P = 0.1;
