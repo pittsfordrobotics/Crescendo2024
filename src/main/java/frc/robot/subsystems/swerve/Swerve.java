@@ -233,6 +233,15 @@ public class Swerve extends SubsystemBase {
     return moduleAngles;
   }
 
+  public Rotation2d[] getModuleZeroOffsets() {
+    Rotation2d[] currentOffsets = new Rotation2d[4];
+    for (int i = 0; i < 4; i++) {
+      currentOffsets[i] = Rotation2d.fromRadians(moduleIO[i].getZeroOffsetRadians());
+    }
+
+    return currentOffsets;
+  }
+
   public void resetSwerveOffsets() {
     for(int i = 0; i < 4; i++) {
       moduleIO[i].setZeroOffset(Rotation2d.fromDegrees(0));

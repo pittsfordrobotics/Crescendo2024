@@ -172,4 +172,8 @@ public class SwerveModuleIO {
         REVLibError result = steerAbsoluteEncoder.setZeroOffset(offsetModulusRad);
         System.out.println("SetOffset result: " + result.value);
     }
+
+    public double getZeroOffsetRadians() {
+        return steerAbsoluteEncoder.getZeroOffset();
+    }
 }
