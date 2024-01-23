@@ -36,45 +36,27 @@ public class SwerveSetZeroOffsets extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    // TEST TEST TEST
-    // Try calculating the new offset without resetting the zero.
     Rotation2d[] offsetModuleAngles = swerveDrive.getModuleAngles();
     Rotation2d[] currentOffsets = swerveDrive.getModuleZeroOffsets();
 
-    double calculatedFLOffset = offsetModuleAngles[0].plus(currentOffsets[0]).getDegrees();
-    double calculatedFROffset = offsetModuleAngles[1].plus(currentOffsets[1]).getDegrees();
-    double calculatedBLOffset = offsetModuleAngles[2].plus(currentOffsets[2]).getDegrees();
-    double calculatedBROffset = offsetModuleAngles[3].plus(currentOffsets[3]).getDegrees();
+    Rotation2d calculatedFLOffset = offsetModuleAngles[0].plus(currentOffsets[0]);
+    Rotation2d calculatedFROffset = offsetModuleAngles[1].plus(currentOffsets[1]);
+    Rotation2d calculatedBLOffset = offsetModuleAngles[2].plus(currentOffsets[2]);
+    Rotation2d calculatedBROffset = offsetModuleAngles[3].plus(currentOffsets[3]);
 
-    System.out.println("Calculated FL offset: " + calculatedFLOffset);
-    System.out.println("Calculated FR offset: " + calculatedFROffset);
-    System.out.println("Calculated BL offset: " + calculatedBLOffset);
-    System.out.println("Calculated BR offset: " + calculatedBROffset);
-    // END OF TEST
+    System.out.println("Calculated FL offset: " + calculatedFLOffset.getDegrees());
+    System.out.println("Calculated FR offset: " + calculatedFROffset.getDegrees());
+    System.out.println("Calculated BL offset: " + calculatedBLOffset.getDegrees());
+    System.out.println("Calculated BR offset: " + calculatedBROffset.getDegrees());
 
-    // Set the offsets to zero to get the raw values
-    swerveDrive.resetSwerveOffsets();
-    
-    // Read the new offsets and save them.
-    Rotation2d[] moduleAngles = swerveDrive.getModuleAngles();
     SwerveOffsets offsets = new SwerveOffsets();
-    offsets.FLOffset = moduleAngles[0];
-    offsets.FROffset = moduleAngles[1];
-    offsets.BLOffset = moduleAngles[2];
-    offsets.BROffset = moduleAngles[3];
+    offsets.FLOffset = calculatedFLOffset;
+    offsets.FROffset = calculatedFROffset;
+    offsets.BLOffset = calculatedBLOffset;
+    offsets.BROffset = calculatedBROffset;
 
     offsets.saveToConfigFile();
 
-    // Display these values to the SmartDashboard
-    // ShuffleboardTab configTab = Shuffleboard.getTab("CONFIG"); // Creating the smartdashboard tab if not already created
-    // configTab.addDoubleArray("Swerve Offsets", () -> new double[] {
-    //     offsets.FLOffset.getDegrees(),
-    //     offsets.FROffset.getDegrees(),
-    //     offsets.BROffset.getDegrees(),
-    //     offsets.BLOffset.getDegrees()
-    // });
-
-    // Set the new offsets
     // swerveDrive.updateSwerveOffsets();
   }
 
