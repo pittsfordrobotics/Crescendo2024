@@ -106,8 +106,7 @@ public class Swerve extends SubsystemBase {
   }
    /**Gets the robot's current orientation. Returns the CCW+ angle in a Rotation2d object. */
   private Rotation2d getRobotRelativeAngle(){
-    // double robotRelativeAngleDeg = pigeon.getYaw().getValueAsDouble();
-    double robotRelativeAngleDeg = 0; //TODO PUT THE OLD CODE BACK WHEN PIGEON IS AVAILABLE
+    double robotRelativeAngleDeg = pigeon.getYaw().getValueAsDouble();
     
     return Rotation2d.fromRadians(MathUtil.angleModulus(Math.toRadians(robotRelativeAngleDeg)));
   }
@@ -162,7 +161,9 @@ public class Swerve extends SubsystemBase {
     // wantedModuleStates = kinematics.toSwerveModuleStates(targetRobotRelativeChassisSpeeds); // Use inverse kinematics to get target swerve module states.
     wantedModuleStates = kinematics.toSwerveModuleStates(targetRobotRelativeChassisSpeeds);
     for (int i = 0; i < 4; i++) {
-      wantedModuleStates[i] = SwerveOptimizer.optimize(wantedModuleStates[i], robotRelativeAngle);
+      // getCurrentAngleDeg calls updateInputs, which is a bit inefficient.
+      Rotation2d currentModuleAngle = Rotation2d.fromDegrees(moduleIO[i].getCurrentAngleDeg());
+      wantedModuleStates[i] = SwerveOptimizer.optimize(wantedModuleStates[i], currentModuleAngle);
     }
 
     // SecondOrderKinematics.desaturateWheelSpeeds(wantedModuleStates, SwerveConstants.MAX_LINEAR_VELOCITY_METERS_PER_SECOND);
