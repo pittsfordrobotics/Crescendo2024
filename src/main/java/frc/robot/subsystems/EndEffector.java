@@ -19,6 +19,7 @@ public class EndEffector extends SubsystemBase {
   private CANSparkMax leftMotor = EndEffectorConstants.leftMotor;
   private CANSparkMax rightMotor = EndEffectorConstants.rightMotor;
   private ArrayList<Double> lastCurrent = new ArrayList<>(numCycles);
+
   /** Creates a new EndEffector. */
   public EndEffector() {
     leftMotor.restoreFactoryDefaults();
@@ -30,28 +31,25 @@ public class EndEffector extends SubsystemBase {
   }
 
   public void start(boolean isIdle) {
-    if(isIdle) {leftMotor.set(-0.15);}
-    else{leftMotor.set(-0.3);}
+    leftMotor.set(isIdle ? -0.15 : -0.3);
   }
+
   public void stop() {
     leftMotor.stopMotor();
   }
+
   public boolean hasIntaken() {
-    if(computeAverage() >= 25) {
-      return true;
-    }
-    else{
-      return false;
-    }
+    return computeAverage() >= 25;
   }
 
   private double computeAverage() {
     double sum = 0;
     for(Double value: lastCurrent) {
       sum += value;    
+    }
+
+    return sum/numCycles;
   }
-  return sum/numCycles;
-}
   @Override
   public void periodic() {
     SmartDashboard.putNumber("left_motor_current", leftMotor.getOutputCurrent());

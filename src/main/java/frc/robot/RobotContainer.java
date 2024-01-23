@@ -5,11 +5,16 @@
 package frc.robot;
 
 import frc.robot.Constants.OperatorConstants;
+<<<<<<< Updated upstream
 import frc.robot.commands.Autos;
 import frc.robot.commands.Intake;
 import frc.robot.commands.ZeroGyro;
 import frc.robot.subsystems.EndEffector;
 import frc.robot.subsystems.ExampleSubsystem;
+=======
+import frc.robot.commands.*;
+import frc.robot.subsystems.Shooter;
+>>>>>>> Stashed changes
 import frc.robot.subsystems.swerve.Swerve;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -26,6 +31,11 @@ public class RobotContainer {
   private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
   private final EndEffector m_endEffector = new EndEffector(); 
   private final Swerve m_swerveDrive = new Swerve();
+<<<<<<< Updated upstream
+=======
+  private final Shooter SHOOTER = new Shooter();
+  //private final Shooter m_shooter = new Shooter();
+>>>>>>> Stashed changes
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final CommandXboxController m_driverController =
@@ -56,7 +66,18 @@ public class RobotContainer {
     // Calls the command ZeroGyro when the right bumper on the drivers controller is pressed
     ZeroGyro zeroGyro = new ZeroGyro(m_swerveDrive);
     m_driverController.rightBumper().whileTrue(zeroGyro);
+<<<<<<< Updated upstream
  
+=======
+    TestShoot ts = new TestShoot(SHOOTER);
+    TestIntake ti = new TestIntake(SHOOTER);
+    m_driverController.a().whileTrue(ts);
+    if(!m_driverController.a().getAsBoolean()) {
+      m_driverController.b().whileTrue(ti);
+    }
+    //DriveShooter shooterCommand = new DriveShooter(m_shooter, m_driverController::getRightTriggerAxis, m_driverController::getLeftTriggerAxis);
+    //m_shooter.setDefaultCommand(shooterCommand);
+>>>>>>> Stashed changes
   }
 
   /**
