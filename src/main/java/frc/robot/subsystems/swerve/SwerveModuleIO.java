@@ -146,7 +146,7 @@ public class SwerveModuleIO {
         }
         else { // use closed loop PID to determine drive speed and steer position
             drivePID.setReference(targetState.speedMetersPerSecond, ControlType.kVelocity);
-            steerPID.setReference(angleRateLimiter.calculate(targetState.angle.getRadians()), ControlType.kPosition, 0); // Set steering angle, with slew rate limiter.
+            steerPID.setReference(targetState.angle.getRadians(), ControlType.kPosition, 0); // Set steering angle, with slew rate limiter.
         }
     }
     public void setDriveBrakeMode(boolean enable) {
