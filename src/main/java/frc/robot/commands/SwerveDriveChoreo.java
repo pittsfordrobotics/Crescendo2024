@@ -4,17 +4,11 @@
 
 package frc.robot.commands;
 
-import java.util.function.BooleanSupplier;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
-
 import com.choreo.lib.Choreo;
 import com.choreo.lib.ChoreoControlFunction;
 import com.choreo.lib.ChoreoTrajectory;
 
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.swerve.Swerve;
 
@@ -33,27 +27,13 @@ public class SwerveDriveChoreo extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    Supplier<Pose2d> poseSupplier = new Supplier<Pose2d>() {
-      @Override
-      public Pose2d get() {
-        return swerveDrive.getRobotPose();
-      }
-    };
     ChoreoControlFunction swerveController = Choreo.choreoSwerveController(new PIDController(5, 0, 0), new PIDController(5, 0, 0), new PIDController(2, 0, 0));
-    swerveCommand = Choreo.choreoSwerveCommand( //
+    swerveCommand = Choreo.choreoSwerveCommand(
       trajectory, 
-      poseSupplier, 
+      swerveDrive::getRobotPose, 
       swerveController, 
-      new Consumer<ChassisSpeeds>() { // Chassis speeds object output
-        @Override
-        public void accept(ChassisSpeeds chassisSpeeds) {swerveDrive.updateSwerveModuleStates(chassisSpeeds);}; // Update Swerve Module States with chassis speeds
-      }, 
-      new BooleanSupplier() { // True if we need the field to be flipped. TODO make it true for red, false for blue
-        @Override
-        public boolean getAsBoolean() {
-          return false;
-        }
-      }, 
+      swerveDrive::updateSwerveModuleStates, // Update Swerve Module States with chassis speeds, 
+      () -> false,  // True if we need the field to be flipped. TODO make it true for red, false for blue
       swerveDrive);
   }
 
