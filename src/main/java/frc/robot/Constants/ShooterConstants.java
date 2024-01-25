@@ -12,6 +12,9 @@ public final class ShooterConstants {
     public static final int CAN_INDEXER_L = 13;
     public static final int CAN_INDEXER_R = 14;
 
+    public static final int CAN_SHOOTER_PIVOT_L = 15;
+    public static final int CAN_SHOOTER_PIVOT_R = 16;
+
     public static final double CAN_SHOOTER_P = 0;
     public static final double CAN_SHOOTER_I = 0;
     public static final double CAN_SHOOTER_D = 5;
@@ -19,4 +22,8 @@ public final class ShooterConstants {
     public static final double CAN_INDEXER_P = 0;
     public static final double CAN_INDEXER_I = 0;
     public static final double CAN_INDEXER_D = 5;
+
+    public static final double CAN_SHOOTER_Pivot_P = 0;
+    public static final double CAN_SHOOTER_Pivot_I = 0;
+    public static final double CAN_SHOOTER_Pivot_D = 5;
 }

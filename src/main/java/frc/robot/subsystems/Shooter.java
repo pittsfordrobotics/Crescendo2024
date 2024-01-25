@@ -19,8 +19,13 @@ public class Shooter extends SubsystemBase {
   private CANSparkFlex shooterMotorR;
   private CANSparkMax indexerMotorL;
   private CANSparkMax indexerMotorR;
+  private CANSparkMax shooterpivot_L;
+  private CANSparkMax shooterpivot_R;
   private PIDController shooterController;
   private PIDController indexerController;
+  private PIDController ShooterPivotController;
+;
+
 
   /** Creates a new Shooter. */
   public Shooter() {
@@ -42,10 +47,22 @@ public class Shooter extends SubsystemBase {
     indexerMotorL.setSmartCurrentLimit(20);
     indexerMotorR.setSmartCurrentLimit(20);
 
+    shooterpivot_L = new CANSparkMax(ShooterConstants.CAN_SHOOTER_PIVOT_L, MotorType.kBrushless);
+    shooterpivot_R = new CANSparkMax(ShooterConstants.CAN_SHOOTER_PIVOT_R, MotorType.kBrushless);
+    shooterpivot_L.restoreFactoryDefaults();
+    shooterpivot_R.restoreFactoryDefaults();
+    shooterpivot_L.burnFlash();
+    shooterpivot_R.burnFlash();
+    shooterpivot_L.setSmartCurrentLimit(20);
+    shooterpivot_R.setSmartCurrentLimit(20);
+    shooterpivot_L.follow(shooterpivot_R, true);
+
     shooterController = new PIDController(ShooterConstants.CAN_SHOOTER_P, ShooterConstants.CAN_SHOOTER_I,
             ShooterConstants.CAN_SHOOTER_D);
     indexerController = new PIDController(ShooterConstants.CAN_INDEXER_P, ShooterConstants.CAN_INDEXER_I,
             ShooterConstants.CAN_INDEXER_D);
+    ShooterPivotController = new PIDController(ShooterConstants.CAN_SHOOTER_Pivot_P, ShooterConstants.CAN_SHOOTER_Pivot_I,
+            ShooterConstants.CAN_SHOOTER_Pivot_D);
   }
 
   @Override
@@ -82,4 +99,13 @@ public class Shooter extends SubsystemBase {
     return (int) (Math.abs(shooterMotorL.getEncoder().getVelocity()) +
             Math.abs(shooterMotorR.getEncoder().getVelocity())) / 2;
   }
+
+  public void setpivotangle(double setpoint){
+  shooterpivot_R.set(ShooterPivotController.calculate(
+    shooterpivot_R.getEncoder().getPosition(), setpoint));
+  }
+
+  
+
+
 }
