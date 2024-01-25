@@ -24,7 +24,7 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import frc.robot.lib.SecondOrderKinematics;
 /** Constants for Swerve Drive */
-import frc.robot.subsystems.swerve.Swerve;
+import frc.robot.subsystems.Swerve;
 public final class SwerveConstants {    
     public static final double driverControllerLeftDeadband = 0.1;
     public static final double driverControllerRightDeadband = 0.95;
