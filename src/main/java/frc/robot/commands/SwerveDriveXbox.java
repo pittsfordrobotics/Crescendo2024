@@ -18,8 +18,6 @@ public class SwerveDriveXbox extends Command {
   private CommandXboxController driverController = new CommandXboxController(OperatorConstants.kDriverControllerPort);
   private double rotateX;
   private double rotateY;
-  private double lastRotateX;
-  private double lastRotateY;
   /** Creates a new SwerveDriveXbox. */
   public SwerveDriveXbox(Swerve swerveDrive) {
     addRequirements(swerveDrive);

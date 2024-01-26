@@ -6,11 +6,19 @@ package frc.robot;
 
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.Autos;
+import frc.robot.commands.DisabledInstantCommand;
 import frc.robot.commands.DriveShooter;
+import frc.robot.commands.SwerveDriveXbox;
+import frc.robot.commands.SwerveDriveXboxRobotOriented;
 import frc.robot.commands.ZeroGyro;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.swerve.Swerve;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardComponent;
+import edu.wpi.first.wpilibj.shuffleboard.SimpleWidget;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
@@ -24,6 +32,7 @@ public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   private final Swerve m_swerveDrive = new Swerve();
   //private final Shooter m_shooter = new Shooter();
+  SimpleWidget fieldOrientedButton;
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final CommandXboxController m_driverController =
@@ -31,8 +40,21 @@ public class RobotContainer {
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
+    Shuffleboard.getTab("CONFIG").add(m_swerveDrive);
+    fieldOrientedButton = Shuffleboard.getTab("CONFIG").add("Field Oriented Steering", false);
+    Shuffleboard.getTab("CONFIG").add("Update Swerve Settings", new DisabledInstantCommand(() -> {
+      if(m_swerveDrive.getCurrentCommand() != null){
+        m_swerveDrive.getCurrentCommand().cancel();
+      }
+      m_swerveDrive.setDefaultCommand(isFieldOriented() ? new SwerveDriveXbox(m_swerveDrive) : new SwerveDriveXboxRobotOriented(m_swerveDrive));
+    }));
+    m_swerveDrive.setDefaultCommand(isFieldOriented() ? new SwerveDriveXbox(m_swerveDrive) : new SwerveDriveXboxRobotOriented(m_swerveDrive)); //Initialization of default command
     // Configure the trigger bindings
     configureBindings();
+  }
+
+  private boolean isFieldOriented() {
+    return fieldOrientedButton.getEntry().getBoolean(false);
   }
 
   /**
