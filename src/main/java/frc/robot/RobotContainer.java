@@ -6,15 +6,11 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.Filesystem;
 import frc.robot.Constants.OperatorConstants;
-import frc.robot.commands.DriveShooter;
 import frc.robot.commands.DriveSwerve;
-import frc.robot.subsystems.Shooter;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.SwerveSubsystem;
-import swervelib.SwerveDrive;
-import swervelib.parser.SwerveDriveConfiguration;
 
 import java.io.File;
 
@@ -27,7 +23,7 @@ import java.io.File;
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   //private final Shooter m_shooter = new Shooter();
-  private final SwerveSubsystem SWERVE_DRIVE;
+  private final SwerveSubsystem swerveSubsystem;
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final CommandXboxController m_driverController =
@@ -35,7 +31,7 @@ public class RobotContainer {
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
-    SWERVE_DRIVE = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve/maxSwerve"));
+    swerveSubsystem = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve/maxSwerve"));
     // Configure the trigger bindings
     configureBindings();
   }
@@ -53,8 +49,11 @@ public class RobotContainer {
     // Calls the command ZeroGyro when the right bumper on the drivers controller is pressed
     //DriveShooter shooterCommand = new DriveShooter(m_shooter, m_driverController::getRightTriggerAxis, m_driverController::getLeftTriggerAxis);
     //m_shooter.setDefaultCommand(shooterCommand);
-    DriveSwerve driveCommand = new DriveSwerve(SWERVE_DRIVE);
-    SWERVE_DRIVE.setDefaultCommand(driveCommand);
+    DriveSwerve driveCommand = new DriveSwerve(swerveSubsystem);
+    swerveSubsystem.setDefaultCommand(swerveSubsystem.driveCommand(
+            m_driverController::getLeftX, m_driverController::getLeftY,
+            () -> 0
+    ));
   }
 
   /**
