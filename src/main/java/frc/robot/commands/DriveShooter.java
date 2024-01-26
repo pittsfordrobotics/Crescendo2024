@@ -29,11 +29,11 @@ public class DriveShooter extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if(inputSpeed1.getAsDouble() == 0){
-    shooter.driveShooter(-inputSpeed2.getAsDouble());
-  }else{
-    shooter.driveShooter(inputSpeed1.getAsDouble());
-  }
+    if(inputSpeed1.getAsDouble() == 0) {
+      shooter.driveShooter(-inputSpeed2.getAsDouble());
+    } else {
+      shooter.driveShooter(inputSpeed1.getAsDouble());
+    }
   }
 
   // Called once the command ends or is interrupted.
