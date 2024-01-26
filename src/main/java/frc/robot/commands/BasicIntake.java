@@ -1,17 +1,21 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
 
 
-public class TestShoot extends Command {
-   private Shooter shooter;
+public class BasicIntake extends Command {
+    private Shooter shooter;
+    private Intake intake;
 
-    public TestShoot(Shooter shooter) {
-       this.shooter = shooter;
-       // each subsystem used by the command must be passed into the
-       // addRequirements() method (which takes a vararg of Subsystem)
-       addRequirements(this.shooter);
+    public BasicIntake(Shooter shooter, Intake intake) {
+        this.shooter = shooter;
+        this.intake = intake;
+        // each subsystem used by the command must be passed into the
+        // addRequirements() method (which takes a vararg of Subsystem)
+        addRequirements(this.shooter);
+        addRequirements(this.intake);
     }
 
     /**
@@ -28,10 +32,16 @@ public class TestShoot extends Command {
      */
     @Override
     public void execute() {
-       shooter.rpmShooterBothSides(3000);
-       if(shooter.getShooterRpm() >= 2900) { //buffer in case it doesn't reach 3000
-           shooter.rpmIndexerBothSides(1000);
-       }
+        if (shooter.getLimitSwitch() == true) {
+            intake.setIntakeRpm(-.1);
+            shooter.setshooterRPM(0);
+            shooter.setIndexer(0);
+        }
+        else {
+            intake.setIntakeRpm(-.5);
+            shooter.setshooterRPM(-2000);
+            shooter.setIndexer(-.5);
+        }
     }
 
     /**
@@ -50,7 +60,7 @@ public class TestShoot extends Command {
      */
     @Override
     public boolean isFinished() {
-        return false;
+      return false;
     }
 
     /**

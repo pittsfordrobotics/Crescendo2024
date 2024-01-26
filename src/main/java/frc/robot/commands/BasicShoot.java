@@ -3,15 +3,16 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Shooter;
 
+// Revs up the shooter to 6000 rpm then turns on the indexer
+// Should be called when the intake is up and the note is in the indexers
+public class BasicShoot extends Command {
+   private Shooter shooter;
 
-public class TestIntake extends Command {
-    private Shooter shooter;
-
-    public TestIntake(Shooter shooter) {
-        this.shooter = shooter;
-        // each subsystem used by the command must be passed into the
-        // addRequirements() method (which takes a vararg of Subsystem)
-        addRequirements(this.shooter);
+    public BasicShoot(Shooter shooter) {
+       this.shooter = shooter;
+       // each subsystem used by the command must be passed into the
+       // addRequirements() method (which takes a vararg of Subsystem)
+       addRequirements(this.shooter);
     }
 
     /**
@@ -28,8 +29,10 @@ public class TestIntake extends Command {
      */
     @Override
     public void execute() {
-        shooter.rpmShooterBothSides(-500);
-        shooter.rpmIndexerBothSides(-100);
+       shooter.setshooterRPM(6000);
+       if(shooter.getShooterRpm() >=5900) { //buffer in case it doesn't reach 3000
+           shooter.setIndexer(1);
+       }
     }
 
     /**
@@ -48,7 +51,7 @@ public class TestIntake extends Command {
      */
     @Override
     public boolean isFinished() {
-        return false; //down the road: if sensor detects note return true
+        return false;
     }
 
     /**

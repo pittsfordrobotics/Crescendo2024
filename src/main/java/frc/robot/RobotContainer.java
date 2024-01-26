@@ -5,79 +5,93 @@
 package frc.robot;
 
 import frc.robot.Constants.OperatorConstants;
-<<<<<<< Updated upstream
-import frc.robot.commands.Autos;
-import frc.robot.commands.Intake;
+import frc.robot.commands.BasicIntake;
+import frc.robot.commands.BasicShoot;
 import frc.robot.commands.ZeroGyro;
-import frc.robot.subsystems.EndEffector;
-import frc.robot.subsystems.ExampleSubsystem;
-=======
-import frc.robot.commands.*;
+import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
->>>>>>> Stashed changes
 import frc.robot.subsystems.swerve.Swerve;
+
+import java.util.Set;
+
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import edu.wpi.first.wpilibj2.command.Commands;
 
 /**
- * This class is where the bulk of the robot should be declared. Since Command-based is a
- * "declarative" paradigm, very little robot logic should actually be handled in the {@link Robot}
- * periodic methods (other than the scheduler calls). Instead, the structure of the robot (including
+ * This class is where the bulk of the robot should be declared. Since
+ * Command-based is a
+ * "declarative" paradigm, very little robot logic should actually be handled in
+ * the {@link Robot}
+ * periodic methods (other than the scheduler calls). Instead, the structure of
+ * the robot (including
  * subsystems, commands, and trigger mappings) should be declared here.
  */
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
-  private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
-  private final EndEffector m_endEffector = new EndEffector(); 
   private final Swerve m_swerveDrive = new Swerve();
-<<<<<<< Updated upstream
-=======
   private final Shooter SHOOTER = new Shooter();
-  //private final Shooter m_shooter = new Shooter();
->>>>>>> Stashed changes
+  private final Intake INTAKE = new Intake();
 
-  // Replace with CommandPS4Controller or CommandJoystick if needed
-  private final CommandXboxController m_driverController =
-      new CommandXboxController(OperatorConstants.kDriverControllerPort);
+  private final CommandXboxController m_driverController = new CommandXboxController(
+      OperatorConstants.kDriverControllerPort);
+  private final CommandXboxController m_operatorController = new CommandXboxController(
+      OperatorConstants.kOperatorControllerPort);
 
-  /** The container for the robot. Contains subsystems, OI devices, and commands. */
+  /**
+   * The container for the robot. Contains subsystems, OI devices, and commands.
+   */
   public RobotContainer() {
     // Configure the trigger bindings
     configureBindings();
   }
 
   /**
-   * Use this method to define your trigger->command mappings. Triggers can be created via the
-   * {@link Trigger#Trigger(java.util.function.BooleanSupplier)} constructor with an arbitrary
+   * Use this method to define your trigger->command mappings. Triggers can be
+   * created via the
+   * {@link Trigger#Trigger(java.util.function.BooleanSupplier)} constructor with
+   * an arbitrary
    * predicate, or via the named factories in {@link
-   * edu.wpi.first.wpilibj2.command.button.CommandGenericHID}'s subclasses for {@link
-   * CommandXboxController Xbox}/{@link edu.wpi.first.wpilibj2.command.button.CommandPS4Controller
-   * PS4} controllers or {@link edu.wpi.first.wpilibj2.command.button.CommandJoystick Flight
+   * edu.wpi.first.wpilibj2.command.button.CommandGenericHID}'s subclasses for
+   * {@link
+   * CommandXboxController
+   * Xbox}/{@link edu.wpi.first.wpilibj2.command.button.CommandPS4Controller
+   * PS4} controllers or
+   * {@link edu.wpi.first.wpilibj2.command.button.CommandJoystick Flight
    * joysticks}.
    */
   private void configureBindings() {
 
-    // Schedule `exampleMethodCommand` when the Xbox controller's B button is pressed,
-    // cancelling on release.
-    Intake intakeCommand = new Intake(m_endEffector);
-    m_driverController.a().whileTrue(intakeCommand);
-
-    // Calls the command ZeroGyro when the right bumper on the drivers controller is pressed
+    // Calls the command ZeroGyro when the right bumper on the drivers controller is
+    // pressed
     ZeroGyro zeroGyro = new ZeroGyro(m_swerveDrive);
     m_driverController.rightBumper().whileTrue(zeroGyro);
-<<<<<<< Updated upstream
- 
-=======
-    TestShoot ts = new TestShoot(SHOOTER);
-    TestIntake ti = new TestIntake(SHOOTER);
-    m_driverController.a().whileTrue(ts);
-    if(!m_driverController.a().getAsBoolean()) {
-      m_driverController.b().whileTrue(ti);
+
+    // a for shoot
+    BasicShoot ts = new BasicShoot(SHOOTER);
+    m_operatorController.a().whileTrue(ts);
+
+    // b for intake
+    BasicIntake ti = new BasicIntake(SHOOTER, INTAKE);
+    if (!m_operatorController.a().getAsBoolean()) {
+      m_operatorController.b().whileTrue(ti);
     }
-    //DriveShooter shooterCommand = new DriveShooter(m_shooter, m_driverController::getRightTriggerAxis, m_driverController::getLeftTriggerAxis);
-    //m_shooter.setDefaultCommand(shooterCommand);
->>>>>>> Stashed changes
+
+    // for testing to make sure we dont need to invert
+    //
+    // x for intake pivot up
+    m_operatorController.x().whileTrue(INTAKE.intakePivotRaw(.05));
+
+    // y for shooter pivot up
+    m_operatorController.y().whileTrue(SHOOTER.setShooterPivotraw(.05));
+
+    // left bumper for shooter pivot pid test
+    m_operatorController.leftBumper().whileTrue(SHOOTER.setShooterPivotangle(Math.PI/6));
+
+    // right bumper for intake pivot pid test
+    m_operatorController.rightBumper().whileTrue(INTAKE.setIntakePivotAngle(Math.PI/2));
   }
 
   /**
