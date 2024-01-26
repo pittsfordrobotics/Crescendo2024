@@ -16,7 +16,7 @@ public class DriveSwerve extends Command {
     public DriveSwerve(SwerveSubsystem swerveDrive) {
         this.swerveDrive = swerveDrive;
         controller = new CommandXboxController(OperatorConstants.kDriverControllerPort);
-        addRequirements();
+        addRequirements(swerveDrive);
     }
 
     /**
@@ -40,9 +40,8 @@ public class DriveSwerve extends Command {
         double radius = MathUtil.applyDeadband(Math.sqrt(Math.pow(rotateX, 2) + Math.pow(rotateY, 2)),
                 SwerveConstants.driverControllerRightDeadband);
 
-        if(radius != 0) { //i.e., it's within the deadband
-            swerveDrive.drive(new Translation2d(xAxis, yAxis), Math.atan2(rotateY, rotateX), false);
-        }
+//        swerveDrive.drive(new Translation2d(xAxis, yAxis), Math.atan2(rotateY, rotateX), true);
+        swerveDrive.drive(new Translation2d(xAxis, yAxis), 0, true);
     }
 
     /**
