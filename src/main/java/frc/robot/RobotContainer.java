@@ -5,6 +5,7 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.Filesystem;
+import edu.wpi.first.wpilibj.RobotBase;
 import frc.robot.Constants.OperatorConstants;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -12,6 +13,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.SwerveSubsystem;
 
 import java.io.File;
+import java.util.function.DoubleSupplier;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -48,11 +50,23 @@ public class RobotContainer {
     // Calls the command ZeroGyro when the right bumper on the drivers controller is pressed
     //DriveShooter shooterCommand = new DriveShooter(m_shooter, m_driverController::getRightTriggerAxis, m_driverController::getLeftTriggerAxis);
     //m_shooter.setDefaultCommand(shooterCommand);
-    swerveSubsystem.setDefaultCommand(swerveSubsystem.driveCommand(
-            () -> -m_driverController.getLeftY(),
-            () -> -m_driverController.getLeftX(),
-            () -> -m_driverController.getRightX()
-    ));
+    // DriveSwerve driveCommand = new DriveSwerve(swerveSubsystem);
+
+    // This command works for sim, there is no need for a separate sim drive command
+    // The sim drive command's angle is position-based and not commanded by angular velocity, so this should be used regardless
+    Command driveFieldOrientedAnglularVelocity = swerveSubsystem.driveCommand(
+            () -> -1*applyDeadband(m_driverController.getLeftY(), 0.2), 
+            () -> -1*applyDeadband(m_driverController.getLeftX(), 0.2),
+            () -> -1*applyDeadband(m_driverController.getRightX(), 0.2)
+    );
+    swerveSubsystem.setDefaultCommand(driveFieldOrientedAnglularVelocity);
+  }
+
+  private double applyDeadband(double value, double deadband) {
+    if(Math.abs(value) > deadband) {
+      return value;
+    }
+    return 0;
   }
 
   /**
