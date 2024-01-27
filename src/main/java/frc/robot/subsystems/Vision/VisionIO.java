@@ -24,7 +24,7 @@ public interface VisionIO {
 
     
     enum Pipelines {
-        Test(0), Led(1), LowLed(2), RETRO(3), CONE(4), CUBE(5);
+        Test(0), Led(1), LowLed(2), Far(3), Mid(4), Close(5);
 
         private final int num;
         Pipelines(int num) {

@@ -32,34 +32,25 @@ public class Vision extends SubsystemBase {
 
     // Initialization
     private final VisionIO[] io;
-
     private final Map<Integer, Double> lastTagDetectionTimes = new HashMap<>();
-
     private static final Vision INSTANCE = new Vision(VisionConstants.LIMELIGHT1);
-
     public static Vision getInstance() {
         return INSTANCE;
     }
-
     private Vision(VisionIO ioLimelight1) {
         io = new VisionIO[] { ioLimelight1 };
         FieldConstants.aprilTags.getTags().forEach((AprilTag tag) -> lastTagDetectionTimes.put(tag.ID, 0.0));
     }
-
-    // To add more cameras:
-    // Update VisionConstants.java to include the new camera.
-    // Update the following two lines to include the camera.
     private final VisionIO.VisionIOInputs[] inputs = new VisionIO.VisionIOInputs[] { new VisionIO.VisionIOInputs() };
     private final String[] camNames = new String[] { VisionConstants.LIMELIGHT1_NAME };
-    
     private Pipelines pipeline = Pipelines.Test; // default pipeline
+
 
     @Override
     public void periodic() {
         for (int i = 0; i < io.length; i++) {
             // update the inputs from the netwrork tables named camNames[i]
             io[i].updateInputs(inputs[i], camNames[i]);
-
             // keeps the pipeline always the same
             io[i].setPipeline(pipeline, camNames[i]);
         }
@@ -68,6 +59,7 @@ public class Vision extends SubsystemBase {
         // Pose estimation
         if (!DriverStation.isAutonomous()) {
             for (int i = 0; i < io.length; i++) {
+
                 // exit if data is bad
                 if (Arrays.equals(inputs[i].botXYZ, new double[] { 0.0, 0.0, 0.0 }) || inputs[i].botXYZ.length == 0
                         || !inputs[i].connected) {
@@ -90,7 +82,7 @@ public class Vision extends SubsystemBase {
                 SmartDashboard.putNumber("Vision/Pose" + i + "/Theta", robotPose.getRotation().getDegrees());
 
 
-                // exit if off the field (fix later)
+                // exit if off the field (might be bad)
                 if (robotPose3d.getX() < -VisionConstants.FIELD_BORDER_MARGIN
                         || robotPose3d.getX() > FieldConstants.fieldLength + VisionConstants.FIELD_BORDER_MARGIN
                         || robotPose3d.getY() < -VisionConstants.FIELD_BORDER_MARGIN
