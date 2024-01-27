@@ -60,6 +60,8 @@ public class Intake extends SubsystemBase {
 
   @Override
   public void periodic() {
+    intakepivotPIDR.setFF(IntakeConstants.INTAKE_Pivot_FF * Math.cos(Math.toRadians(this.getIntakePivotAngle())));
+
     Shuffleboard.getTab("Intake").add("Intake RPM", this.getIntakeRpm());
     Shuffleboard.getTab("Intake").add("Intake Pivot Angle", this.getIntakePivotAngle());
   }
@@ -69,9 +71,9 @@ public class Intake extends SubsystemBase {
     return intakeMotor.getEncoder().getVelocity();
   }
 
-  // Gets the Angle of the intake pivot
+  // Gets the Angle of the intake pivot in degrees
   public double getIntakePivotAngle() {
-    return intakePivotEncoderR.getPosition();
+    return intakePivotEncoderR.getPosition() * 360;
   }
 
   // Zeros the Intake Angle
@@ -84,9 +86,9 @@ public class Intake extends SubsystemBase {
     intakeMotor.set(input);
   }
 
-  // Sets the intake pivot angle to a certain angle using PID on right motor
-  public Command setIntakePivotAngle(double setpoint) {
-    return this.run(() -> intakepivotPIDR.setReference(setpoint, ControlType.kVelocity));
+  // Sets the intake pivot angle to a certain angle using PID on right motors **set in degrees**
+  public Command setIntakePivotAngle(double setpoint_deg) {
+    return this.run(() -> intakepivotPIDR.setReference(setpoint_deg / 360, ControlType.kPosition));
   }
 
   // For Testing

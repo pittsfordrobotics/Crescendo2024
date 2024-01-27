@@ -33,9 +33,9 @@ public class BasicIntake extends Command {
     @Override
     public void execute() {
         if (shooter.getLimitSwitch() == true) {
-            intake.setIntakeRpm(-.1);
+            intake.setIntakeRpm(0);
             shooter.setshooterRPM(0);
-            shooter.setIndexer(0);
+            shooter.setIndexer(-.1);
         }
         else {
             intake.setIntakeRpm(-.5);

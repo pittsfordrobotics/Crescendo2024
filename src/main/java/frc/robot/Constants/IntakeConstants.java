@@ -9,5 +9,6 @@ public class IntakeConstants {
     public static final double INTAKE_Pivot_P = 2;
     public static final double INTAKE_Pivot_I = 0;
     public static final double INTAKE_Pivot_D = 0;
+    public static final double INTAKE_Pivot_FF = 0;
     
 }

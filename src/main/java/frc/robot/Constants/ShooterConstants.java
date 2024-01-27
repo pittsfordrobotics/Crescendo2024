@@ -26,4 +26,5 @@ public final class ShooterConstants {
     public static final double SHOOTER_Pivot_P = 2;
     public static final double SHOOTER_Pivot_I = 0;
     public static final double SHOOTER_Pivot_D = 0;
+    public static final double SHOOTER_Pivot_FF = 0;
 }

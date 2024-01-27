@@ -88,6 +88,7 @@ public class Shooter extends SubsystemBase {
     shooterpivotRPID.setP(ShooterConstants.SHOOTER_Pivot_P);
     shooterpivotRPID.setI(ShooterConstants.SHOOTER_Pivot_I);
     shooterpivotRPID.setD(ShooterConstants.SHOOTER_Pivot_D);
+    shooterpivotRPID.setFF(ShooterConstants.SHOOTER_Pivot_FF);
     // // ShooterPivotPID L
     // shooterpivotLPID = shooterpivot_L.getPIDController();
     // shooterpivotLPID.setFeedbackDevice(shooterpivot_L_ABSEncoder);
@@ -115,6 +116,8 @@ public class Shooter extends SubsystemBase {
 
   @Override
   public void periodic() {
+    shooterpivotRPID.setFF(ShooterConstants.SHOOTER_Pivot_FF * Math.cos(Math.toRadians(this.getShooterAngle())));
+
     Shuffleboard.getTab("SHOOTER").add("Shooter RPM", this.getShooterRpm());
     Shuffleboard.getTab("SHOOTER").add("Shooter Angle", this.getShooterAngle());
   }
@@ -131,8 +134,8 @@ public class Shooter extends SubsystemBase {
   }
 
   // Returns the angle of the shooter pivot (Right motor in degrees)
-  public int getShooterAngle() {
-    return (int) shooterpivot_R_ABSEncoder.getPosition() * 360;
+  public double getShooterAngle() {
+    return shooterpivot_R_ABSEncoder.getPosition() * 360;
   }
 
   // Drives the shooter with given values from -1 to 1
@@ -159,10 +162,10 @@ public class Shooter extends SubsystemBase {
     indexerMotorR.set(setpoint);
   }
 
-  // Drives the pivot to a given angle
-  public Command setShooterPivotangle(double setpoint) {
+  // Drives the pivot to a given angle in degrees
+  public Command setShooterPivotangle(double setpoint_deg) {
     // shooterpivotLPID.setReference(setpoint, ControlType.kPosition);
-    return this.run(() -> shooterpivotRPID.setReference(setpoint, ControlType.kPosition));
+    return this.run(() -> shooterpivotRPID.setReference(setpoint_deg / 360, ControlType.kPosition));
   }
 
   // Zeros the pivot -- call when laying flat
@@ -188,5 +191,4 @@ public class Shooter extends SubsystemBase {
   public Command setShooterPivotraw(double input) {
     return this.runOnce(() -> shooterpivot_R.set(input));
   }
-
 }

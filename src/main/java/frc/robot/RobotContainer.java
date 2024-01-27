@@ -64,19 +64,18 @@ public class RobotContainer {
    */
   private void configureBindings() {
 
-    // Calls the command ZeroGyro when the right bumper on the drivers controller is
-    // pressed
+    // Calls the command ZeroGyro when the start button on the drivers controller is pressed
     ZeroGyro zeroGyro = new ZeroGyro(m_swerveDrive);
-    m_driverController.rightBumper().whileTrue(zeroGyro);
+    m_driverController.start().whileTrue(zeroGyro);
 
     // a for shoot
     BasicShoot ts = new BasicShoot(SHOOTER);
-    m_operatorController.a().whileTrue(ts);
+    m_driverController.a().whileTrue(ts);
 
     // b for intake
     BasicIntake ti = new BasicIntake(SHOOTER, INTAKE);
-    if (!m_operatorController.a().getAsBoolean()) {
-      m_operatorController.b().whileTrue(ti);
+    if (!m_driverController.a().getAsBoolean()) {
+      m_driverController.b().whileTrue(ti);
     }
 
     // for testing to make sure we dont need to invert
@@ -88,10 +87,10 @@ public class RobotContainer {
     m_operatorController.y().whileTrue(SHOOTER.setShooterPivotraw(.05));
 
     // left bumper for shooter pivot pid test
-    m_operatorController.leftBumper().whileTrue(SHOOTER.setShooterPivotangle(Math.PI/6));
+    m_operatorController.leftBumper().whileTrue(SHOOTER.setShooterPivotangle(60));
 
     // right bumper for intake pivot pid test
-    m_operatorController.rightBumper().whileTrue(INTAKE.setIntakePivotAngle(Math.PI/2));
+    m_operatorController.rightBumper().whileTrue(INTAKE.setIntakePivotAngle(90));
   }
 
   /**
