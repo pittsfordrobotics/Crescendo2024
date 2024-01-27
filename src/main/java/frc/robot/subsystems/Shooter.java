@@ -88,7 +88,6 @@ public class Shooter extends SubsystemBase {
     shooterpivotRPID.setP(ShooterConstants.SHOOTER_Pivot_P);
     shooterpivotRPID.setI(ShooterConstants.SHOOTER_Pivot_I);
     shooterpivotRPID.setD(ShooterConstants.SHOOTER_Pivot_D);
-    shooterpivotRPID.setFF(ShooterConstants.SHOOTER_Pivot_FF);
     // // ShooterPivotPID L
     // shooterpivotLPID = shooterpivot_L.getPIDController();
     // shooterpivotLPID.setFeedbackDevice(shooterpivot_L_ABSEncoder);
@@ -116,10 +115,8 @@ public class Shooter extends SubsystemBase {
 
   @Override
   public void periodic() {
-    shooterpivotRPID.setFF(ShooterConstants.SHOOTER_Pivot_FF * Math.cos(Math.toRadians(this.getShooterAngle())));
-
     Shuffleboard.getTab("SHOOTER").add("Shooter RPM", this.getShooterRpm());
-    Shuffleboard.getTab("SHOOTER").add("Shooter Angle", this.getShooterAngle());
+    Shuffleboard.getTab("SHOOTER").add("Shooter Angle", this.getShooterAngle_deg());
   }
 
   // Returns the RPM of the shooter (ABS of Left and Right motor average)
@@ -133,9 +130,13 @@ public class Shooter extends SubsystemBase {
     return backLimitSwitch.isPressed();
   }
 
-  // Returns the angle of the shooter pivot (Right motor in degrees)
-  public double getShooterAngle() {
+  // Returns the angle of the shooter pivot (Right motor in deg)
+  public double getShooterAngle_deg() {
     return shooterpivot_R_ABSEncoder.getPosition() * 360;
+  }
+
+  public Command setShooterFFvalue (Double ShooterFFValue) {
+    return this.runOnce(() -> shooterpivotRPID.setFF(ShooterFFValue));
   }
 
   // Drives the shooter with given values from -1 to 1

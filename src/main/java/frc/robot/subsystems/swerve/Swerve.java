@@ -7,10 +7,7 @@ package frc.robot.subsystems.swerve;
 import com.ctre.phoenix6.hardware.Pigeon2;
 
 import edu.wpi.first.math.MathUtil;
-<<<<<<< Updated upstream
-=======
 import edu.wpi.first.math.geometry.Pose2d;
->>>>>>> Stashed changes
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.*;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -77,10 +74,6 @@ public class Swerve extends SubsystemBase {
    /**Gets the robot's current orientation. Returns the CCW+ angle in a Rotation2d object. */
   private Rotation2d getRobotRelativeAngle(){
     double robotRelativeAngleDeg = pigeon.getYaw().getValueAsDouble();
-<<<<<<< Updated upstream
-    
-=======
->>>>>>> Stashed changes
     return Rotation2d.fromRadians(MathUtil.angleModulus(Math.toRadians(robotRelativeAngleDeg)));
   }
 
@@ -131,9 +124,6 @@ public class Swerve extends SubsystemBase {
       wantedModuleStates[i] = SwerveModuleState.optimize(wantedModuleStates[i], actualStates[i].angle);
     }
     
-<<<<<<< Updated upstream
-  };
-=======
   }
 
   /** Drive with ChassisSpeeds input */
@@ -160,7 +150,6 @@ public class Swerve extends SubsystemBase {
 
   }
 
->>>>>>> Stashed changes
   /** Used for testing alignment, stops all modules and points them forward */
   public void driveZeroOffset() {
     for (int i = 0; i < 4; i++) {

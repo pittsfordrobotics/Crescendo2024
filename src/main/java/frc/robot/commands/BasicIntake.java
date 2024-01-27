@@ -23,7 +23,6 @@ public class BasicIntake extends Command {
      */
     @Override
     public void initialize() {
-
     }
 
     /**
@@ -32,6 +31,8 @@ public class BasicIntake extends Command {
      */
     @Override
     public void execute() {
+        shooter.setShooterPivotangle(0);
+        intake.setIntakePivotAngle(0);
         if (shooter.getLimitSwitch() == true) {
             intake.setIntakeRpm(0);
             shooter.setshooterRPM(0);

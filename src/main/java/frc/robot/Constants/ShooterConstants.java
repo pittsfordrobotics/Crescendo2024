@@ -26,5 +26,12 @@ public final class ShooterConstants {
     public static final double SHOOTER_Pivot_P = 2;
     public static final double SHOOTER_Pivot_I = 0;
     public static final double SHOOTER_Pivot_D = 0;
-    public static final double SHOOTER_Pivot_FF = 0;
+
+    // See diagram its very usefull
+    public static final double Theta_Offset = 2;
+    public static final double L1_SpivtoWpivperp = 2;
+    public static final double L1CM1_SpivtoCM1 = 2;
+    public static final double M1_Total_Mass_of_Shooter = 2;
+    public static final double SHOOTER_Pivot_FF_Constant = 0;
+
 }

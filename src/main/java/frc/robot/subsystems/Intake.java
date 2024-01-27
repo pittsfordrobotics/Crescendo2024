@@ -54,14 +54,12 @@ public class Intake extends SubsystemBase {
     intakepivotPIDR.setI(IntakeConstants.INTAKE_Pivot_I);
     intakepivotPIDR.setD(IntakeConstants.INTAKE_Pivot_D);
 
-    // Puts a button on the shuffleboard to zero the intake pivot
+    // Puts a button on the shuffleboard to zero the intake pivot (Zeroed at intake position)
     Shuffleboard.getTab("Intake").add("Zero Intake Pivot", new DisabledInstantCommand(this::zeroIntakePivot));
   }
 
   @Override
   public void periodic() {
-    intakepivotPIDR.setFF(IntakeConstants.INTAKE_Pivot_FF * Math.cos(Math.toRadians(this.getIntakePivotAngle())));
-
     Shuffleboard.getTab("Intake").add("Intake RPM", this.getIntakeRpm());
     Shuffleboard.getTab("Intake").add("Intake Pivot Angle", this.getIntakePivotAngle());
   }
@@ -74,6 +72,10 @@ public class Intake extends SubsystemBase {
   // Gets the Angle of the intake pivot in degrees
   public double getIntakePivotAngle() {
     return intakePivotEncoderR.getPosition() * 360;
+  }
+
+  public Command setIntakeFFValue (double IntakeFFValue){
+    return this.runOnce(() -> intakepivotPIDR.setFF(IntakeFFValue));
   }
 
   // Zeros the Intake Angle

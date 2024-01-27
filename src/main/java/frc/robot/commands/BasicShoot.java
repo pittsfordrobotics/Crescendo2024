@@ -1,18 +1,22 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
 
 // Revs up the shooter to 6000 rpm then turns on the indexer
 // Should be called when the intake is up and the note is in the indexers
 public class BasicShoot extends Command {
    private Shooter shooter;
+   private Intake intake;
 
     public BasicShoot(Shooter shooter) {
-       this.shooter = shooter;
-       // each subsystem used by the command must be passed into the
-       // addRequirements() method (which takes a vararg of Subsystem)
-       addRequirements(this.shooter);
+        this.shooter = shooter;
+        this.intake = intake;
+        // each subsystem used by the command must be passed into the
+        // addRequirements() method (which takes a vararg of Subsystem)
+        addRequirements(this.shooter);
+        addRequirements(this.intake);
     }
 
     /**
@@ -29,8 +33,10 @@ public class BasicShoot extends Command {
      */
     @Override
     public void execute() {
-       shooter.setshooterRPM(6000);
-       if(shooter.getShooterRpm() >=5900) { //buffer in case it doesn't reach 3000
+        shooter.setShooterPivotangle(55);
+        intake.setIntakePivotAngle(150);
+        shooter.setshooterRPM(6000);
+        if(shooter.getShooterRpm() >=5900) { //buffer
            shooter.setIndexer(1);
        }
     }
