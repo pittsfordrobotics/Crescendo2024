@@ -66,8 +66,7 @@ public class Climber extends SubsystemBase {
     }
 
     //Zeros the climber's relative encoder
-    public Command zeroEncoder()
-    {
+    public Command zeroEncoder() {
         return this.runOnce(() -> rightMotor.getEncoder().setPosition(0));
     }
 }
