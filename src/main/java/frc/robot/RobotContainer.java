@@ -6,7 +6,6 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.Filesystem;
 import frc.robot.Constants.OperatorConstants;
-// import frc.robot.commands.DriveSwerve;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -49,11 +48,10 @@ public class RobotContainer {
     // Calls the command ZeroGyro when the right bumper on the drivers controller is pressed
     //DriveShooter shooterCommand = new DriveShooter(m_shooter, m_driverController::getRightTriggerAxis, m_driverController::getLeftTriggerAxis);
     //m_shooter.setDefaultCommand(shooterCommand);
-    // DriveSwerve driveCommand = new DriveSwerve(swerveSubsystem);
     swerveSubsystem.setDefaultCommand(swerveSubsystem.driveCommand(
-            () -> -1*m_driverController.getLeftY(), 
-            () -> -1*m_driverController.getLeftX(),
-            () -> -1*m_driverController.getRightX()
+            () -> -m_driverController.getLeftY(),
+            () -> -m_driverController.getLeftX(),
+            () -> -m_driverController.getRightX()
     ));
   }
 

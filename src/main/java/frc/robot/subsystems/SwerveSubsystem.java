@@ -34,8 +34,7 @@ import swervelib.parser.SwerveParser;
 import swervelib.telemetry.SwerveDriveTelemetry;
 import swervelib.telemetry.SwerveDriveTelemetry.TelemetryVerbosity;
 
-public class SwerveSubsystem extends SubsystemBase
-{
+public class SwerveSubsystem extends SubsystemBase {
 
   /**
    * Swerve drive object.
@@ -118,10 +117,10 @@ public class SwerveSubsystem extends SubsystemBase
           // This will flip the path being followed to the red side of the field.
           // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
           var alliance = DriverStation.getAlliance();
-          return alliance.isPresent() ? alliance.get() == DriverStation.Alliance.Red : false;
+          return alliance.isPresent() && alliance.get() == DriverStation.Alliance.Red;
         },
         this // Reference to this subsystem to set requirements
-                                  );
+    );
   }
 
   /**
@@ -177,8 +176,8 @@ public class SwerveSubsystem extends SubsystemBase
                               DoubleSupplier headingY) {
     // swerveDrive.setHeadingCorrection(true); // Normally you would want heading correction for this kind of control.
     return run(() -> {
-      double xInput = Math.pow(translationX.getAsDouble(), 3); // Smooth controll out
-      double yInput = Math.pow(translationY.getAsDouble(), 3); // Smooth controll out
+      double xInput = Math.pow(translationX.getAsDouble(), 3); // Smooth control out
+      double yInput = Math.pow(translationY.getAsDouble(), 3); // Smooth control out
       // Make the robot move
       driveFieldOriented(swerveDrive.swerveController.getTargetSpeeds(xInput, yInput,
                                                                       headingX.getAsDouble(),
@@ -234,9 +233,9 @@ public class SwerveSubsystem extends SubsystemBase
    * the wheel velocities.  Also has field- and robot-relative modes, which affect how the translation vector is used.
    *
    * @param translation   {@link Translation2d} that is the commanded linear velocity of the robot, in meters per
-   *                      second. In robot-relative mode, positive x is torwards the bow (front) and positive y is
-   *                      torwards port (left).  In field-relative mode, positive x is away from the alliance wall
-   *                      (field North) and positive y is torwards the left wall when looking through the driver station
+   *                      second. In robot-relative mode, positive x is towards the bow (front) and positive y is
+   *                      towards port (left).  In field-relative mode, positive x is away from the alliance wall
+   *                      (field North) and positive y is towards the left wall when looking through the driver station
    *                      glass (field West).
    * @param rotation      Robot angular rate, in radians per second. CCW positive.  Unaffected by field/robot
    *                      relativity.
@@ -354,7 +353,7 @@ public class SwerveSubsystem extends SubsystemBase
    * @param yInput   Y joystick input for the robot to move in the Y direction.
    * @param headingX X joystick which controls the angle of the robot.
    * @param headingY Y joystick which controls the angle of the robot.
-   * @return {@link ChassisSpeeds} which can be sent to th Swerve Drive.
+   * @return {@link ChassisSpeeds} which can be sent to the Swerve Drive.
    */
   public ChassisSpeeds getTargetSpeeds(double xInput, double yInput, double headingX, double headingY) {
     xInput = Math.pow(xInput, 3);
@@ -389,7 +388,7 @@ public class SwerveSubsystem extends SubsystemBase
   /**
    * Gets the current field-relative velocity (x, y and omega) of the robot
    *
-   * @return A ChassisSpeeds object of the current field-relative velocity
+   * @return A {@link ChassisSpeeds} object of the current field-relative velocity
    */
   public ChassisSpeeds getFieldVelocity() {
     return swerveDrive.getFieldVelocity();
