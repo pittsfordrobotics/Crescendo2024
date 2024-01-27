@@ -43,6 +43,7 @@ public class Vision extends SubsystemBase {
     }
     private final VisionIO.VisionIOInputs[] inputs = new VisionIO.VisionIOInputs[] { new VisionIO.VisionIOInputs() };
     private final String[] camNames = new String[] { VisionConstants.LIMELIGHT1_NAME };
+    
     private Pipelines pipeline = Pipelines.Test; // default pipeline
 
 
@@ -93,6 +94,7 @@ public class Vision extends SubsystemBase {
                 }
 
                 // Get tag poses and update last detection times
+                // (sketchy code not sure it works pls review - Evan)
                 List<Pose3d> tagPoses = new ArrayList<>();
                 for (int z = 0; z < inputs[i].tagIDs.length; z++) {
                     int tagId = (int) inputs[i].tagIDs[z];

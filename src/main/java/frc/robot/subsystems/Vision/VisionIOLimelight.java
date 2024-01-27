@@ -25,6 +25,7 @@ public class VisionIOLimelight implements VisionIO {
         setPipeline(Pipelines.Test, CamName);
     }
 
+    // Uses limelight lib and network tables to get the values from the limelight
     public void updateInputs(VisionIOInputs inputs, String limelightName) {
         final NetworkTable limelight = LimelightHelpers.getLimelightNTTable(limelightName);
 

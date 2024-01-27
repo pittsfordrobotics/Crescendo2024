@@ -16,15 +16,15 @@ public interface VisionIO {
     }
 
     /**
-     * FAR_RANGE: has the lowest FPS, but allows for possible vision updates when halfway down the field
-     * MID_RANGE: has slightly higher FPS, but allows for farther vision updates when halfway down the field
-     * CLOSE_RANGE: has the highest FPS, but only has limited range
-     * RETRO: uses the green lights
+     * Far: has the lowest FPS, but allows for possible vision updates when halfway down the field
+     * Mid: has slightly higher FPS, but allows for farther vision updates when halfway down the field
+     * Close: has the highest FPS, but only has limited range
+     * Retro: uses the green lights
      */
 
     
     enum Pipelines {
-        Test(0), Led(1), LowLed(2), Far(3), Mid(4), Close(5);
+        Test(0), Close(1), Mid(2), Far(3), Retro(4);
 
         private final int num;
         Pipelines(int num) {
