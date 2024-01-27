@@ -10,4 +10,5 @@ public class ClimberConstants {
     public static final double CAN_CLIMBER_D = 0;
 
     public static final double EXTENSION_SETPOINT = 3;
+    public static final double RETRACTION_SETPOINT = 1;
 }

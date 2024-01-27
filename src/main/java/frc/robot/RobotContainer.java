@@ -29,7 +29,7 @@ public class RobotContainer {
   private final Swerve m_swerveDrive = new Swerve();
   private final Climber CLIMBER = new Climber();
   //private final Shooter m_shooter = new Shooter();
-  SimpleWidget fieldOrientedButton;
+  private SimpleWidget fieldOrientedButton;
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final CommandXboxController m_driverController =
@@ -45,6 +45,11 @@ public class RobotContainer {
       }
       m_swerveDrive.setDefaultCommand(isFieldOriented() ? new SwerveDriveXbox(m_swerveDrive) : new SwerveDriveXboxRobotOriented(m_swerveDrive));
     }));
+
+    //Add climber encoder buttons on Shuffleboard
+    Shuffleboard.getTab("CONFIG").add("Set Climber to Zero", CLIMBER.setToZero());
+    Shuffleboard.getTab("CONFIG").add("Zero Climber Encoder", CLIMBER.zeroEncoder());
+
     m_swerveDrive.setDefaultCommand(isFieldOriented() ? new SwerveDriveXbox(m_swerveDrive) : new SwerveDriveXboxRobotOriented(m_swerveDrive)); //Initialization of default command
     // Configure the trigger bindings
     configureBindings();
@@ -69,13 +74,8 @@ public class RobotContainer {
     m_driverController.rightBumper().whileTrue(zeroGyro);
     //DriveShooter shooterCommand = new DriveShooter(m_shooter, m_driverController::getRightTriggerAxis, m_driverController::getLeftTriggerAxis);
     //m_shooter.setDefaultCommand(shooterCommand);
-    m_driverController.x().toggleOnTrue(CLIMBER.runOnce(() -> {
-      CLIMBER.extend();
-    }));
-    m_driverController.x().toggleOnFalse(CLIMBER.runOnce(() -> {
-      CLIMBER.retract();
-    }));
-
+    m_driverController.x().toggleOnTrue(CLIMBER.extend());
+    m_driverController.x().toggleOnFalse(CLIMBER.retract());
   }
 
   /**
