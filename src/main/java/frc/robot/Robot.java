@@ -69,8 +69,8 @@ public class Robot extends TimedRobot {
     double Theta_CM = theta + ShooterConstants.Theta_Offset;
     double Alpha_CM = alpha + IntakeConstants.Alpha_Offset;
 
-    double CM2X = (L1 * Math.cos(theta)) + (L2 * Math.cos(90 + theta)) + (L3 * Math.cos(Alpha_CM + 90));
-    double CM2Y = (L1 * Math.sin(theta)) + (L2 * Math.sin(90 + theta)) + (L3 * Math.sin(Alpha_CM + 90));
+    double CM2X = (L1 * Math.cos(theta)) + (L2 * Math.cos(90 + theta)) + (L3 * Math.cos(Alpha_CM + theta));
+    double CM2Y = (L1 * Math.sin(theta)) + (L2 * Math.sin(90 + theta)) + (L3 * Math.sin(Alpha_CM + theta));
 
     double CM1X = L1CM * Math.cos(Theta_CM);
     double CM1Y = L1CM * Math.sin(Theta_CM);
