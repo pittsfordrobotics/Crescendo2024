@@ -51,8 +51,9 @@ public class RobotContainer {
     //m_shooter.setDefaultCommand(shooterCommand);
     // DriveSwerve driveCommand = new DriveSwerve(swerveSubsystem);
     swerveSubsystem.setDefaultCommand(swerveSubsystem.driveCommand(
-            m_driverController::getLeftY, m_driverController::getLeftX,
-            () -> 0
+            () -> -1*m_driverController.getLeftY(), 
+            () -> -1*m_driverController.getLeftX(),
+            () -> -1*m_driverController.getRightX()
     ));
   }
 
