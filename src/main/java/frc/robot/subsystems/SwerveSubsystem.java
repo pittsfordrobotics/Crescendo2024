@@ -12,14 +12,19 @@ import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.ReplanningConfig;
+
+import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -44,6 +49,11 @@ public class SwerveSubsystem extends SubsystemBase {
    * Maximum speed of the robot in meters per second, used to limit acceleration.
    */
   public double maximumSpeed = Units.feetToMeters(14.5);
+
+  public static final SwerveSubsystem INSTANCE = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve/maxSwerve"));
+  public static SwerveSubsystem getInstance() {
+    return INSTANCE;
+  }
 
   /**
    * Initialize {@link SwerveDrive} with the directory provided.
@@ -435,6 +445,12 @@ public class SwerveSubsystem extends SubsystemBase {
    */
   public Rotation2d getPitch() {
     return swerveDrive.getPitch();
+  }
+  /**
+   * Adds vision measurement from vision object to swerve
+   */
+  public void addVisionData(Pose2d visionPose, double time, Matrix<N3,N1> visionReliability) {
+    swerveDrive.addVisionMeasurement(visionPose, time, visionReliability);
   }
 
   /**

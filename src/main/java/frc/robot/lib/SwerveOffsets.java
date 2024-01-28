@@ -23,8 +23,6 @@ public class SwerveOffsets {
 
     private static final String OffsetConfigFile = "/home/lvuser/SwerveOffsets.json";
 
-    public SwerveOffsets() {
-    }
 
     public static SwerveOffsets readFromConfig() {
         Map<String, Double> swerveOffsetsMap = new HashMap<String, Double>();
