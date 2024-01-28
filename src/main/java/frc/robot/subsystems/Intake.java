@@ -74,6 +74,7 @@ public class Intake extends SubsystemBase {
     return intakePivotEncoderR.getPosition() * 360;
   }
 
+  // Sets the intake pivot FF values
   public Command setIntakeFFValue (double IntakeFFValue){
     return this.runOnce(() -> intakepivotPIDR.setFF(IntakeFFValue));
   }

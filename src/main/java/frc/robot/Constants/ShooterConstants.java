@@ -27,6 +27,11 @@ public final class ShooterConstants {
     public static final double SHOOTER_Pivot_I = 0;
     public static final double SHOOTER_Pivot_D = 0;
 
+    public static final double AmpScoreingAngle = 60;
+    public static final double SpeakerScoringSubWooferAngle = 60;
+    public static final double SpeakerScoringPodiumAngle = 60;
+
+
     // See diagram its very usefull
     public static final double Theta_Offset = 2;
     public static final double L1_SpivtoWpivperp = 2;
