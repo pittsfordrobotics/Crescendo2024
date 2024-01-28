@@ -11,7 +11,7 @@ import frc.robot.commands.BasicIntake;
 import frc.robot.commands.BasicShoot;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
-import frc.robot.commands.Intake;
+import frc.robot.subsystems.SwerveSubsystem;
 
 import java.util.Set;
 
@@ -53,9 +53,7 @@ public class RobotContainer {
     configureBindings();
   }
 
-  private boolean isFieldOriented() {
-    return fieldOrientedButton.getEntry().getBoolean(false);
-  }
+
 
   /**
    * Use this method to define your trigger->command mappings. Triggers can be
@@ -91,16 +89,6 @@ public class RobotContainer {
       m_driverController.b().whileTrue(ti);
     }
 
-  }
-
-  private double applyDeadband(double value, double deadband) {
-    if(Math.abs(value) > deadband) {
-      return value;
-    m_operatorController.x().whileTrue(INTAKE.intakePivotRaw(.05));
-    }
-    // y for shooter pivot up
-    m_operatorController.y().whileTrue(SHOOTER.setShooterPivotraw(.05));
-    return 0;
     // left bumper for shooter pivot pid test
     m_operatorController.leftBumper().whileTrue(SHOOTER.setShooterPivotangle(60));
 
@@ -122,6 +110,12 @@ public class RobotContainer {
     m_operatorController.rightBumper().whileTrue(INTAKE.setIntakePivotAngle(90));
   }
 
+  private double applyDeadband(double value, double deadband) {
+      if(Math.abs(value) > deadband) {
+        return value;
+      }
+      return 0;
+    }
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
    *
