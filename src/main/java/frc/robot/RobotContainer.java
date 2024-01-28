@@ -4,13 +4,14 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.Filesystem;
+import edu.wpi.first.wpilibj.RobotBase;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.BasicIntake;
 import frc.robot.commands.BasicShoot;
-import frc.robot.commands.ZeroGyro;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
-import frc.robot.subsystems.swerve.Swerve;
+import frc.robot.commands.Intake;
 
 import java.util.Set;
 
@@ -19,6 +20,9 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.Commands;
+
+import java.io.File;
+import java.util.function.DoubleSupplier;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -31,7 +35,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
  */
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
-  private final Swerve m_swerveDrive = new Swerve();
+  private final SwerveSubsystem swerveSubsystem;
   private final Shooter SHOOTER = new Shooter();
   private final Intake INTAKE = new Intake();
 
@@ -44,8 +48,13 @@ public class RobotContainer {
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
+    swerveSubsystem = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve/maxSwerve"));
     // Configure the trigger bindings
     configureBindings();
+  }
+
+  private boolean isFieldOriented() {
+    return fieldOrientedButton.getEntry().getBoolean(false);
   }
 
   /**
@@ -63,12 +72,16 @@ public class RobotContainer {
    * joysticks}.
    */
   private void configureBindings() {
-
-    // Calls the command ZeroGyro when the start button on the drivers controller is pressed
-    ZeroGyro zeroGyro = new ZeroGyro(m_swerveDrive);
-    m_driverController.start().whileTrue(zeroGyro);
-
-    // a for shoot
+    // This command works for sim, there is no need for a separate sim drive command
+    // The sim drive command's angle is position-based and not commanded by angular velocity, so this should be used regardless
+    Command driveFieldOrientedAnglularVelocity = swerveSubsystem.driveCommand(
+            () -> -1*applyDeadband(m_driverController.getLeftY(), 0.2), 
+            () -> -1*applyDeadband(m_driverController.getLeftX(), 0.2),
+            () -> -1*applyDeadband(m_driverController.getRightX(), 0.2)
+    );
+    swerveSubsystem.setDefaultCommand(driveFieldOrientedAnglularVelocity);
+	
+	    // a for shoot
     BasicShoot ts = new BasicShoot(SHOOTER);
     m_driverController.a().whileTrue(ts);
 
@@ -77,6 +90,22 @@ public class RobotContainer {
     if (!m_driverController.a().getAsBoolean()) {
       m_driverController.b().whileTrue(ti);
     }
+
+  }
+
+  private double applyDeadband(double value, double deadband) {
+    if(Math.abs(value) > deadband) {
+      return value;
+    m_operatorController.x().whileTrue(INTAKE.intakePivotRaw(.05));
+    }
+    // y for shooter pivot up
+    m_operatorController.y().whileTrue(SHOOTER.setShooterPivotraw(.05));
+    return 0;
+    // left bumper for shooter pivot pid test
+    m_operatorController.leftBumper().whileTrue(SHOOTER.setShooterPivotangle(60));
+
+    // right bumper for intake pivot pid test
+    m_operatorController.rightBumper().whileTrue(INTAKE.setIntakePivotAngle(90));
 
     // for testing to make sure we dont need to invert
     //
@@ -99,7 +128,8 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    // An example command will be run in autonomous
-    return Autos.exampleAuto(m_exampleSubsystem);
+    // // Choreo swerve auto
+    return null;
+    // return Autos.choreoSwerveAuto(m_swerveDrive, "NewPath");
   }
 }
