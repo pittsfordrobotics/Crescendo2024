@@ -8,7 +8,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.subsystems.Vision.VisionIO.Pipelines;
-import frc.robot.subsystems.swerve.Swerve;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -127,8 +126,8 @@ public class Vision extends SubsystemBase {
                 SmartDashboard.putNumber("Vision/ThetaStd", thetaStdDev);
 
                 // Add vision data to swerve pose estimator -- will depend on swerve 
-                Swerve.getInstance().addVisionData(robotPose, inputs[i].captureTimestamp,
-                        VecBuilder.fill(xyStdDev, xyStdDev, thetaStdDev));
+                // Swerve.getInstance().addVisionData(robotPose, inputs[i].captureTimestamp,
+                //         VecBuilder.fill(xyStdDev, xyStdDev, thetaStdDev));
 
                 // Add robot pose from this camera to a list of all robot poses
                 allRobotPoses.add(robotPose);
