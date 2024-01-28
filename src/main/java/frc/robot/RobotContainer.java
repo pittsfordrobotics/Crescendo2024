@@ -5,7 +5,6 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.Filesystem;
-import edu.wpi.first.wpilibj.RobotBase;
 import frc.robot.Constants.OperatorConstants;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -13,7 +12,6 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.SwerveSubsystem;
 
 import java.io.File;
-import java.util.function.DoubleSupplier;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -35,10 +33,6 @@ public class RobotContainer {
     swerveSubsystem = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve/maxSwerve"));
     // Configure the trigger bindings
     configureBindings();
-  }
-
-  private boolean isFieldOriented() {
-    return fieldOrientedButton.getEntry().getBoolean(false);
   }
 
   /**
