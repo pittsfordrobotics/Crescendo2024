@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.SwerveSubsystem;
+import frc.robot.commands.DriveToPoint_Test;
 
 import java.io.File;
 
@@ -58,6 +59,9 @@ public class RobotContainer {
             () -> -1*applyDeadband(m_driverController.getRightX(), 0.2)
     );
     swerveSubsystem.setDefaultCommand(driveFieldOrientedAnglularVelocity);
+
+    DriveToPoint_Test driveToPoint_Test = new DriveToPoint_Test();
+    m_driverController.b().whileTrue(driveToPoint_Test);
   }
 
   private double applyDeadband(double value, double deadband) {
