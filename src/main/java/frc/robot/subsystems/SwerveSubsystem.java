@@ -40,6 +40,9 @@ public class SwerveSubsystem extends SubsystemBase {
    * Swerve drive object.
    */
   private final SwerveDrive swerveDrive;
+  public SwerveDrive getSwerveDrive() {
+    return swerveDrive;
+  }
   /**
    * Maximum speed of the robot in meters per second, used to limit acceleration.
    */
@@ -92,55 +95,56 @@ public class SwerveSubsystem extends SubsystemBase {
   /**
    * Setup AutoBuilder for PathPlanner.
    */
-  public void setupPathPlanner() {
-    AutoBuilder.configureHolonomic(
-        this::getPose, // Robot pose supplier
-        this::resetOdometry, // Method to reset odometry (will be called if your auto has a starting pose)
-        this::getRobotVelocity, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
-        this::setChassisSpeeds, // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds
-        new HolonomicPathFollowerConfig( // HolonomicPathFollowerConfig, this should likely live in your Constants class
-                                         new PIDConstants(5.0, 0.0, 0.0),
-                                         // Translation PID constants
-                                         new PIDConstants(swerveDrive.swerveController.config.headingPIDF.p,
-                                                          swerveDrive.swerveController.config.headingPIDF.i,
-                                                          swerveDrive.swerveController.config.headingPIDF.d),
-                                         // Rotation PID constants
-                                         4.5,
-                                         // Max module speed, in m/s
-                                         swerveDrive.swerveDriveConfiguration.getDriveBaseRadiusMeters(),
-                                         // Drive base radius in meters. Distance from robot center to furthest module.
-                                         new ReplanningConfig()
-                                         // Default path replanning config. See the API for the options here
-        ),
-        () -> {
-          // Boolean supplier that controls when the path will be mirrored for the red alliance
-          // This will flip the path being followed to the red side of the field.
-          // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
-          var alliance = DriverStation.getAlliance();
-          return alliance.isPresent() && alliance.get() == DriverStation.Alliance.Red;
-        },
-        this // Reference to this subsystem to set requirements
-    );
-  }
+  // TODO: Reimplement if choreo does not work
+  // public void setupPathPlanner() {
+  //   AutoBuilder.configureHolonomic(
+  //       this::getPose, // Robot pose supplier
+  //       this::resetOdometry, // Method to reset odometry (will be called if your auto has a starting pose)
+  //       this::getRobotVelocity, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
+  //       this::setChassisSpeeds, // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds
+  //       new HolonomicPathFollowerConfig( // HolonomicPathFollowerConfig, this should likely live in your Constants class
+  //                                        new PIDConstants(5.0, 0.0, 0.0),
+  //                                        // Translation PID constants
+  //                                        new PIDConstants(swerveDrive.swerveController.config.headingPIDF.p,
+  //                                                         swerveDrive.swerveController.config.headingPIDF.i,
+  //                                                         swerveDrive.swerveController.config.headingPIDF.d),
+  //                                        // Rotation PID constants
+  //                                        4.5,
+  //                                        // Max module speed, in m/s
+  //                                        swerveDrive.swerveDriveConfiguration.getDriveBaseRadiusMeters(),
+  //                                        // Drive base radius in meters. Distance from robot center to furthest module.
+  //                                        new ReplanningConfig()
+  //                                        // Default path replanning config. See the API for the options here
+  //       ),
+  //       () -> {
+  //         // Boolean supplier that controls when the path will be mirrored for the red alliance
+  //         // This will flip the path being followed to the red side of the field.
+  //         // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
+  //         var alliance = DriverStation.getAlliance();
+  //         return alliance.isPresent() && alliance.get() == DriverStation.Alliance.Red;
+  //       },
+  //       this // Reference to this subsystem to set requirements
+  //   );
+  // }
 
-  /**
-   * Get the path follower with events.
-   *
-   * @param pathName       PathPlanner path name.
-   * @param setOdomToStart Set the odometry position to the start of the path.
-   * @return {@link AutoBuilder#followPath(PathPlannerPath)} path command.
-   */
-  public Command getAutonomousCommand(String pathName, boolean setOdomToStart) {
-    // Load the path you want to follow using its name in the GUI
-    PathPlannerPath path = PathPlannerPath.fromPathFile(pathName);
+  // /**
+  //  * Get the path follower with events.
+  //  *
+  //  * @param pathName       PathPlanner path name.
+  //  * @param setOdomToStart Set the odometry position to the start of the path.
+  //  * @return {@link AutoBuilder#followPath(PathPlannerPath)} path command.
+  //  */
+  // public Command getAutonomousCommand(String pathName, boolean setOdomToStart) {
+  //   // Load the path you want to follow using its name in the GUI
+  //   PathPlannerPath path = PathPlannerPath.fromPathFile(pathName);
 
-    if (setOdomToStart) {
-      resetOdometry(new Pose2d(path.getPoint(0).position, getHeading()));
-    }
+  //   if (setOdomToStart) {
+  //     resetOdometry(new Pose2d(path.getPoint(0).position, getHeading()));
+  //   }
 
-    // Create a path following command using AutoBuilder. This will also trigger event markers.
-    return AutoBuilder.followPath(path);
-  }
+  //   // Create a path following command using AutoBuilder. This will also trigger event markers.
+  //   return AutoBuilder.followPath(path);
+  // }
 
   /**
    * Use PathPlanner Path finding to go to a point on the field.
