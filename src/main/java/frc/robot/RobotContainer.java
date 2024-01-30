@@ -4,7 +4,9 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.Filesystem;
+import edu.wpi.first.wpilibj.RobotBase;
 import frc.robot.Constants.OperatorConstants;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -12,6 +14,11 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.SwerveSubsystem;
 
 import java.io.File;
+import java.util.function.DoubleSupplier;
+
+import com.choreo.lib.Choreo;
+import com.choreo.lib.ChoreoTrajectory;
+import com.pathplanner.lib.auto.NamedCommands;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -32,6 +39,8 @@ public class RobotContainer {
   public RobotContainer() {
     swerveSubsystem = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve/maxSwerve"));
     // Configure the trigger bindings
+    // TODO: Register each command that could be run as part of an auto path here (don't delete this todo)
+    // NamedCommands.registerCommand("commandName", getAutonomousCommand());
     configureBindings();
   }
 
@@ -75,6 +84,18 @@ public class RobotContainer {
   public Command getAutonomousCommand() {
     // // Choreo swerve auto
     return null;
-    // return Autos.choreoSwerveAuto(m_swerveDrive, "NewPath");
+    ChoreoTrajectory traj = Choreo.getTrajectory("NewPath");
+
+    return Choreo.choreoSwerveCommand(
+      traj,
+      swerveSubsystem.getPose(),
+      new PIDController(swerveSubsystem.getSwerveDrive().swerveController.config.headingPIDF.p, 0.0, 0.0), // 
+      new PIDController(swerveSubsystem.getSwerveDrive().swerveController.config.headingPIDF.p, 0.0, 0.0), // 
+      // TODO: Find out if this is defined anywhere else (robot angle pid)
+      // may want to tune all these pids separately from what's in the heading config
+      new PIDController(swerveSubsystem.getSwerveDrive().getModules()[0].getConfiguration().anglePIDF.p, 0.0, 0.0), //,
+      null,
+      null,
+      null)
   }
 }
