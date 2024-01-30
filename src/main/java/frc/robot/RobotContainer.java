@@ -5,6 +5,8 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.Filesystem;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import frc.robot.Constants.OperatorConstants;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -23,6 +25,7 @@ public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   //private final Shooter m_shooter = new Shooter();
   private final SwerveSubsystem swerveSubsystem;
+  private final SendableChooser<Boolean> toggleDriveMode;
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final CommandXboxController m_driverController =
@@ -31,6 +34,8 @@ public class RobotContainer {
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     swerveSubsystem = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve/maxSwerve"));
+    toggleDriveMode = new SendableChooser<>();
+    Shuffleboard.getTab("CONFIG").add(toggleDriveMode);
     // Configure the trigger bindings
     configureBindings();
   }
@@ -52,12 +57,23 @@ public class RobotContainer {
 
     // This command works for sim, there is no need for a separate sim drive command
     // The sim drive command's angle is position-based and not commanded by angular velocity, so this should be used regardless
+    Command driveCommand = driveAnglularVelocity();
+    swerveSubsystem.setDefaultCommand(driveCommand);
+  }
+
+  private Command driveAnglularVelocity() {
     Command driveFieldOrientedAnglularVelocity = swerveSubsystem.driveCommand(
-            () -> -1*applyDeadband(m_driverController.getLeftY(), 0.2), 
+            () -> -1*applyDeadband(m_driverController.getLeftY(), 0.2),
             () -> -1*applyDeadband(m_driverController.getLeftX(), 0.2),
             () -> -1*applyDeadband(m_driverController.getRightX(), 0.2)
     );
-    swerveSubsystem.setDefaultCommand(driveFieldOrientedAnglularVelocity);
+    Command driveRobotOrientedAnglularVelocity = swerveSubsystem.driveRobotOriented( //we're sticking with "anglular"
+            () -> -applyDeadband(m_driverController.getLeftY(), 0.2),
+            () -> -applyDeadband(m_driverController.getLeftX(), 0.2),
+            () -> -applyDeadband(m_driverController.getRightX(), 0.2)
+    );
+    return toggleDriveMode.getSelected() ? driveRobotOrientedAnglularVelocity
+            : driveFieldOrientedAnglularVelocity;
   }
 
   private double applyDeadband(double value, double deadband) {
