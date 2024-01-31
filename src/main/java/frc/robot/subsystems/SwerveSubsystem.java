@@ -12,6 +12,8 @@ import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.ReplanningConfig;
+import com.revrobotics.AbsoluteEncoder;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -23,6 +25,8 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.lib.SwerveOffsets;
+
 import java.io.File;
 import java.util.function.DoubleSupplier;
 import swervelib.SwerveController;
@@ -442,5 +446,13 @@ public class SwerveSubsystem extends SubsystemBase {
    */
   public void addFakeVisionReading() {
     swerveDrive.addVisionMeasurement(new Pose2d(3, 3, Rotation2d.fromDegrees(65)), Timer.getFPGATimestamp());
+  }
+  public void setSwerveOffsets() {
+    SwerveOffsets prevOffsets = SwerveOffsets.readFromConfig();
+    AbsoluteEncoder encoderFL = (AbsoluteEncoder)swerveDrive.getModules()[0].getAbsoluteEncoder().getAbsoluteEncoder();
+    AbsoluteEncoder encoderFR = (AbsoluteEncoder)swerveDrive.getModules()[1].getAbsoluteEncoder().getAbsoluteEncoder();
+    AbsoluteEncoder encoderBL = (AbsoluteEncoder)swerveDrive.getModules()[2].getAbsoluteEncoder().getAbsoluteEncoder();
+    AbsoluteEncoder encoderBR = (AbsoluteEncoder)swerveDrive.getModules()[3].getAbsoluteEncoder().getAbsoluteEncoder();
+    
   }
 }

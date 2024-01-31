@@ -59,10 +59,10 @@ public class SwerveOffsets {
         Rotation2d BR_PURE_OFFSET = Rotation2d.fromDegrees(swerveOffsetsMap.getOrDefault("BR_PURE_OFFSET", 0.0));
 
         SwerveOffsets offsets = new SwerveOffsets();
-        offsets.FLOffset = FL_PURE_OFFSET;
+        offsets.FLOffset = FL_PURE_OFFSET.plus(Rotation2d.fromDegrees(-90));
         offsets.FROffset = FR_PURE_OFFSET;
-        offsets.BLOffset = BL_PURE_OFFSET;
-        offsets.BROffset = BR_PURE_OFFSET;
+        offsets.BLOffset = BL_PURE_OFFSET.plus(Rotation2d.fromDegrees(-180));
+        offsets.BROffset = BR_PURE_OFFSET.plus(Rotation2d.fromDegrees(-270));
 
         return offsets;
     }
