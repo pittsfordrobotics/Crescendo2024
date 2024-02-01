@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.math.VecBuilder;
@@ -32,13 +33,16 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 public class Vision extends SubsystemBase {
 
     // Initialization
+    private Consumer<VisionData> visionDataConsumer;
+
     private final VisionIO[] io;
     private final Map<Integer, Double> lastTagDetectionTimes = new HashMap<>();
-    private static final Vision INSTANCE = new Vision(VisionConstants.LIMELIGHT1);
-    public static Vision getInstance() {
-        return INSTANCE;
-    }
-    private Vision(VisionIO ioLimelight1) {
+    // private static final Vision INSTANCE = new Vision(VisionConstants.LIMELIGHT1);
+    // public static Vision getInstance() {
+    //     return INSTANCE;
+    // }
+    public Vision(VisionIO ioLimelight1, Consumer<VisionData> visionDataConsumer) {
+        this.visionDataConsumer = visionDataConsumer;
         io = new VisionIO[] { ioLimelight1 };
         FieldConstants.aprilTags.getTags().forEach((AprilTag tag) -> lastTagDetectionTimes.put(tag.ID, 0.0));
     }
@@ -129,7 +133,7 @@ public class Vision extends SubsystemBase {
 
                 // Add vision data to swerve pose estimator -- will depend on swerve 
                 VisionData visionData = new VisionData(visionCalcPose, inputs[i].captureTimestamp, VecBuilder.fill(xyStdDev, xyStdDev, thetaStdDev));
-                SwerveSubsystem.getInstance().addVisionData(visionData);
+                visionDataConsumer.accept(visionData);
                 
                 // Add robot pose from this camera to a list of all robot poses
                 allRobotPoses.add(visionCalcPose);

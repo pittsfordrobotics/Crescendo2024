@@ -52,10 +52,10 @@ public class SwerveSubsystem extends SubsystemBase {
    */
   public double maximumSpeed = Units.feetToMeters(14.5);
 
-  public static final SwerveSubsystem INSTANCE = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve/maxSwerve"));
-  public static SwerveSubsystem getInstance() {
-    return INSTANCE;
-  }
+  // public static final SwerveSubsystem INSTANCE = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve/maxSwerve"));
+  // public static SwerveSubsystem getInstance() {
+  //   return INSTANCE;
+  // }
 
   /**
    * Initialize {@link SwerveDrive} with the directory provided.
@@ -448,7 +448,7 @@ public class SwerveSubsystem extends SubsystemBase {
   public Rotation2d getPitch() {
     return swerveDrive.getPitch();
   }
-  
+
   //  * Adds vision measurement from vision object to swerve
   public void addVisionData(VisionData visionData) {
     swerveDrive.addVisionMeasurement(visionData.getVisionPose(), visionData.getTime(), visionData.getVisionReliability());
