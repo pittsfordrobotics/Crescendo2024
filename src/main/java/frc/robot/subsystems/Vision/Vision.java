@@ -6,6 +6,7 @@ package frc.robot.subsystems.Vision;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.VisionConstants;
+import frc.robot.lib.VisionData;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.subsystems.Vision.VisionIO.Pipelines;
@@ -75,12 +76,12 @@ public class Vision extends SubsystemBase {
                         Math.toRadians(inputs[i].botRPY[2])
                     )
                 );
-                Pose2d robotPose = robotPose3d.toPose2d();
+                Pose2d visionCalcPose = robotPose3d.toPose2d();
 
                 SmartDashboard.putBoolean("Vision Not exited?", true);
-                SmartDashboard.putNumber("Vision/Pose" + i + "/X", robotPose.getX());
-                SmartDashboard.putNumber("Vision/Pose" + i + "/Y", robotPose.getY());
-                SmartDashboard.putNumber("Vision/Pose" + i + "/Theta", robotPose.getRotation().getDegrees());
+                SmartDashboard.putNumber("Vision/Pose" + i + "/X", visionCalcPose.getX());
+                SmartDashboard.putNumber("Vision/Pose" + i + "/Y", visionCalcPose.getY());
+                SmartDashboard.putNumber("Vision/Pose" + i + "/Theta", visionCalcPose.getRotation().getDegrees());
 
 
                 // exit if off the field (might be bad)
@@ -127,12 +128,11 @@ public class Vision extends SubsystemBase {
                 SmartDashboard.putNumber("Vision/ThetaStd", thetaStdDev);
 
                 // Add vision data to swerve pose estimator -- will depend on swerve 
-                SwerveSubsystem.getInstance().addVisionData(robotPose, inputs[i].captureTimestamp,
-                         VecBuilder.fill(xyStdDev, xyStdDev, thetaStdDev));
+                VisionData visionData = new VisionData(visionCalcPose, inputs[i].captureTimestamp, VecBuilder.fill(xyStdDev, xyStdDev, thetaStdDev));
+                SwerveSubsystem.getInstance().addVisionData(visionData);
                 
-
                 // Add robot pose from this camera to a list of all robot poses
-                allRobotPoses.add(robotPose);
+                allRobotPoses.add(visionCalcPose);
                 List<Pose3d> allTagPoses = new ArrayList<>();
                 for (Map.Entry<Integer, Double> detectionEntry : lastTagDetectionTimes.entrySet()) {
                     if (Timer.getFPGATimestamp() - detectionEntry.getValue() < VisionConstants.TARGET_LOG_SECONDS

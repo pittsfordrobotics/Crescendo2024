@@ -28,6 +28,8 @@ import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.lib.VisionData;
+
 import java.io.File;
 import java.util.function.DoubleSupplier;
 import swervelib.SwerveController;
@@ -446,11 +448,10 @@ public class SwerveSubsystem extends SubsystemBase {
   public Rotation2d getPitch() {
     return swerveDrive.getPitch();
   }
-  /**
-   * Adds vision measurement from vision object to swerve
-   */
-  public void addVisionData(Pose2d visionPose, double time, Matrix<N3,N1> visionReliability) {
-    swerveDrive.addVisionMeasurement(visionPose, time, visionReliability);
+  
+  //  * Adds vision measurement from vision object to swerve
+  public void addVisionData(VisionData visionData) {
+    swerveDrive.addVisionMeasurement(visionData.getVisionPose(), visionData.getTime(), visionData.getVisionReliability());
   }
 
   /**
