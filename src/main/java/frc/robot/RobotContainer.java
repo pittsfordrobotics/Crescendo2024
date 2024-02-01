@@ -7,20 +7,15 @@ package frc.robot;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.SimpleWidget;
-import edu.wpi.first.wpilibj.shuffleboard.SuppliedValueWidget;
-import edu.wpi.first.wpilibj.shuffleboard.WidgetType;
-import frc.robot.Constants.OperatorConstants;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.Constants.OperatorConstants;
 import frc.robot.subsystems.SwerveSubsystem;
 import swervelib.SwerveModule;
 import swervelib.parser.PIDFConfig;
 
 import java.io.File;
-import java.io.IOError;
-import java.io.IOException;
-import java.util.Scanner;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -43,18 +38,8 @@ public class RobotContainer {
     // Configure the trigger bindings
     configureBindings();
 
-    SimpleWidget velocityP = Shuffleboard.getTab("PID").add("Velocity P",
-            swerveSubsystem.getSwerveDriveConfiguration().modules[0].configuration.velocityPIDF.p);
-    SimpleWidget velocityD = Shuffleboard.getTab("PID").add("Velocity D",
-            swerveSubsystem.getSwerveDriveConfiguration().modules[0].configuration.velocityPIDF.d);
 
-    SimpleWidget angleP = Shuffleboard.getTab("PID").add("Angle P",
-            swerveSubsystem.getSwerveDriveConfiguration().modules[0].configuration.anglePIDF.p);
-    SimpleWidget angleD = Shuffleboard.getTab("PID").add("Angle D",
-            swerveSubsystem.getSwerveDriveConfiguration().modules[0].configuration.anglePIDF.d);
     //get double value
-
-    System.out.println(velocityP.getEntry().getDouble(-1));
   }
 
   /**
@@ -99,21 +84,5 @@ public class RobotContainer {
     // // Choreo swerve auto
     return null;
     // return Autos.choreoSwerveAuto(m_swerveDrive, "NewPath");
-  }
-
-  public void configureDrivePID(double p) {
-    for(SwerveModule module: swerveSubsystem.getSwerveDriveConfiguration().modules) {
-      module.getDriveMotor().configurePIDF(new PIDFConfig(p, 0));
-    }
-  }
-
-  public void configureAnglePID(double p, double d) {
-    for(SwerveModule module: swerveSubsystem.getSwerveDriveConfiguration().modules) {
-      module.getAngleMotor().configurePIDF(new PIDFConfig(p, d));
-    }
-  }
-
-  public void configureHeadingPID(double p, double d) {
-    swerveSubsystem.getSwerveController().thetaController.setPID(p, 0, d);
   }
 }

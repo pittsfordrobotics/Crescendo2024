@@ -21,13 +21,17 @@ import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.SimpleWidget;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import java.io.File;
 import java.util.function.DoubleSupplier;
 import swervelib.SwerveController;
 import swervelib.SwerveDrive;
+import swervelib.SwerveModule;
 import swervelib.math.SwerveMath;
+import swervelib.parser.PIDFConfig;
 import swervelib.parser.SwerveControllerConfiguration;
 import swervelib.parser.SwerveDriveConfiguration;
 import swervelib.parser.SwerveParser;
@@ -44,6 +48,14 @@ public class SwerveSubsystem extends SubsystemBase {
    * Maximum speed of the robot in meters per second, used to limit acceleration.
    */
   public double maximumSpeed = Units.feetToMeters(14.5);
+
+  private SimpleWidget velocityP;
+  private SimpleWidget angleP;
+  private SimpleWidget angleD;
+
+  private double prevVelocityP;
+  private double prevAngleP;
+  private double prevAngleD;
 
   /**
    * Initialize {@link SwerveDrive} with the directory provided.
@@ -77,6 +89,15 @@ public class SwerveSubsystem extends SubsystemBase {
     swerveDrive.setHeadingCorrection(false); // Heading correction should only be used while controlling the robot via angle.
 
     setupPathPlanner();
+
+    prevVelocityP = getSwerveDriveConfiguration().modules[0].configuration.velocityPIDF.p;
+    velocityP = Shuffleboard.getTab("PID Config").add("Velocity P", prevVelocityP);
+
+    prevAngleP = getSwerveDriveConfiguration().modules[0].configuration.anglePIDF.p;
+    angleP = Shuffleboard.getTab("PID Config").add("Angle P", prevAngleP);
+
+    prevAngleD = getSwerveDriveConfiguration().modules[0].configuration.anglePIDF.d;
+    angleD = Shuffleboard.getTab("PID Config").add("Angle D", prevAngleD);
   }
 
   /**
@@ -267,9 +288,6 @@ public class SwerveSubsystem extends SubsystemBase {
   }
 
   @Override
-  public void periodic() {}
-
-  @Override
   public void simulationPeriodic() {}
 
   /**
@@ -442,5 +460,45 @@ public class SwerveSubsystem extends SubsystemBase {
    */
   public void addFakeVisionReading() {
     swerveDrive.addVisionMeasurement(new Pose2d(3, 3, Rotation2d.fromDegrees(65)), Timer.getFPGATimestamp());
+  }
+
+  /**
+   * Edits the drive PID with the specified P value
+   * @param p The desired P value
+   */
+  public void configureDrivePID(double p) {
+    for(SwerveModule module: swerveDrive.swerveDriveConfiguration.modules) {
+      module.getDriveMotor().configurePIDF(new PIDFConfig(p, 0));
+    }
+  }
+
+  /**
+   * Edits the angle PID with the specified P and D values;
+   * @param p The desired P value
+   * @param d The desired D value
+   */
+  public void configureAnglePID(double p, double d) {
+    for(SwerveModule module: swerveDrive.swerveDriveConfiguration.modules) {
+      module.getAngleMotor().configurePIDF(new PIDFConfig(p, d));
+    }
+  }
+
+  public void configureHeadingPID(double p, double d) { //todo: do something with this
+    swerveDrive.swerveController.thetaController.setPID(p, 0, d);
+  }
+
+  @Override
+  public void periodic() {
+    if(velocityP.getEntry().getDouble(0) != prevVelocityP) {
+      prevVelocityP = velocityP.getEntry().getDouble(0);
+      configureDrivePID(velocityP.getEntry().getDouble(0));
+    }
+
+    if(angleP.getEntry().getDouble(0) != prevAngleP ||
+            angleD.getEntry().getDouble(0) != prevAngleD) {
+      prevAngleP = angleP.getEntry().getDouble(0);
+      prevAngleD = angleD.getEntry().getDouble(0);
+      configureAnglePID(angleP.getEntry().getDouble(0), angleD.getEntry().getDouble(0));
+    }
   }
 }
