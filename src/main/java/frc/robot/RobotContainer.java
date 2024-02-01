@@ -5,6 +5,10 @@
 package frc.robot;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.RobotBase;
 import frc.robot.Constants.OperatorConstants;
@@ -14,6 +18,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.SwerveSubsystem;
 
 import java.io.File;
+import java.util.Optional;
 import java.util.function.DoubleSupplier;
 
 import com.choreo.lib.Choreo;
@@ -83,19 +88,26 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     // // Choreo swerve auto
-    return null;
     ChoreoTrajectory traj = Choreo.getTrajectory("NewPath");
 
+    // TODO: Replace these with X and Y translate pids (should be same) and rotational pid tuned using shuffleboard when chassis is ready
+    double xTranslateP = 0;
+    double yTranslateP = 0;
+    double angleP = 0;
+
+    //swerveSubsystem.getSwerveDrive().swerveController.config.headingPIDF.p may be useful
     return Choreo.choreoSwerveCommand(
       traj,
-      swerveSubsystem.getPose(),
-      new PIDController(swerveSubsystem.getSwerveDrive().swerveController.config.headingPIDF.p, 0.0, 0.0), // 
-      new PIDController(swerveSubsystem.getSwerveDrive().swerveController.config.headingPIDF.p, 0.0, 0.0), // 
-      // TODO: Find out if this is defined anywhere else (robot angle pid)
-      // may want to tune all these pids separately from what's in the heading config
-      new PIDController(swerveSubsystem.getSwerveDrive().getModules()[0].getConfiguration().anglePIDF.p, 0.0, 0.0), //,
-      null,
-      null,
-      null)
+      swerveSubsystem::getPose,
+      new PIDController(xTranslateP, 0.0, 0.0), // PIDController for field-relative X translation (input: Y error in meters, output: m/s).
+      new PIDController(yTranslateP, 0.0, 0.0), // PIDController for field-relative Y translation (input: Y error in meters, output: m/s).
+      new PIDController(angleP, 0.0, 0.0), //, PID controller to correct for rotation error
+      (ChassisSpeeds speeds) -> swerveSubsystem.drive(new Translation2d(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond), speeds.omegaRadiansPerSecond, false), // A function that consumes the target robot-relative chassis speeds and commands them to the robot.
+      () -> {
+        Optional<DriverStation.Alliance> alliance = DriverStation.getAlliance();
+          return alliance.isPresent() && (alliance.get() == Alliance.Red);
+      }, // Whether or not to mirror the path based on alliance (assumes path created for blue)
+      swerveSubsystem // Subsystems to require, typically drivetrain only
+      );
   }
 }
