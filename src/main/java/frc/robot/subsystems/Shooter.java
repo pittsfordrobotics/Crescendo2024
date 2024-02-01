@@ -45,40 +45,42 @@ public class Shooter extends SubsystemBase {
     shooterMotorL = new CANSparkFlex(ShooterConstants.CAN_SHOOTER_L, MotorType.kBrushless);
     shooterMotorL.restoreFactoryDefaults();
     // shooterMotorL.setSmartCurrentLimit(40);
-    shooterMotorL.burnFlash();
     shooterMotorL.setInverted(true);
+    shooterMotorL.burnFlash();
     // Shooter Motor R
     shooterMotorR = new CANSparkFlex(ShooterConstants.CAN_SHOOTER_R, MotorType.kBrushless);
     shooterMotorR.restoreFactoryDefaults();
     // shooterMotorR.setSmartCurrentLimit(40);
     shooterMotorR.burnFlash();
 
-    // Index Motor L
-    indexerMotorL = new CANSparkMax(ShooterConstants.CAN_INDEXER_L, MotorType.kBrushless);
-    indexerMotorL.restoreFactoryDefaults();
-    indexerMotorL.burnFlash();
-    indexerMotorL.setSmartCurrentLimit(20);
-    indexerMotorL.follow(indexerMotorR, true);
     // Index Motor R (Leader)
     indexerMotorR = new CANSparkMax(ShooterConstants.CAN_INDEXER_R, MotorType.kBrushless);
     indexerMotorR.restoreFactoryDefaults();
+    indexerMotorR.setSmartCurrentLimit(20);    
+    backLimitSwitch = indexerMotorR.getForwardLimitSwitch(SparkLimitSwitch.Type.kNormallyOpen);
     indexerMotorR.burnFlash();
-    indexerMotorR.setSmartCurrentLimit(20);
-
-    // ShooterPivot L
-    shooterpivot_L = new CANSparkMax(ShooterConstants.CAN_SHOOTER_PIVOT_L, MotorType.kBrushless);
-    shooterpivot_L.restoreFactoryDefaults();
-    shooterpivot_L.burnFlash();
-    shooterpivot_L.setSmartCurrentLimit(20);
-    shooterpivot_L.follow(shooterpivot_R, true);
-    shooterpivot_L_ABSEncoder = shooterpivot_L.getAbsoluteEncoder(Type.kDutyCycle);
+    // Index Motor L
+    indexerMotorL = new CANSparkMax(ShooterConstants.CAN_INDEXER_L, MotorType.kBrushless);
+    indexerMotorL.restoreFactoryDefaults();
+    indexerMotorL.setSmartCurrentLimit(20);
+    indexerMotorL.follow(indexerMotorR, true);
+    indexerMotorL.burnFlash();
 
     // ShooterPivot R (Leader)
     shooterpivot_R = new CANSparkMax(ShooterConstants.CAN_SHOOTER_PIVOT_R, MotorType.kBrushless);
     shooterpivot_R.restoreFactoryDefaults();
-    shooterpivot_R.burnFlash();
     shooterpivot_R.setSmartCurrentLimit(20);
-    shooterpivot_R_ABSEncoder = shooterpivot_R.getAbsoluteEncoder(Type.kDutyCycle);
+    shooterpivot_R_ABSEncoder = shooterpivot_R.getAbsoluteEncoder(Type.kDutyCycle);    
+    shooterpivot_R.burnFlash();
+    // ShooterPivot L
+    shooterpivot_L = new CANSparkMax(ShooterConstants.CAN_SHOOTER_PIVOT_L, MotorType.kBrushless);
+    shooterpivot_L.restoreFactoryDefaults();
+    shooterpivot_L.setSmartCurrentLimit(20);
+    shooterpivot_L.follow(shooterpivot_R, true);
+    shooterpivot_L_ABSEncoder = shooterpivot_L.getAbsoluteEncoder(Type.kDutyCycle);
+    shooterpivot_L.burnFlash();
+
+    // Limit Switch
 
     // PID Controllers
 

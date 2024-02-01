@@ -28,24 +28,23 @@ public class Intake extends SubsystemBase {
 
   /** Creates a new Intake. */
   public Intake() {
-    // Intake Pivot Motor L
-    intakePivotMotorL = new CANSparkMax(IntakeConstants.CAN_INTAKE_PIVOT_L, MotorType.kBrushless);
-    intakePivotMotorL.restoreFactoryDefaults();
-    intakePivotMotorL.burnFlash();
-    intakePivotMotorL.setSmartCurrentLimit(20);
-    intakePivotMotorL.follow(intakePivotMotorR, false);
-
     // Intake Pivot Motor R (Leader)
     intakePivotMotorR = new CANSparkMax(IntakeConstants.CAN_INTAKE_PIVOT_R, MotorType.kBrushless);
     intakePivotMotorR.restoreFactoryDefaults();
-    intakePivotMotorR.burnFlash();
     intakePivotMotorR.setSmartCurrentLimit(20);
+    intakePivotMotorR.burnFlash();    
+    // Intake Pivot Motor L
+    intakePivotMotorL = new CANSparkMax(IntakeConstants.CAN_INTAKE_PIVOT_L, MotorType.kBrushless);
+    intakePivotMotorL.restoreFactoryDefaults();
+    intakePivotMotorL.setSmartCurrentLimit(20);
+    intakePivotMotorL.follow(intakePivotMotorR, false);
+    intakePivotMotorL.burnFlash();
 
     // Intake Motor
     intakeMotor = new CANSparkMax(IntakeConstants.CAN_INTAKE, MotorType.kBrushless);
     intakeMotor.restoreFactoryDefaults();
-    intakeMotor.burnFlash();
     intakeMotor.setSmartCurrentLimit(20);
+    intakeMotor.burnFlash();
 
     // Intake Pivot Pid (in the right motor controller)
     intakepivotPIDR = intakePivotMotorR.getPIDController();

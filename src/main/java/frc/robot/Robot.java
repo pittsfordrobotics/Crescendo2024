@@ -54,7 +54,8 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotPeriodic() {
-
+    
+    // IF WE DO A SUPERSTRUCTURE MOVE ALL THIS THERE
     // Sets the feedfoeard for both pivots PIDS based on angles
     // ***Look at Diagram for understanding***
     double theta = SHOOTER.getShooterAngle_deg();
@@ -78,6 +79,7 @@ public class Robot extends TimedRobot {
     double CMX = (CM2X * M2 + CM1X * M1) / (M1 + M2);
     double CMY = (CM2Y * M2 + CM1Y * M1) / (M1 + M2);
 
+    // Change to be simplified like get rid of the atan crap and NO DIVIDING
     double TotalTorque_ShoulderPiv = (Math.cos(Math.atan(CMY / CMX)) * 9.8 * (M1 + M2))
         * Math.sqrt((CMX * CMX) + (CMY * CMY));
     double TotalTorque_IntakePiv = (Math.cos(theta + Alpha_CM) * 9.8 * (M2)) * L3;
