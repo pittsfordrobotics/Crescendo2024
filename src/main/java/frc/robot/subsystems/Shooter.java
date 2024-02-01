@@ -39,6 +39,12 @@ public class Shooter extends SubsystemBase {
   private SparkAbsoluteEncoder shooterpivot_R_ABSEncoder;
   private SparkAbsoluteEncoder shooterpivot_L_ABSEncoder;
 
+  // make into a singleton
+  private final static Shooter instance = new Shooter();
+  public static Shooter getInstance() {
+    return instance;
+  }
+
   /** Creates a new Shooter. */
   public Shooter() {
     // Shooter Motor L
@@ -146,7 +152,7 @@ public class Shooter extends SubsystemBase {
     shooterMotorL.set(input);
     SmartDashboard.putNumber("Shooter power", input);
     SmartDashboard.putNumber("Shooter RPM", shooterMotorL.getEncoder().getVelocity());
-    shooterMotorR.set(-input);
+    shooterMotorR.set(input);
   }
 
   // Drives Both Shooters at the same rpm using PID
