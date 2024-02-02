@@ -11,11 +11,14 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.OperatorConstants;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.SwerveSubsystem;
+import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 import java.io.File;
 import java.util.Optional;
@@ -31,10 +34,13 @@ import com.pathplanner.lib.auto.NamedCommands;
  * periodic methods (other than the scheduler calls). Instead, the structure of the robot (including
  * subsystems, commands, and trigger mappings) should be declared here.
  */
+
+
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   //private final Shooter m_shooter = new Shooter();
   private final SwerveSubsystem swerveSubsystem;
+  private final LoggedDashboardChooser<Command> autoChooser = new LoggedDashboardChooser<>("Auto Routine");
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final CommandXboxController m_driverController =
@@ -47,6 +53,7 @@ public class RobotContainer {
     // TODO: Register each command that could be run as part of an auto path here (don't delete this todo)
     // NamedCommands.registerCommand("commandName", getAutonomousCommand());
     configureBindings();
+    autoConfig();
   }
 
   /**
@@ -86,22 +93,27 @@ public class RobotContainer {
    *
    * @return the command to run in autonomous
    */
-  public Command getAutonomousCommand() {
+  public void autoConfig() {
     // // Choreo swerve auto
     ChoreoTrajectory traj = Choreo.getTrajectory("NewPath");
+
 
     // TODO: Replace these with X and Y translate pids (should be same) and rotational pid tuned using shuffleboard when chassis is ready
     double xTranslateP = 0;
     double yTranslateP = 0;
     double angleP = 0;
 
+    // Angle PID controller
+    var thetaController = new PIDController(angleP, 0.0, 0.0);
+    thetaController.enableContinuousInput(-Math.PI, Math.PI);
+
     //swerveSubsystem.getSwerveDrive().swerveController.config.headingPIDF.p may be useful
-    return Choreo.choreoSwerveCommand(
+    Command swerveCommand = Choreo.choreoSwerveCommand(
       traj,
       swerveSubsystem::getPose,
       new PIDController(xTranslateP, 0.0, 0.0), // PIDController for field-relative X translation (input: Y error in meters, output: m/s).
       new PIDController(yTranslateP, 0.0, 0.0), // PIDController for field-relative Y translation (input: Y error in meters, output: m/s).
-      new PIDController(angleP, 0.0, 0.0), //, PID controller to correct for rotation error
+      thetaController, //, PID controller to correct for rotation error
       (ChassisSpeeds speeds) -> swerveSubsystem.drive(new Translation2d(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond), speeds.omegaRadiansPerSecond, false), // A function that consumes the target robot-relative chassis speeds and commands them to the robot.
       () -> {
         Optional<DriverStation.Alliance> alliance = DriverStation.getAlliance();
@@ -109,5 +121,16 @@ public class RobotContainer {
       }, // Whether or not to mirror the path based on alliance (assumes path created for blue)
       swerveSubsystem // Subsystems to require, typically drivetrain only
       );
+
+      swerveCommand = Commands.sequence(
+        Commands.runOnce(() -> swerveSubsystem.resetOdometry(traj.getInitialPose())),
+        swerveCommand);
+
+      autoChooser.addDefaultOption("test default auto", swerveCommand);
+
+      //SmartDashboard.putData(autoChooser);
+  }
+  public Command getAutonomousCommand() {
+    return autoChooser.get();
   }
 }
