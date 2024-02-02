@@ -166,7 +166,7 @@ public class Shooter extends SubsystemBase {
     (isLeftMotor ? RMPShooterLPid : RMPShooterRPid).setReference(setpoint, ControlType.kVelocity);
   }
 
-  // Drives the indexer with given values from -1 to 1
+  /** Drives the indexer with given values from -1 to 1 */
   public void setIndexer(double setpoint) {
     indexerMotorR.set(setpoint);
   }

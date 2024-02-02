@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj.RobotBase;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.BasicIntake;
 import frc.robot.commands.BasicShoot;
+import frc.robot.commands.ShootFromCurrentPose;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.SwerveSubsystem;
@@ -94,19 +95,15 @@ public class RobotContainer {
       m_driverController.b().whileTrue(ti);
     }
 
+    // X button preps shooter for shooting, Y button shoots the shooter
+    ShootFromCurrentPose shootFromCurrentPose = new ShootFromCurrentPose(SHOOTER, INTAKE, swerveSubsystem, () -> {return m_operatorController.y().getAsBoolean();});
+    m_operatorController.x().toggleOnTrue(shootFromCurrentPose);
+
     // left bumper for shooter pivot pid test
     m_operatorController.leftBumper().whileTrue(SHOOTER.setShooterPivotangle(60));
 
     // right bumper for intake pivot pid test
     m_operatorController.rightBumper().whileTrue(INTAKE.setIntakePivotAngle(90));
-
-    // for testing to make sure we dont need to invert
-    //
-    // x for intake pivot up
-    m_operatorController.x().whileTrue(INTAKE.intakePivotRaw(.05));
-
-    // y for shooter pivot up
-    m_operatorController.y().whileTrue(SHOOTER.setShooterPivotraw(.05));
 
     // left bumper for shooter pivot pid test
     m_operatorController.leftBumper().whileTrue(SHOOTER.setShooterPivotangle(60));
