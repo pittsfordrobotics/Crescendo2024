@@ -2,24 +2,26 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.commands;
-
-import java.util.function.DoubleSupplier;
+package frc.robot.commands.GoToXStateComands;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.Constants.ShooterConstants;
+import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
 
-public class DriveShooter extends Command {
+public class GoToPodiumShooterPosition extends Command {
   private Shooter shooter;
-  private DoubleSupplier inputSpeed1;
-  private DoubleSupplier inputSpeed2;
-  /** Creates a new DriveShooter. */
-  public DriveShooter(Shooter shooter, DoubleSupplier inputSpeed1, DoubleSupplier inputSpeed2) {
-    addRequirements(shooter);
+  private Intake intake;
+
+  /** Creates a new GoToPodiumShooterPosition. */
+
+  public GoToPodiumShooterPosition() {
     this.shooter = shooter;
-    this.inputSpeed1 = inputSpeed1;
-    this.inputSpeed2 = inputSpeed2;
-    // Use addRequirements() here to declare subsystem dependencies.
+    this.intake = intake;
+    // each subsystem used by the command must be passed into the
+    // addRequirements() method (which takes a vararg of Subsystem)
+    addRequirements(this.shooter);
+    addRequirements(this.intake);  
   }
 
   // Called when the command is initially scheduled.
@@ -29,11 +31,8 @@ public class DriveShooter extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if(inputSpeed1.getAsDouble() == 0) {
-      shooter.driveShooter(-inputSpeed2.getAsDouble());
-    } else {
-      shooter.driveShooter(inputSpeed1.getAsDouble());
-    }
+    intake.setIntakePivotAngle(90);
+    shooter.setShooterPivotangle(ShooterConstants.SpeakerScoringPodiumAngle);
   }
 
   // Called once the command ends or is interrupted.

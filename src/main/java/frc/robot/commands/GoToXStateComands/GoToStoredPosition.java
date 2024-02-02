@@ -2,18 +2,24 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.commands;
+package frc.robot.commands.GoToXStateComands;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.EndEffector;
+import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.Shooter;
 
-public class EndEffectorIdle extends Command {
-  /** Creates a new EndEffectorIdle. */
-  private EndEffector endEffector;
-  public EndEffectorIdle(EndEffector endEffector) {
-    addRequirements(endEffector);
-    this.endEffector = endEffector;
-    // Use addRequirements() here to declare subsystem dependencies.
+public class GoToStoredPosition extends Command {
+  private Shooter shooter;
+  private Intake intake;
+
+  /** Creates a new GoToStoredPosition. */
+  public GoToStoredPosition() {
+    this.shooter = shooter;
+    this.intake = intake;
+    // each subsystem used by the command must be passed into the
+    // addRequirements() method (which takes a vararg of Subsystem)
+    addRequirements(this.shooter);
+    addRequirements(this.intake);
   }
 
   // Called when the command is initially scheduled.
@@ -23,7 +29,9 @@ public class EndEffectorIdle extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    endEffector.start(true);
+    shooter.setShooterPivotangle(0);
+    intake.setIntakePivotAngle(180);
+
   }
 
   // Called once the command ends or is interrupted.
