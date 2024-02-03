@@ -181,7 +181,7 @@ public class SwerveSubsystem extends SubsystemBase {
         constraints,
         0.0, // Goal end velocity in meters/sec
         0.0 // Rotation delay distance in meters. This is how far the robot should travel before attempting to rotate.
-                                     );
+    );
   }
 
   /**
@@ -463,7 +463,7 @@ public class SwerveSubsystem extends SubsystemBase {
   }
 
   /**
-   * Edits the drive PID with the specified P value
+   * Edits the drive PID with the specified P value.
    * @param p The desired P value
    */
   public void configureDrivePID(double p) {
@@ -473,7 +473,7 @@ public class SwerveSubsystem extends SubsystemBase {
   }
 
   /**
-   * Edits the angle PID with the specified P and D values;
+   * Edits the angle PID with the specified P and D values.
    * @param p The desired P value
    * @param d The desired D value
    */
@@ -483,6 +483,11 @@ public class SwerveSubsystem extends SubsystemBase {
     }
   }
 
+  /**
+   * Edits the heading PID with the specified P and D values.
+   * @param p The desired P value
+   * @param d The desired D value
+   */
   public void configureHeadingPID(double p, double d) { //todo: do something with this
     swerveDrive.swerveController.thetaController.setPID(p, 0, d);
   }
@@ -494,8 +499,7 @@ public class SwerveSubsystem extends SubsystemBase {
       configureDrivePID(velocityP.getEntry().getDouble(0));
     }
 
-    if(angleP.getEntry().getDouble(0) != prevAngleP ||
-            angleD.getEntry().getDouble(0) != prevAngleD) {
+    if(angleP.getEntry().getDouble(0) != prevAngleP || angleD.getEntry().getDouble(0) != prevAngleD) {
       prevAngleP = angleP.getEntry().getDouble(0);
       prevAngleD = angleD.getEntry().getDouble(0);
       configureAnglePID(angleP.getEntry().getDouble(0), angleD.getEntry().getDouble(0));
