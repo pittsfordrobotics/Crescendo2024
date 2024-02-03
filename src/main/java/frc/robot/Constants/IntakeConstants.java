@@ -1,5 +1,7 @@
 package frc.robot.Constants;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
 public class IntakeConstants {
 
     public static final int CAN_INTAKE = 21;

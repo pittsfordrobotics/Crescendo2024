@@ -11,6 +11,7 @@ import com.revrobotics.SparkAbsoluteEncoder;
 import com.revrobotics.SparkPIDController;
 
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.commands.DisabledInstantCommand;
 import frc.robot.lib.FFCalculator;
@@ -54,8 +55,12 @@ public class Intake extends SubsystemBase {
     intakepivotPIDR.setI(IntakeConstants.INTAKE_Pivot_I);
     intakepivotPIDR.setD(IntakeConstants.INTAKE_Pivot_D);
 
-    // Puts a button on the shuffleboard to zero the intake pivot (Zeroed at intake
-    // position)
+    // // For PidTuningOnly
+    // SmartDashboard.putNumber("Intake P", intakepivotPIDR.getP());
+    // SmartDashboard.putNumber("Intake D", intakepivotPIDR.getD());
+    // // // //
+
+    // Zeroed at intake position
     Shuffleboard.getTab("Intake").add("Zero Intake Pivot", new DisabledInstantCommand(this::zeroIntakePivot));
   }
 
@@ -63,6 +68,15 @@ public class Intake extends SubsystemBase {
   public void periodic() {
     Shuffleboard.getTab("Intake").add("Intake RPM", this.getIntakeRpm());
     Shuffleboard.getTab("Intake").add("Intake Pivot Angle", this.getIntakePivotAngle_deg());
+
+    // // For PidTuningOnly
+    // if (SmartDashboard.getNumber("Intake P", IntakeConstants.INTAKE_Pivot_P) != intakepivotPIDR.getP()) {
+    //   intakepivotPIDR.setP(SmartDashboard.getNumber("Intake P", IntakeConstants.INTAKE_Pivot_P));
+    // }
+    // if (SmartDashboard.getNumber("Intake D", IntakeConstants.INTAKE_Pivot_D) != intakepivotPIDR.getD()) {
+    //   intakepivotPIDR.setD(SmartDashboard.getNumber("Intake D", IntakeConstants.INTAKE_Pivot_D));
+    // }
+    // // // //
 
     intakepivotPIDR.setFF(FFCalculator.getInstance().calculateIntakeFF());
   }

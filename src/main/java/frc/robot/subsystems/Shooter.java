@@ -109,6 +109,13 @@ public class Shooter extends SubsystemBase {
     RMPShooterRPid.setI(ShooterConstants.SHOOTER_I);
     RMPShooterRPid.setD(ShooterConstants.SHOOTER_D);
 
+    // // For PidTuningOnly
+    // SmartDashboard.putNumber("Shooter P", RMPShooterLPid.getP());
+    // SmartDashboard.putNumber("Shooter D", RMPShooterLPid.getD());
+    // SmartDashboard.putNumber("Shooter Pivot P", shooterpivotRPID.getP());
+    // SmartDashboard.putNumber("Shooter Pivot D", shooterpivotRPID.getD());
+    // // // //
+    
     Shuffleboard.getTab("SHOOTER").add("Shooter Pivot Set Coast", new DisabledInstantCommand(this::coastShooter));
     Shuffleboard.getTab("SHOOTER").add("Shooter Pivot Set Brake", new DisabledInstantCommand(this::brakeShooter));
     Shuffleboard.getTab("SHOOTER").add("Shooter Pivot Zero", new DisabledInstantCommand(this::zeroPivot));
@@ -118,9 +125,26 @@ public class Shooter extends SubsystemBase {
   public void periodic() {
     Shuffleboard.getTab("SHOOTER").add("Shooter RPM", this.getShooterRpm());
     Shuffleboard.getTab("SHOOTER").add("Shooter Angle", this.getShooterAngle_deg());
+    Shuffleboard.getTab("SHOOTER").add("Shooter Limit Switch", this.getLimitSwitch());
+
+    // // For PidTuningOnly
+    // if (SmartDashboard.getNumber("Shooter P", ShooterConstants.SHOOTER_P) != RMPShooterLPid.getP()) {
+    //   RMPShooterLPid.setP(SmartDashboard.getNumber("Shooter P", ShooterConstants.SHOOTER_P));
+    //   RMPShooterRPid.setP(SmartDashboard.getNumber("Shooter P", ShooterConstants.SHOOTER_P));
+    // }
+    // if (SmartDashboard.getNumber("Shooter D", ShooterConstants.SHOOTER_D) != RMPShooterLPid.getD()) {
+    //   RMPShooterLPid.setD(SmartDashboard.getNumber("Shooter D", ShooterConstants.SHOOTER_D));
+    //   RMPShooterRPid.setD(SmartDashboard.getNumber("Shooter D", ShooterConstants.SHOOTER_D));
+    // }
+    // if (SmartDashboard.getNumber("Shooter Pivot P", ShooterConstants.SHOOTER_Pivot_P) != shooterpivotRPID.getP()) {
+    //   shooterpivotRPID.setP(SmartDashboard.getNumber("Shooter Pivot P", ShooterConstants.SHOOTER_Pivot_P));
+    // }
+    // if (SmartDashboard.getNumber("Shooter Pivot D", ShooterConstants.SHOOTER_Pivot_D) != shooterpivotRPID.getD()) {
+    //   shooterpivotRPID.setD(SmartDashboard.getNumber("Shooter Pivot D", ShooterConstants.SHOOTER_Pivot_D));
+    // }
+    // // // //
 
     shooterpivotRPID.setFF(FFCalculator.getInstance().calculateShooterFF());
-
   }
 
   // Returns the RPM of the shooter (ABS of Left and Right motor average)
