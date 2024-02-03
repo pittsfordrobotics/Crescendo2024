@@ -32,13 +32,18 @@ public class Climber extends SubsystemBase {
         rightMotor.setSmartCurrentLimit(20);
 
         leftMotor.follow(rightMotor);
-        
+
         //PID Setup
         climberPID = rightMotor.getPIDController();
         climberPID.setFeedbackDevice(rightMotor.getEncoder());
         climberPID.setP(ClimberConstants.CAN_CLIMBER_P);
         climberPID.setI(ClimberConstants.CAN_CLIMBER_I);
         climberPID.setD(ClimberConstants.CAN_CLIMBER_D);
+
+        // // For PidTuningOnly
+        // SmartDashboard.putNumber("Climber P", climberPID.getP());
+        // SmartDashboard.putNumber("Climber D", climberPID.getD());
+        // // // //
 
         //Zero encoder
         rightMotor.getEncoder().setPosition(0);
@@ -48,6 +53,15 @@ public class Climber extends SubsystemBase {
     @Override
     public void periodic() {
         SmartDashboard.putNumber("Motor Rotations", rightMotor.getEncoder().getPosition());
+
+        // // For PidTuningOnly
+        // if (SmartDashboard.getNumber("Climber P", ClimberConstants.CAN_CLIMBER_P) != climberPID.getP()) {
+        //     climberPID.setP(SmartDashboard.getNumber("Climber P", ClimberConstants.CAN_CLIMBER_P));
+        // }
+        // if (SmartDashboard.getNumber("Climber D", ClimberConstants.CAN_CLIMBER_D) != climberPID.getD()) {
+        //     climberPID.setD(SmartDashboard.getNumber("Climber D", ClimberConstants.CAN_CLIMBER_D));
+        // }
+        // // // //
     }
 
     //Use pid to reach a predetermined height (Rotations)
