@@ -6,6 +6,9 @@ package frc.robot.Constants;
 
 /** Add your docs here. */
 public class RobotConstants {
+    // Positive RPM pushes out the note
+    // Positive angle movement moves the shooter or intake up
+
     public static final double SHOOTER_PIVOT_ANGLE_TOLERANCE = 2;
     public static final double INTAKE_PIVOT_ANGLE_TOLERANCE = 2;
     public static final double SHOOTER_RPM_TOLERANCE = 100;
@@ -19,10 +22,10 @@ public class RobotConstants {
     public static final double INTAKE_Indexer_Speed = -.5;
     public static final double INTAKE_Shooter_Speed = -1000;
 
-    // Shooter "state"
+    // Stored "state"
     public static final double STORED_ShooterPivotAngle = 0;
     public static final double STORED_IntakePivotAngle = 180;
-    public static final double STORED_ShooterRPM = 0;
+    public static final double STORED_ShooterRPM = 3000;
     public static final double STORED_IntakeSpeed = 0;
 
     // Amp "state"
