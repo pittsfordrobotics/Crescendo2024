@@ -6,6 +6,7 @@ package frc.robot.lib;
 
 import java.util.function.DoubleSupplier;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.ShooterConstants;
 
@@ -37,6 +38,10 @@ public class FFCalculator {
 
     public double calculateShooterFF() {
 
+        // double ShooterMultiplier = ShooterConstants.SHOOTER_Pivot_FF_Multiplier;
+        SmartDashboard.putNumber("Shooter FF Mult", ShooterConstants.SHOOTER_Pivot_FF_Multiplier);
+        double ShooterMultiplier = SmartDashboard.getNumber("Shooter FF Mult", ShooterConstants.SHOOTER_Pivot_FF_Multiplier);
+        
         double theta = this.shooterAngle.getAsDouble();
         double alpha = this.intakePivotAngle.getAsDouble();
 
@@ -61,10 +66,16 @@ public class FFCalculator {
         // Change to be simplified like get rid of the atan crap and NO DIVIDING
         double TotalTorque_ShoulderPiv = (Math.cos(Math.atan(CMY / CMX)) * 9.8 * (M1 + M2))
                 * Math.sqrt((CMX * CMX) + (CMY * CMY));
-        return TotalTorque_ShoulderPiv * ShooterConstants.SHOOTER_Pivot_FF_Multiplier;
+        // return TotalTorque_ShoulderPiv * ShooterMultiplier;
+        return ShooterMultiplier;
     }
 
     public double calculateIntakeFF() {
+
+        // double IntakeMultiplier = IntakeConstants.INTAKE_Pivot_FF_Multiplier;
+        SmartDashboard.putNumber("Intake FF Mult", IntakeConstants.INTAKE_Pivot_FF_Multiplier);
+        double IntakeMultiplier = SmartDashboard.getNumber("Intake FF Mult", IntakeConstants.INTAKE_Pivot_FF_Multiplier);
+
         double theta = shooterAngle.getAsDouble();
         double alpha = intakePivotAngle.getAsDouble();
 
@@ -73,6 +84,7 @@ public class FFCalculator {
         double Alpha_CM = alpha + IntakeConstants.Alpha_Offset;
 
         double TotalTorque_IntakePiv = (Math.cos(theta + Alpha_CM) * 9.8 * (M2)) * L3;
-        return TotalTorque_IntakePiv * IntakeConstants.INTAKE_Pivot_FF_Multiplier;
+        // return TotalTorque_IntakePiv * IntakeMultiplier;        
+        return IntakeMultiplier;
     }
 }
