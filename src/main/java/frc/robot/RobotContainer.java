@@ -5,16 +5,20 @@
 package frc.robot;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.OperatorConstants;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.SwerveSubsystem;
@@ -27,7 +31,8 @@ import java.util.function.DoubleSupplier;
 import com.choreo.lib.Choreo;
 import com.choreo.lib.ChoreoTrajectory;
 import com.pathplanner.lib.auto.NamedCommands;
-
+import edu.wpi.first.wpilibj.smartdashboard.*;
+import edu.wpi.first.wpilibj.simulation.*;
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
  * "declarative" paradigm, very little robot logic should actually be handled in the {@link Robot}
@@ -40,7 +45,7 @@ public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   //private final Shooter m_shooter = new Shooter();
   private final SwerveSubsystem swerveSubsystem;
-  private final LoggedDashboardChooser<Command> autoChooser = new LoggedDashboardChooser<>("Auto Routine");
+  private final SendableChooser<Command> autoChooser = new SendableChooser<>();
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final CommandXboxController m_driverController =
@@ -96,7 +101,7 @@ public class RobotContainer {
   public void autoConfig() {
     // // Choreo swerve auto
     ChoreoTrajectory traj = Choreo.getTrajectory("NewPath");
-
+    //swerveSubsystem.resetOdometry(traj.getInitialPose());
 
     // TODO: Replace these with X and Y translate pids (should be same) and rotational pid tuned using shuffleboard when chassis is ready
     double xTranslateP = 0;
@@ -121,16 +126,21 @@ public class RobotContainer {
       }, // Whether or not to mirror the path based on alliance (assumes path created for blue)
       swerveSubsystem // Subsystems to require, typically drivetrain only
       );
+    swerveCommand.setName("NewPath");
+    autoChooser.setDefaultOption("NewPath", swerveCommand);
+    autoChooser.addOption("Do nothing", new InstantCommand());
+    SmartDashboard.putData(autoChooser);
 
-      swerveCommand = Commands.sequence(
-        Commands.runOnce(() -> swerveSubsystem.resetOdometry(traj.getInitialPose())),
-        swerveCommand);
-
-      autoChooser.addDefaultOption("test default auto", swerveCommand);
-
-      //SmartDashboard.putData(autoChooser);
   }
   public Command getAutonomousCommand() {
-    return autoChooser.get();
+    // Initial choreo trajectories must be named the same things as their commands
+    System.out.println(autoChooser.getSelected().getName());
+    ChoreoTrajectory initTraj = Choreo.getTrajectory(autoChooser.getSelected().getName());
+    if(DriverStation.getAlliance().get() == Alliance.Blue) {
+      swerveSubsystem.resetOdometry(initTraj.getInitialPose());
+    } else {
+      swerveSubsystem.resetOdometry(initTraj.flipped().getInitialPose());
+    }
+    return autoChooser.getSelected();
   }
 }
