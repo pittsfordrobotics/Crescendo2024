@@ -17,6 +17,7 @@ import edu.wpi.first.math.MathUtil;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.commands.DisabledInstantCommand;
 import frc.robot.lib.FFCalculator;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -30,11 +31,13 @@ public class Shooter extends SubsystemBase {
   private CANSparkMax shooterpivot_L;
   private CANSparkMax shooterpivot_R;
   private SparkLimitSwitch backLimitSwitch;
+  private DigitalInput backLimitSwitch1;
+  private DigitalInput backLimitSwitch2;
 
   private SparkPIDController shooterpivotRPID;
   private SparkPIDController shooterpivotLPID;
-  private SparkPIDController RMPShooterLPid;
-  private SparkPIDController RMPShooterRPid;
+  private SparkPIDController RPMShooterLPid;
+  private SparkPIDController RPMShooterRPid;
 
   private SparkAbsoluteEncoder shooterpivot_R_ABSEncoder;
   private SparkAbsoluteEncoder shooterpivot_L_ABSEncoder;
@@ -57,7 +60,7 @@ public class Shooter extends SubsystemBase {
     indexerMotorR = new CANSparkMax(ShooterConstants.CAN_INDEXER_R, MotorType.kBrushless);
     indexerMotorR.restoreFactoryDefaults();
     indexerMotorR.setSmartCurrentLimit(20);    
-    backLimitSwitch = indexerMotorR.getForwardLimitSwitch(SparkLimitSwitch.Type.kNormallyOpen);
+    // backLimitSwitch = indexerMotorR.getForwardLimitSwitch(SparkLimitSwitch.Type.kNormallyOpen);
     indexerMotorR.burnFlash();
     // Index Motor L
     indexerMotorL = new CANSparkMax(ShooterConstants.CAN_INDEXER_L, MotorType.kBrushless);
@@ -80,6 +83,10 @@ public class Shooter extends SubsystemBase {
     shooterpivot_L.follow(shooterpivot_R, true);
     shooterpivot_L.burnFlash();
 
+    // Limit Switch
+    backLimitSwitch1 = new DigitalInput(0);
+    backLimitSwitch2 = new DigitalInput(1);
+
 
     // PID Controllers
 
@@ -97,21 +104,20 @@ public class Shooter extends SubsystemBase {
     // shooterpivotLPID.setD(ShooterConstants.SHOOTER_Pivot_D);
 
     // RPMShooterPID_L
-    RMPShooterLPid = shooterpivot_L.getPIDController();
-    RMPShooterLPid.setFeedbackDevice(shooterMotorL.getEncoder());
-    RMPShooterLPid.setP(ShooterConstants.SHOOTER_P);
-    RMPShooterLPid.setI(ShooterConstants.SHOOTER_I);
-    RMPShooterLPid.setD(ShooterConstants.SHOOTER_D);
+    RPMShooterLPid = shooterpivot_L.getPIDController();
+    RPMShooterLPid.setFeedbackDevice(shooterMotorL.getEncoder());
+    RPMShooterLPid.setP(ShooterConstants.SHOOTER_P);
+    RPMShooterLPid.setI(ShooterConstants.SHOOTER_I);
+    RPMShooterLPid.setD(ShooterConstants.SHOOTER_D);
     // RPMShooterPID_R
-    RMPShooterRPid = shooterpivot_R.getPIDController();
-    RMPShooterRPid.setFeedbackDevice(shooterMotorR.getEncoder());
-    RMPShooterRPid.setP(ShooterConstants.SHOOTER_P);
-    RMPShooterRPid.setI(ShooterConstants.SHOOTER_I);
-    RMPShooterRPid.setD(ShooterConstants.SHOOTER_D);
+    RPMShooterRPid = shooterpivot_R.getPIDController();
+    RPMShooterRPid.setFeedbackDevice(shooterMotorR.getEncoder());
+    RPMShooterRPid.setP(ShooterConstants.SHOOTER_P);
+    RPMShooterRPid.setI(ShooterConstants.SHOOTER_I);
+    RPMShooterRPid.setD(ShooterConstants.SHOOTER_D);
 
     // // For PidTuningOnly
     // SmartDashboard.putNumber("Shooter P", RMPShooterLPid.getP());
-    // SmartDashboard.putNumber("Shooter D", RMPShooterLPid.getD());
     // SmartDashboard.putNumber("Shooter Pivot P", shooterpivotRPID.getP());
     // SmartDashboard.putNumber("Shooter Pivot D", shooterpivotRPID.getD());
     // // // //
@@ -128,13 +134,9 @@ public class Shooter extends SubsystemBase {
     Shuffleboard.getTab("SHOOTER").add("Shooter Limit Switch", this.getLimitSwitch());
 
     // // For PidTuningOnly
-    // if (SmartDashboard.getNumber("Shooter P", ShooterConstants.SHOOTER_P) != RMPShooterLPid.getP()) {
-    //   RMPShooterLPid.setP(SmartDashboard.getNumber("Shooter P", ShooterConstants.SHOOTER_P));
-    //   RMPShooterRPid.setP(SmartDashboard.getNumber("Shooter P", ShooterConstants.SHOOTER_P));
-    // }
-    // if (SmartDashboard.getNumber("Shooter D", ShooterConstants.SHOOTER_D) != RMPShooterLPid.getD()) {
-    //   RMPShooterLPid.setD(SmartDashboard.getNumber("Shooter D", ShooterConstants.SHOOTER_D));
-    //   RMPShooterRPid.setD(SmartDashboard.getNumber("Shooter D", ShooterConstants.SHOOTER_D));
+    // if (SmartDashboard.getNumber("Shooter P", ShooterConstants.SHOOTER_P) != RPMShooterLPid.getP()) {
+    //   RPMShooterLPid.setP(SmartDashboard.getNumber("Shooter P", ShooterConstants.SHOOTER_P));
+    //   RPMShooterRPid.setP(SmartDashboard.getNumber("Shooter P", ShooterConstants.SHOOTER_P));
     // }
     // if (SmartDashboard.getNumber("Shooter Pivot P", ShooterConstants.SHOOTER_Pivot_P) != shooterpivotRPID.getP()) {
     //   shooterpivotRPID.setP(SmartDashboard.getNumber("Shooter Pivot P", ShooterConstants.SHOOTER_Pivot_P));
@@ -154,8 +156,12 @@ public class Shooter extends SubsystemBase {
   }
 
   // returns true if the limit switch is pressed
+  // public boolean getLimitSwitch() {
+  //   return backLimitSwitch.isPressed();
+  // }
+
   public boolean getLimitSwitch() {
-    return backLimitSwitch.isPressed();
+    return backLimitSwitch1.get() || backLimitSwitch2.get();
   }
 
   // Returns the angle of the shooter pivot (Right motor in deg)
@@ -170,14 +176,14 @@ public class Shooter extends SubsystemBase {
   // Drives both shooters to a common RPM setpoint
   public Command setshooterRPM(double setpoint) {
     return this.runOnce(() -> {
-      RMPShooterLPid.setReference(setpoint, ControlType.kVelocity);
-      RMPShooterRPid.setReference(setpoint, ControlType.kVelocity);
+      RPMShooterLPid.setReference(setpoint, ControlType.kVelocity);
+      RPMShooterRPid.setReference(setpoint, ControlType.kVelocity);
     });
   }
 
   // Drives one shooter to a setpoint based on the boolean isLeftMotor
   public void setRPMshooteroneside(double setpoint, boolean isLeftMotor) {
-    (isLeftMotor ? RMPShooterLPid : RMPShooterRPid).setReference(setpoint, ControlType.kVelocity);
+    (isLeftMotor ? RPMShooterLPid : RPMShooterRPid).setReference(setpoint, ControlType.kVelocity);
   }
 
   /** Drives the indexer with given values from -1 to 1 */

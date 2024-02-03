@@ -61,7 +61,7 @@ public class FFCalculator {
         // Change to be simplified like get rid of the atan crap and NO DIVIDING
         double TotalTorque_ShoulderPiv = (Math.cos(Math.atan(CMY / CMX)) * 9.8 * (M1 + M2))
                 * Math.sqrt((CMX * CMX) + (CMY * CMY));
-        return TotalTorque_ShoulderPiv * ShooterConstants.SHOOTER_Pivot_FF_Constant;
+        return TotalTorque_ShoulderPiv * ShooterConstants.SHOOTER_Pivot_FF_Multiplier;
     }
 
     public double calculateIntakeFF() {
@@ -73,6 +73,6 @@ public class FFCalculator {
         double Alpha_CM = alpha + IntakeConstants.Alpha_Offset;
 
         double TotalTorque_IntakePiv = (Math.cos(theta + Alpha_CM) * 9.8 * (M2)) * L3;
-        return TotalTorque_IntakePiv * IntakeConstants.INTAKE_Pivot_FF_Constant;
+        return TotalTorque_IntakePiv * IntakeConstants.INTAKE_Pivot_FF_Multiplier;
     }
 }

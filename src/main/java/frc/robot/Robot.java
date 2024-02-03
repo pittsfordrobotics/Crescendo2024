@@ -84,8 +84,8 @@ public class Robot extends TimedRobot {
         * Math.sqrt((CMX * CMX) + (CMY * CMY));
     double TotalTorque_IntakePiv = (Math.cos(theta + Alpha_CM) * 9.8 * (M2)) * L3;
 
-    SHOOTER.setShooterFFvalue(TotalTorque_ShoulderPiv * ShooterConstants.SHOOTER_Pivot_FF_Constant);
-    INTAKE.setIntakeFFValue(TotalTorque_IntakePiv * IntakeConstants.INTAKE_Pivot_FF_Constant);
+    SHOOTER.setShooterFFvalue(TotalTorque_ShoulderPiv * ShooterConstants.SHOOTER_Pivot_FF_Multiplier);
+    INTAKE.setIntakeFFValue(TotalTorque_IntakePiv * IntakeConstants.INTAKE_Pivot_FF_Multiplier);
 
     // Runs the Scheduler. This is responsible for polling buttons, adding
     // newly-scheduled

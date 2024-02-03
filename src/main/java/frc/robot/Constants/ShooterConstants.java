@@ -15,15 +15,11 @@ public final class ShooterConstants {
     public static final int CAN_SHOOTER_PIVOT_L = 15;
     public static final int CAN_SHOOTER_PIVOT_R = 16;
 
-    public static final double SHOOTER_P = 2;
+    public static final double SHOOTER_P = .5;
     public static final double SHOOTER_I = 0;
     public static final double SHOOTER_D = 0;
 
-    public static final double CAN_INDEXER_P = 2;
-    public static final double CAN_INDEXER_I = 0;
-    public static final double CAN_INDEXER_D = 0;
-
-    public static final double SHOOTER_Pivot_P = 2;
+    public static final double SHOOTER_Pivot_P = .5;
     public static final double SHOOTER_Pivot_I = 0;
     public static final double SHOOTER_Pivot_D = 0;
 
@@ -32,5 +28,5 @@ public final class ShooterConstants {
     public static final double L1_SpivtoWpivperp = 2;
     public static final double L1CM1_SpivtoCM1 = 2;
     public static final double M1_Total_Mass_of_Shooter = 2;
-    public static final double SHOOTER_Pivot_FF_Constant = 0;
+    public static final double SHOOTER_Pivot_FF_Multiplier = 0;
 }
