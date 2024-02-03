@@ -54,12 +54,12 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotPeriodic() {
-    
+
     // IF WE DO A SUPERSTRUCTURE MOVE ALL THIS THERE
     // Sets the feedfoeard for both pivots PIDS based on angles
     // ***Look at Diagram for understanding***
     double theta = SHOOTER.getShooterAngle_deg();
-    double alpha = INTAKE.getIntakePivotAngle();
+    double alpha = INTAKE.getIntakePivotAngle_deg();
 
     double L1 = ShooterConstants.L1_SpivtoWpivperp;
     double L1CM = ShooterConstants.L1CM1_SpivtoCM1;
@@ -84,9 +84,8 @@ public class Robot extends TimedRobot {
         * Math.sqrt((CMX * CMX) + (CMY * CMY));
     double TotalTorque_IntakePiv = (Math.cos(theta + Alpha_CM) * 9.8 * (M2)) * L3;
 
-    SHOOTER.setShooterFFvalue (TotalTorque_ShoulderPiv * ShooterConstants.SHOOTER_Pivot_FF_Constant);
-    INTAKE.setIntakeFFValue (TotalTorque_IntakePiv * IntakeConstants.INTAKE_Pivot_FF_Constant);
-
+    SHOOTER.setShooterFFvalue(TotalTorque_ShoulderPiv * ShooterConstants.SHOOTER_Pivot_FF_Constant);
+    INTAKE.setIntakeFFValue(TotalTorque_IntakePiv * IntakeConstants.INTAKE_Pivot_FF_Constant);
 
     // Runs the Scheduler. This is responsible for polling buttons, adding
     // newly-scheduled

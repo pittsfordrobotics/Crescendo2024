@@ -13,6 +13,7 @@ import com.revrobotics.SparkPIDController;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.commands.DisabledInstantCommand;
+import frc.robot.lib.FFCalculator;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -32,7 +33,7 @@ public class Intake extends SubsystemBase {
     intakePivotMotorR = new CANSparkMax(IntakeConstants.CAN_INTAKE_PIVOT_R, MotorType.kBrushless);
     intakePivotMotorR.restoreFactoryDefaults();
     intakePivotMotorR.setSmartCurrentLimit(20);
-    intakePivotMotorR.burnFlash();    
+    intakePivotMotorR.burnFlash();
     // Intake Pivot Motor L
     intakePivotMotorL = new CANSparkMax(IntakeConstants.CAN_INTAKE_PIVOT_L, MotorType.kBrushless);
     intakePivotMotorL.restoreFactoryDefaults();
@@ -53,14 +54,17 @@ public class Intake extends SubsystemBase {
     intakepivotPIDR.setI(IntakeConstants.INTAKE_Pivot_I);
     intakepivotPIDR.setD(IntakeConstants.INTAKE_Pivot_D);
 
-    // Puts a button on the shuffleboard to zero the intake pivot (Zeroed at intake position)
+    // Puts a button on the shuffleboard to zero the intake pivot (Zeroed at intake
+    // position)
     Shuffleboard.getTab("Intake").add("Zero Intake Pivot", new DisabledInstantCommand(this::zeroIntakePivot));
   }
 
   @Override
   public void periodic() {
     Shuffleboard.getTab("Intake").add("Intake RPM", this.getIntakeRpm());
-    Shuffleboard.getTab("Intake").add("Intake Pivot Angle", this.getIntakePivotAngle());
+    Shuffleboard.getTab("Intake").add("Intake Pivot Angle", this.getIntakePivotAngle_deg());
+
+    intakepivotPIDR.setFF(FFCalculator.getInstance().calculateIntakeFF());
   }
 
   // Gets the RPM of the intake motor
@@ -69,12 +73,12 @@ public class Intake extends SubsystemBase {
   }
 
   // Gets the Angle of the intake pivot in degrees
-  public double getIntakePivotAngle() {
+  public double getIntakePivotAngle_deg() {
     return intakePivotEncoderR.getPosition() * 360;
   }
 
   // Sets the intake pivot FF values
-  public Command setIntakeFFValue (double IntakeFFValue){
+  public Command setIntakeFFValue(double IntakeFFValue) {
     return this.runOnce(() -> intakepivotPIDR.setFF(IntakeFFValue));
   }
 
@@ -84,17 +88,18 @@ public class Intake extends SubsystemBase {
   }
 
   // Sets the intake rpm to a certain value from -1 to 1
-  public void setIntakeRpm(double input) {
-    intakeMotor.set(input);
+  public Command setIntakeRpm(double input) {
+    return this.runOnce(() -> intakeMotor.set(input));
   }
 
-  // Sets the intake pivot angle to a certain angle using PID on right motors **set in degrees**
+  // Sets the intake pivot angle to a certain angle using PID on right motors
+  // **set in degrees**
   public Command setIntakePivotAngle(double setpoint_deg) {
     return this.run(() -> intakepivotPIDR.setReference(setpoint_deg / 360, ControlType.kPosition));
   }
 
   // For Testing
-  public Command intakePivotRaw(double input) {
-    return this.runOnce(() -> intakePivotMotorR.set(input));
+  public Command intakePivotRaw(double input_test) {
+    return this.runOnce(() -> intakePivotMotorR.set(input_test));
   }
 }
