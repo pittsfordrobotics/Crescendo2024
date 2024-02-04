@@ -26,8 +26,6 @@ public class Robot extends TimedRobot {
 
   private RobotContainer m_robotContainer;
 
-  private final Shooter SHOOTER = new Shooter();
-  private final Intake INTAKE = new Intake();
 
   /**
    * This function is run when the robot is first started up and should be used
@@ -55,37 +53,6 @@ public class Robot extends TimedRobot {
   @Override
   public void robotPeriodic() {
 
-    // IF WE DO A SUPERSTRUCTURE MOVE ALL THIS THERE
-    // Sets the feedfoeard for both pivots PIDS based on angles
-    // ***Look at Diagram for understanding***
-    double theta = SHOOTER.getShooterAngle_deg();
-    double alpha = INTAKE.getIntakePivotAngle_deg();
-
-    double L1 = ShooterConstants.L1_SpivtoWpivperp;
-    double L1CM = ShooterConstants.L1CM1_SpivtoCM1;
-    double L2 = IntakeConstants.L2_WpivPerptoWpiv;
-    double L3 = IntakeConstants.L3_WpivtoCm2;
-    double M1 = ShooterConstants.M1_Total_Mass_of_Shooter;
-    double M2 = IntakeConstants.M2_Total_Mass_of_Intake;
-    double Theta_CM = theta + ShooterConstants.Theta_Offset;
-    double Alpha_CM = alpha + IntakeConstants.Alpha_Offset;
-
-    double CM2X = (L1 * Math.cos(theta)) + (L2 * Math.cos(90 + theta)) + (L3 * Math.cos(Alpha_CM + theta));
-    double CM2Y = (L1 * Math.sin(theta)) + (L2 * Math.sin(90 + theta)) + (L3 * Math.sin(Alpha_CM + theta));
-
-    double CM1X = L1CM * Math.cos(Theta_CM);
-    double CM1Y = L1CM * Math.sin(Theta_CM);
-
-    double CMX = (CM2X * M2 + CM1X * M1) / (M1 + M2);
-    double CMY = (CM2Y * M2 + CM1Y * M1) / (M1 + M2);
-
-    // Change to be simplified like get rid of the atan crap and NO DIVIDING
-    double TotalTorque_ShoulderPiv = (Math.cos(Math.atan(CMY / CMX)) * 9.8 * (M1 + M2))
-        * Math.sqrt((CMX * CMX) + (CMY * CMY));
-    double TotalTorque_IntakePiv = (Math.cos(theta + Alpha_CM) * 9.8 * (M2)) * L3;
-
-    SHOOTER.setShooterFFvalue(TotalTorque_ShoulderPiv * ShooterConstants.SHOOTER_Pivot_FF_Multiplier);
-    INTAKE.setIntakeFFValue(TotalTorque_IntakePiv * IntakeConstants.INTAKE_Pivot_FF_Multiplier);
 
     // Runs the Scheduler. This is responsible for polling buttons, adding
     // newly-scheduled

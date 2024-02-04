@@ -21,7 +21,6 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.subsystems.Climber;
 import java.io.File;
 
-
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   private final SwerveSubsystem swerveSubsystem;
@@ -33,11 +32,11 @@ public class RobotContainer {
       OperatorConstants.kDriverControllerPort);
   private final CommandXboxController m_operatorController = new CommandXboxController(
       OperatorConstants.kOperatorControllerPort);
- 
+
   // The container for the robot. Contains subsystems, OI devices, and commands.
   public RobotContainer() {
     FFCalculator c = FFCalculator.getInstance();
-    c.updateIntakePivotAngle(INTAKE::getIntakePivotAngle_deg);
+    // c.updateIntakePivotAngle(INTAKE::getIntakePivotAngle_deg);
     c.updateShooterAngle(SHOOTER::getShooterAngle_deg);
 
     swerveSubsystem = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve/maxSwerve"));
@@ -49,51 +48,55 @@ public class RobotContainer {
 
     // Swerve Drive Command
     // This command works for sim, there is no need for a separate sim drive command
-    // The sim drive command's angle is position-based and not commanded by angular velocity, so this should be used regardless
+    // The sim drive command's angle is position-based and not commanded by angular
+    // velocity, so this should be used regardless
     Command driveFieldOrientedAnglularVelocity = swerveSubsystem.driveCommand(
-            () -> -1*applyDeadband(m_driverController.getLeftY(), 0.2), 
-            () -> -1*applyDeadband(m_driverController.getLeftX(), 0.2),
-            () -> -1*applyDeadband(m_driverController.getRightX(), 0.2)
-    );
+        () -> -1 * applyDeadband(m_driverController.getLeftY(), 0.2),
+        () -> -1 * applyDeadband(m_driverController.getLeftX(), 0.2),
+        () -> -1 * applyDeadband(m_driverController.getRightX(), 0.2));
     swerveSubsystem.setDefaultCommand(driveFieldOrientedAnglularVelocity);
 
-    // // Testing PID and direction commands
-    // // left bumper for shooter pivot pid test
-    // m_operatorController.leftBumper().whileTrue(SHOOTER.setShooterPivotangle(60));
+    // Testing PID and direction commands
+    // left bumper for shooter pivot pid test
+    m_operatorController.leftBumper().whileTrue(SHOOTER.setShooterPivotangle(60));
 
-    // // right bumper for intake pivot pid test
-    // m_operatorController.rightBumper().whileTrue(INTAKE.setIntakePivotAngle(90));
-  
-    // // a button for shooter rpm pid test
-    // m_operatorController.a().whileTrue(SHOOTER.setshooterRPM(5000));
+    // right bumper for intake pivot pid test
+    m_operatorController.rightBumper().whileTrue(INTAKE.setIntakePivotAngle(90));
 
-    // // b button for intake test
-    // m_operatorController.b().whileTrue(INTAKE.setIntakeRpm(.7));
+    // a button for shooter rpm pid test    times 2.5 bc it works \-.-/  "theory only gets you so far"
+    m_operatorController.a().onTrue(SHOOTER.setshooterRPM(5700*2.5));
+    m_operatorController.a().onFalse(SHOOTER.setshooterRPM(0));
 
-    // // y button for indexer test
-    // m_operatorController.y().whileTrue(SHOOTER.setIndexer(.5));
+    // b button for intake test
+    m_operatorController.b().onTrue(INTAKE.setIntakeRpm(.7));
+    m_operatorController.b().onFalse(INTAKE.setIntakeRpm(0));
 
-    // comp commands
+    // y button for indexer test
+    m_operatorController.y().onTrue(SHOOTER.setIndexer(.5));
+    m_operatorController.y().onFalse(SHOOTER.setIndexer(0));
 
-    // states
-    AmpCommand ampCommand = new AmpCommand(SHOOTER, INTAKE);
-    m_driverController.a().onTrue(ampCommand);
+    // // comp commands
 
-    SpeakerCommand speakerCommand = new SpeakerCommand(SHOOTER, INTAKE);
-    m_driverController.b().onTrue(speakerCommand);
+    // // states
+    // AmpCommand ampCommand = new AmpCommand(SHOOTER, INTAKE);
+    // m_driverController.a().onTrue(ampCommand);
 
-    IntakeCommand intakeCommand = new IntakeCommand(SHOOTER, INTAKE);
-    m_driverController.x().onTrue(intakeCommand);
+    // SpeakerCommand speakerCommand = new SpeakerCommand(SHOOTER, INTAKE);
+    // m_driverController.b().onTrue(speakerCommand);
 
-    StoredCommand storedCommand = new StoredCommand(SHOOTER, INTAKE);
-    m_driverController.y().onFalse(storedCommand);
+    // IntakeCommand intakeCommand = new IntakeCommand(SHOOTER, INTAKE);
+    // m_driverController.x().onTrue(intakeCommand);
 
-    // Runs the indexer while the right bumper is held -- essentally a shoot command
-    m_driverController.rightBumper().whileTrue(SHOOTER.setIndexer(RobotConstants.INDEXER_SHOOT_SPEED));
+    // StoredCommand storedCommand = new StoredCommand(SHOOTER, INTAKE);
+    // m_driverController.y().onFalse(storedCommand);
 
-    // Climber toggle on x
-    m_operatorController.x().toggleOnTrue(CLIMBER.extend());
-    m_operatorController.x().toggleOnFalse(CLIMBER.retract());
+    // // Runs the indexer while the right bumper is held -- essentally a shoot
+    // command
+    // m_driverController.rightBumper().whileTrue(SHOOTER.setIndexer(RobotConstants.INDEXER_SHOOT_SPEED));
+
+    // // Climber toggle on x
+    // m_operatorController.x().toggleOnTrue(CLIMBER.extend());
+    // m_operatorController.x().toggleOnFalse(CLIMBER.retract());
   }
 
   // Use this to pass the autonomous command to the main {@link Robot} class.
@@ -105,7 +108,9 @@ public class RobotContainer {
   }
 
   private double applyDeadband(double value, double deadband) {
-    if(Math.abs(value) > deadband) { return value; }
+    if (Math.abs(value) > deadband) {
+      return value;
+    }
     return 0;
   }
 }

@@ -50,7 +50,7 @@ public class Intake extends SubsystemBase {
 
     // Intake Pivot Pid (in the right motor controller)
     intakepivotPIDR = intakePivotMotorR.getPIDController();
-    intakepivotPIDR.setFeedbackDevice(intakePivotEncoderR);
+    // intakepivotPIDR.setFeedbackDevice(intakePivotEncoderR);
     intakepivotPIDR.setP(IntakeConstants.INTAKE_Pivot_P);
     intakepivotPIDR.setI(IntakeConstants.INTAKE_Pivot_I);
     intakepivotPIDR.setD(IntakeConstants.INTAKE_Pivot_D);
@@ -61,13 +61,13 @@ public class Intake extends SubsystemBase {
     // // // //
 
     // Zeroed at intake position
-    Shuffleboard.getTab("Intake").add("Zero Intake Pivot", new DisabledInstantCommand(this::zeroIntakePivot));
+    // Shuffleboard.getTab("Intake").add("Zero Intake Pivot", new DisabledInstantCommand(this::zeroIntakePivot));
   }
 
   @Override
   public void periodic() {
-    Shuffleboard.getTab("Intake").add("Intake RPM", this.getIntakeRpm());
-    Shuffleboard.getTab("Intake").add("Intake Pivot Angle", this.getIntakePivotAngle_deg());
+    // Shuffleboard.getTab("Intake").add("Intake RPM", this.getIntakeRpm());
+    // Shuffleboard.getTab("Intake").add("Intake Pivot Angle", this.getIntakePivotAngle_deg());
 
     // // For PidTuningOnly
     // if (SmartDashboard.getNumber("Intake P", IntakeConstants.INTAKE_Pivot_P) != intakepivotPIDR.getP()) {
@@ -78,7 +78,7 @@ public class Intake extends SubsystemBase {
     // }
     // // // //
 
-    intakepivotPIDR.setFF(FFCalculator.getInstance().calculateIntakeFF());
+    // intakepivotPIDR.setFF(FFCalculator.getInstance().calculateIntakeFF());
   }
 
   // Gets the RPM of the intake motor
