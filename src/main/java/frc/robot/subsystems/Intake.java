@@ -30,23 +30,11 @@ public class Intake extends SubsystemBase {
 
   /** Creates a new Intake. */
   public Intake() {
+
     // Intake Pivot Motor R (Leader)
     intakePivotMotorR = new CANSparkMax(IntakeConstants.CAN_INTAKE_PIVOT_R, MotorType.kBrushless);
     intakePivotMotorR.restoreFactoryDefaults();
     intakePivotMotorR.setSmartCurrentLimit(20);
-    intakePivotMotorR.burnFlash();
-    // Intake Pivot Motor L
-    intakePivotMotorL = new CANSparkMax(IntakeConstants.CAN_INTAKE_PIVOT_L, MotorType.kBrushless);
-    intakePivotMotorL.restoreFactoryDefaults();
-    intakePivotMotorL.setSmartCurrentLimit(20);
-    intakePivotMotorL.follow(intakePivotMotorR, false);
-    intakePivotMotorL.burnFlash();
-
-    // Intake Motor
-    intakeMotor = new CANSparkMax(IntakeConstants.CAN_INTAKE, MotorType.kBrushless);
-    intakeMotor.restoreFactoryDefaults();
-    intakeMotor.setSmartCurrentLimit(20);
-    intakeMotor.burnFlash();
 
     // Intake Pivot Pid (in the right motor controller)
     intakepivotPIDR = intakePivotMotorR.getPIDController();
@@ -55,26 +43,62 @@ public class Intake extends SubsystemBase {
     intakepivotPIDR.setI(IntakeConstants.INTAKE_Pivot_I);
     intakepivotPIDR.setD(IntakeConstants.INTAKE_Pivot_D);
 
+    intakePivotMotorR.burnFlash();
+    try {
+      Thread.sleep(200);
+    } catch (InterruptedException e) {
+    }
+
+    // Intake Pivot Motor L
+    intakePivotMotorL = new CANSparkMax(IntakeConstants.CAN_INTAKE_PIVOT_L, MotorType.kBrushless);
+    intakePivotMotorL.restoreFactoryDefaults();
+    intakePivotMotorL.setSmartCurrentLimit(20);
+    intakePivotMotorL.follow(intakePivotMotorR, true);
+
+    intakePivotMotorL.burnFlash();
+    try {
+      Thread.sleep(200);
+    } catch (InterruptedException e) {
+    }
+
+    // Intake Motor
+    intakeMotor = new CANSparkMax(IntakeConstants.CAN_INTAKE, MotorType.kBrushless);
+    intakeMotor.restoreFactoryDefaults();
+    intakeMotor.setSmartCurrentLimit(20);
+
+    intakeMotor.burnFlash();
+    try {
+      Thread.sleep(200);
+    } catch (InterruptedException e) {
+    }
+
     // // For PidTuningOnly
     // SmartDashboard.putNumber("Intake P", intakepivotPIDR.getP());
     // SmartDashboard.putNumber("Intake D", intakepivotPIDR.getD());
     // // // //
 
     // Zeroed at intake position
-    // Shuffleboard.getTab("Intake").add("Zero Intake Pivot", new DisabledInstantCommand(this::zeroIntakePivot));
+    // Shuffleboard.getTab("Intake").add("Zero Intake Pivot", new
+    // DisabledInstantCommand(this::zeroIntakePivot));
+    // Shuffleboard.getTab("Intake").add("Intake RPM", this.getIntakeRpm());
+    // Shuffleboard.getTab("Intake").add("Intake Pivot Angle",
+    // this.getIntakePivotAngle_deg());
   }
 
   @Override
   public void periodic() {
-    // Shuffleboard.getTab("Intake").add("Intake RPM", this.getIntakeRpm());
-    // Shuffleboard.getTab("Intake").add("Intake Pivot Angle", this.getIntakePivotAngle_deg());
+    Shuffleboard.update();
 
     // // For PidTuningOnly
-    // if (SmartDashboard.getNumber("Intake P", IntakeConstants.INTAKE_Pivot_P) != intakepivotPIDR.getP()) {
-    //   intakepivotPIDR.setP(SmartDashboard.getNumber("Intake P", IntakeConstants.INTAKE_Pivot_P));
+    // if (SmartDashboard.getNumber("Intake P", IntakeConstants.INTAKE_Pivot_P) !=
+    // intakepivotPIDR.getP()) {
+    // intakepivotPIDR.setP(SmartDashboard.getNumber("Intake P",
+    // IntakeConstants.INTAKE_Pivot_P));
     // }
-    // if (SmartDashboard.getNumber("Intake D", IntakeConstants.INTAKE_Pivot_D) != intakepivotPIDR.getD()) {
-    //   intakepivotPIDR.setD(SmartDashboard.getNumber("Intake D", IntakeConstants.INTAKE_Pivot_D));
+    // if (SmartDashboard.getNumber("Intake D", IntakeConstants.INTAKE_Pivot_D) !=
+    // intakepivotPIDR.getD()) {
+    // intakepivotPIDR.setD(SmartDashboard.getNumber("Intake D",
+    // IntakeConstants.INTAKE_Pivot_D));
     // }
     // // // //
 
@@ -102,7 +126,7 @@ public class Intake extends SubsystemBase {
   }
 
   // Sets the intake rpm to a certain value from -1 to 1
-  public Command setIntakeRpm(double input) {
+  public Command setIntakeRpmRAW(double input) {
     return this.runOnce(() -> intakeMotor.set(input));
   }
 

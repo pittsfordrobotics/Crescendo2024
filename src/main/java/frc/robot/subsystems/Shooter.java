@@ -17,6 +17,7 @@ import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkBase.IdleMode;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.PIDController;
 import frc.robot.Constants.RobotConstants;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.commands.DisabledInstantCommand;
@@ -39,113 +40,107 @@ public class Shooter extends SubsystemBase {
   private DigitalInput backLimitSwitch2;
 
   private SparkPIDController shooterpivotRPID;
-  private SparkPIDController shooterpivotLPID;
-  private SparkPIDController RPMShooterLPid;
-  private SparkPIDController RPMShooterRPid;
-
-  private SparkPIDController indexerMotorRPid;
+  // private SparkPIDController RPMShooterLPid;
+  // private SparkPIDController RPMShooterRPid;
+  private PIDController RPMShooterRPid;
+  private PIDController RPMShooterLPid;
 
   private SparkAbsoluteEncoder shooterpivot_R_ABSEncoder;
   private SparkAbsoluteEncoder shooterpivot_L_ABSEncoder;
 
   /** Creates a new Shooter. */
   public Shooter() {
+    // // SHOOTER // //
     // Shooter Motor L
     shooterMotorL = new CANSparkFlex(ShooterConstants.CAN_SHOOTER_L, MotorType.kBrushless);
-    System.out.println(shooterMotorL.restoreFactoryDefaults());
-    System.out.println(shooterMotorL.setIdleMode(IdleMode.kCoast));
-    System.out.println(shooterMotorL.setSmartCurrentLimit(40));
+    shooterMotorL.restoreFactoryDefaults();
+    shooterMotorL.setIdleMode(IdleMode.kCoast);
+    shooterMotorL.setSmartCurrentLimit(40);
+    
+    // // Shooter L OnBoard PID -- Bad as of 2/5
+    // RPMShooterLPid = shooterMotorL.getPIDController();
+    // RPMShooterLPid.setFeedbackDevice(shooterMotorL.getEncoder());
+    // RPMShooterLPid.setP(ShooterConstants.SHOOTER_P);
+    // RPMShooterLPid.setI(ShooterConstants.SHOOTER_I);
+    // RPMShooterLPid.setD(ShooterConstants.SHOOTER_D);
 
-    // RPMShooterPID_L
-    RPMShooterLPid = shooterMotorL.getPIDController();
-    System.out.println(RPMShooterLPid.setFeedbackDevice(shooterMotorL.getEncoder()));
-    System.out.println(RPMShooterLPid.setP(ShooterConstants.SHOOTER_P));
-    System.out.println(RPMShooterLPid.setI(ShooterConstants.SHOOTER_I));
-    System.out.println(RPMShooterLPid.setD(ShooterConstants.SHOOTER_D));
+    // Shooter R OffBoard PID
+    RPMShooterLPid = new PIDController(ShooterConstants.SHOOTER_P, ShooterConstants.SHOOTER_I,
+        ShooterConstants.SHOOTER_D);
+    RPMShooterLPid.setSetpoint(0);
 
-    System.out.println(shooterMotorL.burnFlash());
+    shooterMotorL.burnFlash();
     try {
       Thread.sleep(200);
     } catch (InterruptedException e) {
-
     }
 
     // Shooter Motor R
     shooterMotorR = new CANSparkFlex(ShooterConstants.CAN_SHOOTER_R, MotorType.kBrushless);
-    System.out.println(shooterMotorR.restoreFactoryDefaults());
+    shooterMotorR.restoreFactoryDefaults();
+    shooterMotorR.setIdleMode(IdleMode.kCoast);
+    shooterMotorR.setSmartCurrentLimit(40);
     shooterMotorR.setInverted(true);
-    System.out.println(shooterMotorR.setIdleMode(IdleMode.kCoast));
-    // System.out.println(shooterMotorR.follow(shooterMotorL, true));
-    System.out.println(shooterMotorR.setSmartCurrentLimit(40));
 
-    // RPMShooterPID_R
-    RPMShooterRPid = shooterMotorR.getPIDController();
-    System.out.println(RPMShooterRPid.setFeedbackDevice(shooterMotorR.getEncoder()));
-    System.out.println(RPMShooterRPid.setP(ShooterConstants.SHOOTER_P));
-    System.out.println(RPMShooterRPid.setI(ShooterConstants.SHOOTER_I));
-    System.out.println(RPMShooterRPid.setD(ShooterConstants.SHOOTER_D));
+    // // Shooter R OnBoard PID bad as of 2/5
+    // RPMShooterRPid = shooterMotorR.getPIDController();
+    // System.out.println(RPMShooterRPid.setFeedbackDevice(shooterMotorR.getEncoder()));
+    // System.out.println(RPMShooterRPid.setP(ShooterConstants.SHOOTER_P));
+    // System.out.println(RPMShooterRPid.setI(ShooterConstants.SHOOTER_I));
+    // System.out.println(RPMShooterRPid.setD(ShooterConstants.SHOOTER_D));
 
-    System.out.println(shooterMotorR.burnFlash());
+    // Shooter R OffBoard PID
+    RPMShooterRPid = new PIDController(ShooterConstants.SHOOTER_P, ShooterConstants.SHOOTER_I,
+        ShooterConstants.SHOOTER_D);
+    RPMShooterRPid.setSetpoint(0);
+
+    shooterMotorR.burnFlash();
     try {
       Thread.sleep(200);
     } catch (InterruptedException e) {
-
     }
 
+    // // INDEXER // //
     // Index Motor R (Leader)
     indexerMotorR = new CANSparkMax(ShooterConstants.CAN_INDEXER_R, MotorType.kBrushless);
     indexerMotorR.restoreFactoryDefaults();
     indexerMotorR.setSmartCurrentLimit(20);
-    // backLimitSwitch =
-    // indexerMotorR.getForwardLimitSwitch(SparkLimitSwitch.Type.kNormallyOpen);
-    // indexerMotorR.burnFlash();
     // Index Motor L
     indexerMotorL = new CANSparkMax(ShooterConstants.CAN_INDEXER_L, MotorType.kBrushless);
     indexerMotorL.restoreFactoryDefaults();
     indexerMotorL.setSmartCurrentLimit(20);
     indexerMotorL.follow(indexerMotorR, true);
-    // indexerMotorL.burnFlash();
 
+    // // PIVOT // //
     // ShooterPivot R (Leader)
     shooterpivot_R = new CANSparkMax(ShooterConstants.CAN_SHOOTER_PIVOT_R, MotorType.kBrushless);
     shooterpivot_R.restoreFactoryDefaults();
     shooterpivot_R.setSmartCurrentLimit(20);
     shooterpivot_R_ABSEncoder = shooterpivot_R.getAbsoluteEncoder(Type.kDutyCycle);
     shooterpivot_R_ABSEncoder.setPositionConversionFactor(360);
-    // shooterpivot_R.burnFlash();
-    // ShooterPivot L
-    shooterpivot_L = new CANSparkMax(ShooterConstants.CAN_SHOOTER_PIVOT_L, MotorType.kBrushless);
-    shooterpivot_L.restoreFactoryDefaults();
-    shooterpivot_L.setSmartCurrentLimit(20);
-    shooterpivot_L.follow(shooterpivot_R, true);
-    // shooterpivot_L.burnFlash();
-
-    // Limit Switch
-    backLimitSwitch1 = new DigitalInput(0);
-    backLimitSwitch2 = new DigitalInput(1);
-
-    // PID Controllers
-    try {
-      Thread.sleep(200);
-    } catch (InterruptedException e) {
-
-    }
-
     // ShooterPivotPID R
     shooterpivotRPID = shooterpivot_R.getPIDController();
     shooterpivotRPID.setFeedbackDevice(shooterpivot_R_ABSEncoder);
     shooterpivotRPID.setP(ShooterConstants.SHOOTER_Pivot_P);
     shooterpivotRPID.setI(ShooterConstants.SHOOTER_Pivot_I);
     shooterpivotRPID.setD(ShooterConstants.SHOOTER_Pivot_D);
-    // // ShooterPivotPID L
-    // shooterpivotLPID = shooterpivot_L.getPIDController();
-    // shooterpivotLPID.setFeedbackDevice(shooterpivot_L_ABSEncoder);
-    // shooterpivotLPID.setP(ShooterConstants.SHOOTER_Pivot_P);
-    // shooterpivotLPID.setI(ShooterConstants.SHOOTER_Pivot_I);
-    // shooterpivotLPID.setD(ShooterConstants.SHOOTER_Pivot_D);
+    shooterpivot_R.burnFlash();
+    // ShooterPivot L
+    shooterpivot_L = new CANSparkMax(ShooterConstants.CAN_SHOOTER_PIVOT_L, MotorType.kBrushless);
+    shooterpivot_L.restoreFactoryDefaults();
+    shooterpivot_L.setSmartCurrentLimit(20);
+    shooterpivot_L.follow(shooterpivot_R, true);
+
+    // Limit Switch
+    backLimitSwitch1 = new DigitalInput(0);
+    backLimitSwitch2 = new DigitalInput(1);
+
+    try {
+      Thread.sleep(200);
+    } catch (InterruptedException e) {
+    }
 
     // // For PidTuningOnly
-    // SmartDashboard.putNumber("Shooter P", RMPShooterLPid.getP());
     // SmartDashboard.putNumber("Shooter Pivot P", shooterpivotRPID.getP());
     // SmartDashboard.putNumber("Shooter Pivot D", shooterpivotRPID.getD());
     // // // //
@@ -156,22 +151,17 @@ public class Shooter extends SubsystemBase {
     Shuffleboard.getTab("SHOOTER").addDouble("Shooter RPM", this::getShooterRpm);
     Shuffleboard.getTab("SHOOTER").addDouble("Shooter Angle", this::getShooterAngle_deg);
     Shuffleboard.getTab("SHOOTER").addBoolean("Shooter Limit Switch", this::getLimitSwitch);
-    // Shuffleboard.getTab("SHOOTER").addDouble("Shooter RPMGoal", this::);
-    // Shuffleboard.getTab("SHOOTER").addDouble("Indexer", null);
   }
 
   @Override
   public void periodic() {
     Shuffleboard.update();
 
+    // Shooter OFFBOARD PID
+    shooterMotorL.set(MathUtil.clamp(RPMShooterLPid.calculate(shooterMotorL.getEncoder().getVelocity()),-1,1));
+    shooterMotorR.set(MathUtil.clamp(RPMShooterRPid.calculate(shooterMotorR.getEncoder().getVelocity()),-1,1));
+
     // // For PidTuningOnly
-    // if (SmartDashboard.getNumber("Shooter P", ShooterConstants.SHOOTER_P) !=
-    // RPMShooterLPid.getP()) {
-    // RPMShooterLPid.setP(SmartDashboard.getNumber("Shooter P",
-    // ShooterConstants.SHOOTER_P));
-    // RPMShooterRPid.setP(SmartDashboard.getNumber("Shooter P",
-    // ShooterConstants.SHOOTER_P));
-    // }
     // if (SmartDashboard.getNumber("Shooter Pivot P",
     // ShooterConstants.SHOOTER_Pivot_P) != shooterpivotRPID.getP()) {
     // shooterpivotRPID.setP(SmartDashboard.getNumber("Shooter Pivot P",
@@ -213,18 +203,25 @@ public class Shooter extends SubsystemBase {
   // Drives both shooters to a common RPM setpoint
   public Command setshooterRPM(double setpoint) {
     return this.runOnce(() -> {
-      RPMShooterLPid.setReference(setpoint, ControlType.kVelocity);
-      RPMShooterRPid.setReference(setpoint, ControlType.kVelocity);
+      // // onboard pid
+      // RPMShooterLPid.setReference(setpoint, ControlType.kVelocity);
       // RPMShooterRPid.setReference(setpoint, ControlType.kVelocity);
+
+      // offboard pid
+      RPMShooterLPid.setSetpoint(setpoint);
+      RPMShooterRPid.setSetpoint(setpoint);
+
+      // // commands raw
       // shooterMotorR.set(setpoint);
       // shooterMotorL.set(setpoint);
     });
   }
 
-  // Drives one shooter to a setpoint based on the boolean isLeftMotor
-  public void setRPMshooteroneside(double setpoint, boolean isLeftMotor) {
-    (isLeftMotor ? RPMShooterLPid : RPMShooterRPid).setReference(setpoint, ControlType.kVelocity);
-  }
+  // // Drives one shooter to a setpoint based on the boolean isLeftMotor
+  // public void setRPMshooteroneside(double setpoint, boolean isLeftMotor) {
+  // (isLeftMotor ? RPMShooterLPid : RPMShooterRPid).setReference(setpoint,
+  // ControlType.kVelocity);
+  // }
 
   /** Drives the indexer with given values from -1 to 1 */
   public Command setIndexer(double setpoint) {

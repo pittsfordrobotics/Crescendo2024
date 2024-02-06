@@ -22,13 +22,14 @@ public class AmpCommand extends SequentialCommandGroup {
         new ParallelCommandGroup(shooter.setShooterPivotangle(RobotConstants.AMP_ShooterPivotAngle),
             intake.setIntakePivotAngle(RobotConstants.AMP_IntakePivotAngle)),
         shooter.setIndexer(RobotConstants.INDEXER_HOLD_SPEED),
-        new ParallelCommandGroup(intake.setIntakeRpm(RobotConstants.AMP_IntakeSpeed),
+        new ParallelCommandGroup(intake.setIntakeRpmRAW(RobotConstants.AMP_IntakeSpeed),
             shooter.setshooterRPM(RobotConstants.AMP_ShooterRPM)));
-            
-        // The above sets the position to the amp state but does not release the note
-        // I want to add commands that wait for a boolean to be true then set the indexer to AMP_IndexerSpeedRelease
-        // Would this work? Passing in a button as the boolean supplier?
-        // new WaitUntilCommand(() -> ShouldShoot.getAsBoolean()),
-        // shooter.setIndexer(RobotConstants.AMP_IndexerSpeedRelease));
+
+    // The above sets the position to the amp state but does not release the note
+    // I want to add commands that wait for a boolean to be true then set the
+    // indexer to AMP_IndexerSpeedRelease
+    // Would this work? Passing in a button as the boolean supplier?
+    // new WaitUntilCommand(() -> ShouldShoot.getAsBoolean()),
+    // shooter.setIndexer(RobotConstants.AMP_IndexerSpeedRelease));
   }
 }

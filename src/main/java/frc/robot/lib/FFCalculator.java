@@ -67,7 +67,7 @@ public class FFCalculator {
         double TotalTorque_ShoulderPiv = (Math.cos(Math.atan(CMY / CMX)) * 9.8 * (M1 + M2))
                 * Math.sqrt((CMX * CMX) + (CMY * CMY));
         // return TotalTorque_ShoulderPiv * ShooterMultiplier;
-        return ShooterMultiplier;
+        return ShooterMultiplier * Math.cos(theta);
     }
 
     public double calculateIntakeFF() {
@@ -85,6 +85,6 @@ public class FFCalculator {
 
         double TotalTorque_IntakePiv = (Math.cos(theta + Alpha_CM) * 9.8 * (M2)) * L3;
         // return TotalTorque_IntakePiv * IntakeMultiplier;        
-        return IntakeMultiplier;
+        return IntakeMultiplier * Math.cos(theta + Alpha_CM);
     }
 }

@@ -22,7 +22,7 @@ public class SpeakerCommand extends SequentialCommandGroup {
         new ParallelCommandGroup(shooter.setShooterPivotangle(RobotConstants.SPEAKER_ShooterPivotAngle),
             intake.setIntakePivotAngle(RobotConstants.SPEAKER_IntakePivotAngle)),
         shooter.setIndexer(RobotConstants.INDEXER_HOLD_SPEED),
-        new ParallelCommandGroup(intake.setIntakeRpm(RobotConstants.SPEAKER_IntakeSpeed),
+        new ParallelCommandGroup(intake.setIntakeRpmRAW(RobotConstants.SPEAKER_IntakeSpeed),
             shooter.setshooterRPM(RobotConstants.SPEAKER_ShooterRPM)));
   }
 }

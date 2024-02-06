@@ -38,14 +38,14 @@ public class RobotContainer {
     FFCalculator c = FFCalculator.getInstance();
     // c.updateIntakePivotAngle(INTAKE::getIntakePivotAngle_deg);
     c.updateShooterAngle(SHOOTER::getShooterAngle_deg);
-
     swerveSubsystem = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve/maxSwerve"));
+
     // Configure the trigger bindings
-    configureBindings();
+    // configure_COMP_Bindings();
+    configure_TEST_Bindings();
   }
 
-  private void configureBindings() {
-
+  private void configure_COMP_Bindings() {
     // Swerve Drive Command
     // This command works for sim, there is no need for a separate sim drive command
     // The sim drive command's angle is position-based and not commanded by angular
@@ -56,47 +56,50 @@ public class RobotContainer {
         () -> -1 * applyDeadband(m_driverController.getRightX(), 0.2));
     swerveSubsystem.setDefaultCommand(driveFieldOrientedAnglularVelocity);
 
-    // Testing PID and direction commands
-    // left bumper for shooter pivot pid test
-    m_operatorController.leftBumper().whileTrue(SHOOTER.setShooterPivotangle(60));
-
-    // right bumper for intake pivot pid test
-    m_operatorController.rightBumper().whileTrue(INTAKE.setIntakePivotAngle(90));
-
-    // a button for shooter rpm pid test    times 2.5 bc it works \-.-/  "theory only gets you so far"
-    m_operatorController.a().onTrue(SHOOTER.setshooterRPM(5700*2.5));
-    m_operatorController.a().onFalse(SHOOTER.setshooterRPM(0));
-
-    // b button for intake test
-    m_operatorController.b().onTrue(INTAKE.setIntakeRpm(.7));
-    m_operatorController.b().onFalse(INTAKE.setIntakeRpm(0));
-
-    // y button for indexer test
-    m_operatorController.y().onTrue(SHOOTER.setIndexer(.5));
-    m_operatorController.y().onFalse(SHOOTER.setIndexer(0));
-
-    // // comp commands
-
     // // states
-    // AmpCommand ampCommand = new AmpCommand(SHOOTER, INTAKE);
-    // m_driverController.a().onTrue(ampCommand);
+    AmpCommand ampCommand = new AmpCommand(SHOOTER, INTAKE);
+    m_driverController.a().onTrue(ampCommand);
 
-    // SpeakerCommand speakerCommand = new SpeakerCommand(SHOOTER, INTAKE);
-    // m_driverController.b().onTrue(speakerCommand);
+    SpeakerCommand speakerCommand = new SpeakerCommand(SHOOTER, INTAKE);
+    m_driverController.b().onTrue(speakerCommand);
 
-    // IntakeCommand intakeCommand = new IntakeCommand(SHOOTER, INTAKE);
-    // m_driverController.x().onTrue(intakeCommand);
+    IntakeCommand intakeCommand = new IntakeCommand(SHOOTER, INTAKE);
+    m_driverController.x().onTrue(intakeCommand);
 
-    // StoredCommand storedCommand = new StoredCommand(SHOOTER, INTAKE);
-    // m_driverController.y().onFalse(storedCommand);
+    StoredCommand storedCommand = new StoredCommand(SHOOTER, INTAKE);
+    m_driverController.y().onFalse(storedCommand);
 
-    // // Runs the indexer while the right bumper is held -- essentally a shoot
-    // command
-    // m_driverController.rightBumper().whileTrue(SHOOTER.setIndexer(RobotConstants.INDEXER_SHOOT_SPEED));
+    // Runs the indexer while the right bumper is held -- essentally a shootcommand
+    m_driverController.rightBumper().whileTrue(SHOOTER.setIndexer(RobotConstants.INDEXER_SHOOT_SPEED));
 
-    // // Climber toggle on x
-    // m_operatorController.x().toggleOnTrue(CLIMBER.extend());
-    // m_operatorController.x().toggleOnFalse(CLIMBER.retract());
+    // Climber toggle on x
+    m_operatorController.x().toggleOnTrue(CLIMBER.extend());
+    m_operatorController.x().toggleOnFalse(CLIMBER.retract());
+  }
+
+  private void configure_TEST_Bindings() {
+    // Remember zeroed at intake pose -- +RPM means note goes out -- +Angle means move up relative to intake pose
+    // left bumper for shooter pivot pid test -- Untested -- make sure to get some sorta rate saftey net
+    // m_operatorController.leftBumper().onTrue(SHOOTER.setShooterPivotangle(60));
+    // m_operatorController.leftBumper().onTrue(SHOOTER.setShooterPivotraw(0.05));
+
+    // right bumper for intake pivot pid test -- Untested -- make sure to get some sorta rate saftey net
+    // m_operatorController.rightBumper().onTrue(INTAKE.setIntakePivotAngle(90));
+    // m_operatorController.rightBumper().onTrue(INTAKE.intakePivotRaw(.05));
+
+
+    // a button for shooter rpm pid test times 2.5 bc it works \-.-/ "theory only
+    // gets you so far" - Tested and works
+    m_operatorController.a().onTrue(SHOOTER.setshooterRPM(5700*2.5));
+    m_operatorController.a().onFalse(SHOOTER.setshooterRPM(-500*2.5));
+
+    // b button for intake test -- Untested
+    m_operatorController.b().onTrue(INTAKE.setIntakeRpmRAW(0.7));
+    m_operatorController.b().onFalse(INTAKE.setIntakeRpmRAW(0));
+
+    // y button for indexer test -- Tested and works
+    m_operatorController.y().onTrue(SHOOTER.setIndexer(0.5));
+    m_operatorController.y().onFalse(SHOOTER.setIndexer(-0.1));
   }
 
   // Use this to pass the autonomous command to the main {@link Robot} class.
