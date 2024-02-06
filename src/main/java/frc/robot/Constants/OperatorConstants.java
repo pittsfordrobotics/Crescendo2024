@@ -7,4 +7,5 @@ package frc.robot.Constants;
 /** Add your docs here. */
 public final class OperatorConstants {
     public static final int kDriverControllerPort = 0;
+    public static final int kOperatorControllerPort = 1;
 }
