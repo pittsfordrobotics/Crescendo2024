@@ -36,11 +36,12 @@ public class RobotContainer {
     swerveSubsystem = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve/maxSwerve"));
     toggleDriveMode = new SendableChooser<>();
     toggleDriveMode.addOption("Field Oriented", swerveSubsystem.driveCommand(
-            () -> -1*applyDeadband(m_driverController.getLeftY(), 0.2),
-            () -> -1*applyDeadband(m_driverController.getLeftX(), 0.2),
-            () -> -1*applyDeadband(m_driverController.getRightX(), 0.2)
+            () -> -applyDeadband(m_driverController.getLeftY(), 0.2),
+            () -> -applyDeadband(m_driverController.getLeftX(), 0.2),
+            () -> -applyDeadband(m_driverController.getRightY(), 0.2),
+            () -> -applyDeadband(m_driverController.getRightX(), 0.2)
     ));
-    toggleDriveMode.addOption("Robot Oriented", swerveSubsystem.driveRobotOriented(
+    toggleDriveMode.setDefaultOption("Robot Oriented", swerveSubsystem.driveRobotOriented(
             () -> -applyDeadband(m_driverController.getLeftY(), 0.2),
             () -> -applyDeadband(m_driverController.getLeftX(), 0.2),
             () -> -applyDeadband(m_driverController.getRightX(), 0.2)
@@ -69,6 +70,11 @@ public class RobotContainer {
     // The sim drive command's angle is position-based and not commanded by angular velocity, so this should be used regardless
     Command driveCommand = toggleDriveMode.getSelected();
     swerveSubsystem.setDefaultCommand(driveCommand);
+    toggleDriveMode.onChange(command -> {
+      swerveSubsystem.removeDefaultCommand();
+      swerveSubsystem.setDefaultCommand(command);
+      System.out.println(swerveSubsystem.getDefaultCommand().getName());
+    });
   }
 
   private double applyDeadband(double value, double deadband) {
