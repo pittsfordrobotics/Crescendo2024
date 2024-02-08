@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.DisabledInstantCommand;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.RobotConstants;
@@ -46,8 +47,8 @@ public class RobotContainer {
     swerveSubsystem = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve/maxSwerve"));
     Shuffleboard.getTab("CONFIG").add(new DisabledInstantCommand(() -> {swerveSubsystem.setSwerveOffsets();}));
     // Configure the trigger bindings
-    // configure_COMP_Bindings();
-    configure_TEST_Bindings();
+    configure_COMP_Bindings();
+    // configure_TEST_Bindings();
   }
 
   private void configure_COMP_Bindings() {
@@ -60,6 +61,7 @@ public class RobotContainer {
         () -> -1 * applyDeadband(m_driverController.getLeftX(), 0.2),
         () -> -1 * applyDeadband(m_driverController.getRightX(), 0.2));
     swerveSubsystem.setDefaultCommand(driveFieldOrientedAnglularVelocity);
+    m_driverController.start().onTrue(new InstantCommand(() -> {swerveSubsystem.zeroGyro();System.out.println("Resetting gyro");}));
 
     // // states
     AmpCommand ampCommand = new AmpCommand(SHOOTER, INTAKE);
