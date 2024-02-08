@@ -30,9 +30,9 @@ import java.io.File;
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   private final SwerveSubsystem swerveSubsystem;
-  private final Climber CLIMBER = new Climber();
-  private final Shooter SHOOTER = new Shooter();
-  private final Intake INTAKE = new Intake();
+  // private final Climber CLIMBER = new Climber();
+  // private final Shooter SHOOTER = new Shooter();
+  // private final Intake INTAKE = new Intake();
 
   private final CommandXboxController m_driverController = new CommandXboxController(
       OperatorConstants.kDriverControllerPort);
@@ -43,7 +43,7 @@ public class RobotContainer {
   public RobotContainer() {
     FFCalculator c = FFCalculator.getInstance();
     // c.updateIntakePivotAngle(INTAKE::getIntakePivotAngle_deg);
-    c.updateShooterAngle(SHOOTER::getShooterAngle_deg);
+    // c.updateShooterAngle(SHOOTER::getShooterAngle_deg);
     swerveSubsystem = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve/maxSwerve"));
     Shuffleboard.getTab("CONFIG").add(new DisabledInstantCommand(() -> {swerveSubsystem.setSwerveOffsets();}));
     // Configure the trigger bindings
@@ -64,24 +64,24 @@ public class RobotContainer {
     m_driverController.start().onTrue(new InstantCommand(() -> {swerveSubsystem.zeroGyro();System.out.println("Resetting gyro");}));
 
     // // states
-    AmpCommand ampCommand = new AmpCommand(SHOOTER, INTAKE);
-    m_driverController.a().onTrue(ampCommand);
+    // AmpCommand ampCommand = new AmpCommand(SHOOTER, INTAKE);
+    // m_driverController.a().onTrue(ampCommand);
 
-    SpeakerCommand speakerCommand = new SpeakerCommand(SHOOTER, INTAKE);
-    m_driverController.b().onTrue(speakerCommand);
+    // SpeakerCommand speakerCommand = new SpeakerCommand(SHOOTER, INTAKE);
+    // m_driverController.b().onTrue(speakerCommand);
 
-    IntakeCommand intakeCommand = new IntakeCommand(SHOOTER, INTAKE);
-    m_driverController.x().onTrue(intakeCommand);
+    // IntakeCommand intakeCommand = new IntakeCommand(SHOOTER, INTAKE);
+    // m_driverController.x().onTrue(intakeCommand);
 
-    StoredCommand storedCommand = new StoredCommand(SHOOTER, INTAKE);
-    m_driverController.y().onFalse(storedCommand);
+    // StoredCommand storedCommand = new StoredCommand(SHOOTER, INTAKE);
+    // m_driverController.y().onFalse(storedCommand);
 
-    // Runs the indexer while the right bumper is held -- essentally a shootcommand
-    m_driverController.rightBumper().whileTrue(SHOOTER.setIndexer(RobotConstants.INDEXER_SHOOT_SPEED));
+    // // Runs the indexer while the right bumper is held -- essentally a shootcommand
+    // m_driverController.rightBumper().whileTrue(SHOOTER.setIndexer(RobotConstants.INDEXER_SHOOT_SPEED));
 
-    // Climber toggle on x
-    m_operatorController.x().toggleOnTrue(CLIMBER.extend());
-    m_operatorController.x().toggleOnFalse(CLIMBER.retract());
+    // // Climber toggle on x
+    // m_operatorController.x().toggleOnTrue(CLIMBER.extend());
+    // m_operatorController.x().toggleOnFalse(CLIMBER.retract());
   }
 
   private void configure_TEST_Bindings() {
@@ -97,16 +97,16 @@ public class RobotContainer {
 
     // a button for shooter rpm pid test times 2.5 bc it works \-.-/ "theory only
     // gets you so far" - Tested and works
-    m_operatorController.a().onTrue(SHOOTER.setshooterRPM(5700*2.5));
-    m_operatorController.a().onFalse(SHOOTER.setshooterRPM(-500*2.5));
+    // m_operatorController.a().onTrue(SHOOTER.setshooterRPM(5700*2.5));
+    // m_operatorController.a().onFalse(SHOOTER.setshooterRPM(-500*2.5));
 
-    // b button for intake test -- Untested
-    m_operatorController.b().onTrue(INTAKE.setIntakeRpmRAW(0.7));
-    m_operatorController.b().onFalse(INTAKE.setIntakeRpmRAW(0));
+    // // b button for intake test -- Untested
+    // m_operatorController.b().onTrue(INTAKE.setIntakeRpmRAW(0.7));
+    // m_operatorController.b().onFalse(INTAKE.setIntakeRpmRAW(0));
 
-    // y button for indexer test -- Tested and works
-    m_operatorController.y().onTrue(SHOOTER.setIndexer(0.5));
-    m_operatorController.y().onFalse(SHOOTER.setIndexer(-0.1));
+    // // y button for indexer test -- Tested and works
+    // m_operatorController.y().onTrue(SHOOTER.setIndexer(0.5));
+    // m_operatorController.y().onFalse(SHOOTER.setIndexer(-0.1));
   }
 
   // Use this to pass the autonomous command to the main {@link Robot} class.
