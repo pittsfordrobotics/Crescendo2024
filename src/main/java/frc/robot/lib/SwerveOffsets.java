@@ -14,7 +14,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 
-/** Add your docs here. */
+/** <h1>This class is no longer used, only kept in for reference</h1> */
 public class SwerveOffsets {
     public Rotation2d BLOffset = new Rotation2d();
     public Rotation2d BROffset = new Rotation2d();
@@ -22,7 +22,7 @@ public class SwerveOffsets {
     public Rotation2d FROffset = new Rotation2d();
 
     private static final String OffsetConfigFile = "/home/lvuser/SwerveOffsets.json";
-
+    /** <h1>This class is no longer used, only kept in for reference</h1> */
     public SwerveOffsets() {
     }
 

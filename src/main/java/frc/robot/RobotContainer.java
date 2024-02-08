@@ -45,7 +45,9 @@ public class RobotContainer {
     // c.updateIntakePivotAngle(INTAKE::getIntakePivotAngle_deg);
     // c.updateShooterAngle(SHOOTER::getShooterAngle_deg);
     swerveSubsystem = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve/maxSwerve"));
-    Shuffleboard.getTab("CONFIG").add(new DisabledInstantCommand(() -> {swerveSubsystem.setSwerveOffsets();}));
+    DisabledInstantCommand zeroOffsetCommand = new DisabledInstantCommand(swerveSubsystem::setSwerveOffsets);
+    zeroOffsetCommand.setName("Zero Offsets");
+    Shuffleboard.getTab("CONFIG").add("Zero Swerve Module Offsets", zeroOffsetCommand);
     // Configure the trigger bindings
     configure_COMP_Bindings();
     // configure_TEST_Bindings();
