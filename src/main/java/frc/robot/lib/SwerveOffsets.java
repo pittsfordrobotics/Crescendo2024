@@ -14,7 +14,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 
-/** Add your docs here. */
+/** <h1>This class is no longer used, only kept in for reference</h1> */
 public class SwerveOffsets {
     public Rotation2d BLOffset = new Rotation2d();
     public Rotation2d BROffset = new Rotation2d();
@@ -22,7 +22,9 @@ public class SwerveOffsets {
     public Rotation2d FROffset = new Rotation2d();
 
     private static final String OffsetConfigFile = "/home/lvuser/SwerveOffsets.json";
-
+    /** <h1>This class is no longer used, only kept in for reference</h1> */
+    public SwerveOffsets() {
+    }
 
     public static SwerveOffsets readFromConfig() {
         Map<String, Double> swerveOffsetsMap = new HashMap<String, Double>();
@@ -57,10 +59,10 @@ public class SwerveOffsets {
         Rotation2d BR_PURE_OFFSET = Rotation2d.fromDegrees(swerveOffsetsMap.getOrDefault("BR_PURE_OFFSET", 0.0));
 
         SwerveOffsets offsets = new SwerveOffsets();
-        offsets.FLOffset = FL_PURE_OFFSET;
+        offsets.FLOffset = FL_PURE_OFFSET.plus(Rotation2d.fromDegrees(-90));
         offsets.FROffset = FR_PURE_OFFSET;
-        offsets.BLOffset = BL_PURE_OFFSET;
-        offsets.BROffset = BR_PURE_OFFSET;
+        offsets.BLOffset = BL_PURE_OFFSET.plus(Rotation2d.fromDegrees(-180));
+        offsets.BROffset = BR_PURE_OFFSET.plus(Rotation2d.fromDegrees(-270));
 
         return offsets;
     }
