@@ -24,9 +24,12 @@ public final class ShooterConstants {
     public static final double SHOOTER_Pivot_D = 0;
 
     // See diagram its very usefull
-    public static final double Theta_Offset = 2;
-    public static final double L1_SpivtoWpivperp = 2;
-    public static final double L1CM1_SpivtoCM1 = 2;
-    public static final double M1_Total_Mass_of_Shooter = 2;
-    public static final double SHOOTER_Pivot_FF_Multiplier = 0;
+    // deg -> rad = deg * .0175
+    // inches -> meters = inches * .0254
+    // lbs -> kg = lbs * .453592
+    public static final double Theta_Offset = -5 * .0175;
+    public static final double L1_SpivtoWpivperp = 14.625 * .0254;
+    public static final double L1CM1_SpivtoCM1 = 10 * .0254;
+    public static final double M1_Total_Mass_of_Shooter = 30 * .453592;
+    public static final double SHOOTER_Pivot_FF_Multiplier = 0.0001;
 }
