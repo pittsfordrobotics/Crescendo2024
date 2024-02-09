@@ -12,6 +12,8 @@ import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.ReplanningConfig;
+
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -24,8 +26,12 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.lib.AllDeadbands;
+
 import java.io.File;
 import java.util.function.DoubleSupplier;
+import java.util.function.Supplier;
+
 import swervelib.SwerveController;
 import swervelib.SwerveDrive;
 import swervelib.math.SwerveMath;
@@ -177,7 +183,7 @@ public class SwerveSubsystem extends SubsystemBase {
    */
   public Command driveCommand(DoubleSupplier translationX, DoubleSupplier translationY, DoubleSupplier headingX,
                               DoubleSupplier headingY) {
-    // swerveDrive.setHeadingCorrection(true); // Normally you would want heading correction for this kind of control.
+    swerveDrive.setHeadingCorrection(true); // Normally you would want heading correction for this kind of control.
     return run(() -> {
       double xInput = Math.pow(translationX.getAsDouble(), 3); // Smooth control out
       double yInput = Math.pow(translationY.getAsDouble(), 3); // Smooth control out
@@ -190,6 +196,63 @@ public class SwerveSubsystem extends SubsystemBase {
     });
   }
 
+  /** <h1>More features</h1>
+   * @param translationX Translation in the X direction. Cubed for smoother controls.
+   * @param translationY Translation in the Y direction. Cubed for smoother controls.
+   * @param headingAngle Target heading angle of the robot.
+   * @param leftRotationRate Left rotation rate that overrides heading angle.
+   * @param rightRotationRate Right rotation rate that overrides heading angle.
+   * @return A better combined drive command.
+   */
+  public Command driveCommand(DoubleSupplier translationX, DoubleSupplier translationY, DoubleSupplier rotationX, DoubleSupplier rotationY, 
+                              DoubleSupplier leftRotationRate, DoubleSupplier rightRotationRate) {
+    return run(() -> {
+      double[] deadbandRotationInputs = AllDeadbands.applyCircularDeadband(new double[] {rotationY.getAsDouble(), rotationX.getAsDouble()}, 0.95);
+      Rotation2d targetAngle;
+      if(deadbandRotationInputs == new double[] {0, 0}) {
+        //TODO store last target angle and set the target angle to it and delete next line
+        targetAngle = Rotation2d.fromRadians(Math.atan2(deadbandRotationInputs[1], deadbandRotationInputs[0]));
+      } else {
+        //TODO set the last target angle to current target angle
+        targetAngle = Rotation2d.fromRadians(Math.atan2(deadbandRotationInputs[1], deadbandRotationInputs[0]));
+      }
+      // If both triggers are pressed, use right stick heading angle steering NOT THE TRIGGERS
+      if(MathUtil.applyDeadband(leftRotationRate.getAsDouble(), 0.05) != 0 && MathUtil.applyDeadband(rightRotationRate.getAsDouble(), 0.05) != 0) {
+        swerveDrive.setHeadingCorrection(true);
+        double xInput = Math.pow(translationX.getAsDouble(), 3); // Smooth control out
+        double yInput = Math.pow(translationY.getAsDouble(), 3); // Smooth control out
+        double targetHeading = targetAngle.getRadians();
+        // Make the robot move
+        driveFieldOriented(swerveDrive.swerveController.getTargetSpeeds(xInput, yInput, targetHeading, swerveDrive.getYaw().getRadians(), swerveDrive.getMaximumVelocity()));
+      
+      }
+      // If left trigger pressed, rotate left at a rate proportional to the left trigger input
+      else if(MathUtil.applyDeadband(leftRotationRate.getAsDouble(), 0.05) != 0) {
+        swerveDrive.setHeadingCorrection(false);
+        swerveDrive.drive(new Translation2d(Math.pow(translationX.getAsDouble(), 3) * swerveDrive.getMaximumVelocity(),
+                        Math.pow(translationY.getAsDouble(), 3) * swerveDrive.getMaximumVelocity()),
+                leftRotationRate.getAsDouble() * swerveDrive.getMaximumAngularVelocity(),
+                true, false);
+      }
+      // If right trigger pressed, rotate left at a rate proportional to the right trigger input
+      else if(MathUtil.applyDeadband(rightRotationRate.getAsDouble(), 0.05) != 0) {
+        swerveDrive.setHeadingCorrection(false);
+        swerveDrive.drive(new Translation2d(Math.pow(translationX.getAsDouble(), 3) * swerveDrive.getMaximumVelocity(),
+                        Math.pow(translationY.getAsDouble(), 3) * swerveDrive.getMaximumVelocity()),
+                -rightRotationRate.getAsDouble() * swerveDrive.getMaximumAngularVelocity(),
+                true, false);
+      }
+      //If no triggers are pressed, use the right stick for heading angle steering
+      else {
+        swerveDrive.setHeadingCorrection(true);
+        double xInput = Math.pow(translationX.getAsDouble(), 3); // Smooth control out
+        double yInput = Math.pow(translationY.getAsDouble(), 3); // Smooth control out
+        double targetHeading = targetAngle.getRadians();
+        // Make the robot move
+        driveFieldOriented(swerveDrive.swerveController.getTargetSpeeds(xInput, yInput, targetHeading, swerveDrive.getYaw().getRadians(), swerveDrive.getMaximumVelocity()));
+      }
+    });
+  }
   /**
    * Command to drive the robot using translative values and heading as a setpoint.
    *
