@@ -39,6 +39,7 @@ import frc.robot.subsystems.Climber;
 import java.io.File;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.function.DoubleSupplier;
 
 import com.choreo.lib.Choreo;
@@ -147,7 +148,7 @@ public class RobotContainer {
    */
   public void autoConfig() {
     // // Choreo swerve auto
-    ChoreoTrajectory traj = Choreo.getTrajectory("NewPath");
+    ChoreoTrajectory traj = Choreo.getTrajectory("NewPath.1");
     //swerveSubsystem.resetOdometry(traj.getInitialPose());
 
     // TODO: Replace these with X and Y translate pids (should be same) and rotational pid tuned using shuffleboard when chassis is ready
@@ -155,26 +156,31 @@ public class RobotContainer {
     double yTranslateP = 0;
     double angleP = 0;
 
-    // Angle PID controller
-    var thetaController = new PIDController(angleP, 0.0, 0.0);
-    thetaController.enableContinuousInput(-Math.PI, Math.PI);
+    // PID controllers
+    var xController = new PIDController(xTranslateP, 0.0, 0.0); // PIDController for field-relative X translation (input: Y error in meters, output: m/s).
+    var yController = new PIDController(yTranslateP, 0, 0); // PIDController for field-relative Y translation (input: Y error in meters, output: m/s).
+    var thetaController = new PIDController(angleP, 0.0, 0.0); // PID controller to correct for rotation error
+    thetaController.enableContinuousInput(-Math.PI, Math.PI); // A function that consumes the target robot-relative chassis speeds and commands them to the robot.
+    Consumer<ChassisSpeeds> speedsConsumer = (ChassisSpeeds speeds) -> swerveSubsystem.drive(new Translation2d(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond), speeds.omegaRadiansPerSecond, false); // Consumes target robot-relative chassis speeds and commands them to the robot
+    // Supplier<Pose2d> poseSupplier = swerveSubsystem::getPose;// Robot pose2d supplier
 
-    //swerveSubsystem.getSwerveDrive().swerveController.config.headingPIDF.p may be useful
+    // swerveSubsystem.getSwerveDrive().swerveController.config.headingPIDF.p may be useful
     Command swerveCommand = Choreo.choreoSwerveCommand(
       traj,
-      swerveSubsystem::getPose,
-      new PIDController(xTranslateP, 0.0, 0.0), // PIDController for field-relative X translation (input: Y error in meters, output: m/s).
-      new PIDController(yTranslateP, 0.0, 0.0), // PIDController for field-relative Y translation (input: Y error in meters, output: m/s).
-      thetaController, //, PID controller to correct for rotation error
-      (ChassisSpeeds speeds) -> swerveSubsystem.drive(new Translation2d(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond), speeds.omegaRadiansPerSecond, false), // A function that consumes the target robot-relative chassis speeds and commands them to the robot.
+      swerveSubsystem::getPose, 
+      xController, 
+      yController, 
+      thetaController,
+      speedsConsumer, 
       () -> {
         Optional<DriverStation.Alliance> alliance = DriverStation.getAlliance();
           return alliance.isPresent() && (alliance.get() == Alliance.Red);
       }, // Whether or not to mirror the path based on alliance (assumes path created for blue)
       swerveSubsystem // Subsystems to require, typically drivetrain only
       );
-    swerveCommand.setName("NewPath");
-    autoChooser.setDefaultOption("NewPath", swerveCommand);
+    
+    swerveCommand.setName("NewPath.1");
+    autoChooser.setDefaultOption("NewPath.1", swerveCommand);
     autoChooser.addOption("Do nothing", new InstantCommand());
     SmartDashboard.putData(autoChooser);
 
