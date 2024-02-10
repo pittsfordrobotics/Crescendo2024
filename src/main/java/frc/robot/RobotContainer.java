@@ -5,20 +5,18 @@
 package frc.robot;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import frc.robot.Constants.OperatorConstants;
-import frc.robot.lib.AllDeadbands;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.Constants.OperatorConstants;
+import frc.robot.commands.DisabledInstantCommand;
 import frc.robot.subsystems.SwerveSubsystem;
 
 import java.io.File;
-import java.util.function.Supplier;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -39,33 +37,29 @@ public class RobotContainer {
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     swerveSubsystem = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve/maxSwerve"));
-    Rotation2d storedAngle = new Rotation2d();
-    Supplier<Rotation2d> targetAngleSupplier = () -> {
-            double[] deadbandRotationInputs = AllDeadbands.applyCircularDeadband(new double[] {-m_driverController.getRightY(), -m_driverController.getRightX()}, 0.95);
-            Rotation2d targetAngle = Rotation2d.fromRadians(Math.atan2(deadbandRotationInputs[1], deadbandRotationInputs[0]));
-            return targetAngle;
-          };
     toggleDriveMode = new SendableChooser<>();
     Command enhancedHeadingSteeringCommand = swerveSubsystem.driveCommand(
-            () -> -applyDeadband(m_driverController.getLeftY(), 0.2),
-            () -> -applyDeadband(m_driverController.getLeftX(), 0.2),
+            () -> -MathUtil.applyDeadband(m_driverController.getLeftY(), 0.1),
+            () -> -MathUtil.applyDeadband(m_driverController.getLeftX(), 0.1),
             () -> -m_driverController.getRightY(),
             () -> -m_driverController.getRightX(),
             () -> m_driverController.getLeftTriggerAxis(),
             () -> m_driverController.getRightTriggerAxis());
     enhancedHeadingSteeringCommand.setName("Enhanced Heading Steer");
+    Command headingSteeringCommand = swerveSubsystem.driveCommand(
+            () -> -MathUtil.applyDeadband(m_driverController.getLeftY(), 0.1),
+            () -> -MathUtil.applyDeadband(m_driverController.getLeftX(), 0.1),
+            () -> -m_driverController.getRightX(),
+            () -> -m_driverController.getRightY());
+    headingSteeringCommand.setName("Heading Steer");
+    Command rotationRateSteeringCommand = swerveSubsystem.driveCommand(
+            () -> -MathUtil.applyDeadband(m_driverController.getLeftY(), 0.1),
+            () -> -MathUtil.applyDeadband(m_driverController.getLeftX(), 0.1),
+            () -> -MathUtil.applyDeadband(m_driverController.getRightX(), 0.1));
+    rotationRateSteeringCommand.setName("Rotation Rate Steer");
     toggleDriveMode.addOption("Enhanced Steering (BETA)", enhancedHeadingSteeringCommand);
-    toggleDriveMode.addOption("Heading Steering", swerveSubsystem.driveCommand(
-            () -> -applyDeadband(m_driverController.getLeftY(), 0.2),
-            () -> -applyDeadband(m_driverController.getLeftX(), 0.2),
-            () -> -applyDeadband(m_driverController.getRightX(), 0.2),
-            () -> -applyDeadband(m_driverController.getRightY(), 0.2)
-    ));
-    toggleDriveMode.setDefaultOption("Rotation Rate Steering", swerveSubsystem.driveCommand(
-            () -> -applyDeadband(m_driverController.getLeftY(), 0.2),
-            () -> -applyDeadband(m_driverController.getLeftX(), 0.2),
-            () -> -applyDeadband(m_driverController.getRightX(), 0.2)
-    ));
+    toggleDriveMode.addOption("Heading Steering", headingSteeringCommand);
+    toggleDriveMode.setDefaultOption("Rotation Rate Steering", rotationRateSteeringCommand);
     Shuffleboard.getTab("CONFIG").add(toggleDriveMode);
     // Configure the trigger bindings
     configureBindings();
@@ -88,6 +82,9 @@ public class RobotContainer {
 
     // This command works for sim, there is no need for a separate sim drive command
     // The sim drive command's angle is position-based and not commanded by angular velocity, so this should be used regardless
+    m_driverController.start().onTrue(new DisabledInstantCommand(() -> swerveSubsystem.zeroGyro()));
+    m_driverController.rightBumper().onTrue(swerveSubsystem.setSlowSpeed()).onFalse(swerveSubsystem.setNormalSpeed());
+
     Command driveCommand = toggleDriveMode.getSelected();
     swerveSubsystem.setDefaultCommand(driveCommand);
     toggleDriveMode.onChange(command -> {
@@ -98,13 +95,7 @@ public class RobotContainer {
       System.out.println(swerveSubsystem.getDefaultCommand().getName());
     });
   }
-  /** Applies a deadband */
-  private double applyDeadband(double value, double deadband) {
-    if(Math.abs(value) > deadband) {
-      return value;
-    }
-    return 0;
-  }
+
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
    *
