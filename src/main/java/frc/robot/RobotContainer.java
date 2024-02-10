@@ -4,8 +4,18 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.Constants.OperatorConstants;
+import frc.robot.commands.DisabledInstantCommand;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import frc.robot.Constants.RobotConstants;
+import frc.robot.commands.NewPrettyCommands.*;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.DisabledInstantCommand;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -30,6 +40,7 @@ import java.io.File;
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   private final SwerveSubsystem swerveSubsystem;
+  private final SendableChooser<Command> toggleDriveMode;
   private final Climber CLIMBER = new Climber();
   private final Shooter SHOOTER = new Shooter();
   private final Intake INTAKE = new Intake();
@@ -45,6 +56,30 @@ public class RobotContainer {
     // c.updateIntakePivotAngle(INTAKE::getIntakePivotAngle_deg);
     c.updateShooterAngle(SHOOTER::getShooterAngle_deg);
     swerveSubsystem = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve/maxSwerve"));
+    toggleDriveMode = new SendableChooser<>();
+    Command enhancedHeadingSteeringCommand = swerveSubsystem.driveCommand(
+            () -> -MathUtil.applyDeadband(m_driverController.getLeftY(), 0.1),
+            () -> -MathUtil.applyDeadband(m_driverController.getLeftX(), 0.1),
+            () -> -m_driverController.getRightY(),
+            () -> -m_driverController.getRightX(),
+            m_driverController::getLeftTriggerAxis,
+            m_driverController::getRightTriggerAxis);
+    enhancedHeadingSteeringCommand.setName("Enhanced Heading Steer");
+    Command headingSteeringCommand = swerveSubsystem.driveCommand(
+            () -> -MathUtil.applyDeadband(m_driverController.getLeftY(), 0.1),
+            () -> -MathUtil.applyDeadband(m_driverController.getLeftX(), 0.1),
+            () -> -m_driverController.getRightX(),
+            () -> -m_driverController.getRightY());
+    headingSteeringCommand.setName("Heading Steer");
+    Command rotationRateSteeringCommand = swerveSubsystem.driveCommand(
+            () -> -MathUtil.applyDeadband(m_driverController.getLeftY(), 0.1),
+            () -> -MathUtil.applyDeadband(m_driverController.getLeftX(), 0.1),
+            () -> -MathUtil.applyDeadband(m_driverController.getRightX(), 0.1));
+    rotationRateSteeringCommand.setName("Rotation Rate Steer");
+    toggleDriveMode.addOption("Enhanced Steering (BETA)", enhancedHeadingSteeringCommand);
+    toggleDriveMode.addOption("Heading Steering", headingSteeringCommand);
+    toggleDriveMode.setDefaultOption("Rotation Rate Steering", rotationRateSteeringCommand);
+    Shuffleboard.getTab("CONFIG").add(toggleDriveMode);
     DisabledInstantCommand zeroOffsetCommand = new DisabledInstantCommand(swerveSubsystem::setSwerveOffsets);
     zeroOffsetCommand.setName("Zero Offsets");
     Shuffleboard.getTab("CONFIG").add("Zero Swerve Module Offsets", zeroOffsetCommand);
@@ -56,13 +91,19 @@ public class RobotContainer {
   private void configure_COMP_Bindings() {
     // Swerve Drive Command
     // This command works for sim, there is no need for a separate sim drive command
-    // The sim drive command's angle is position-based and not commanded by angular
-    // velocity, so this should be used regardless
-    Command driveFieldOrientedAnglularVelocity = swerveSubsystem.driveCommand(
-        () -> -1 * applyDeadband(m_driverController.getLeftY(), 0.2),
-        () -> -1 * applyDeadband(m_driverController.getLeftX(), 0.2),
-        () -> -1 * applyDeadband(m_driverController.getRightX(), 0.2));
-    swerveSubsystem.setDefaultCommand(driveFieldOrientedAnglularVelocity);
+    // The sim drive command's angle is position-based and not commanded by angular velocity, so this should be used regardless
+    m_driverController.start().onTrue(new DisabledInstantCommand(() -> swerveSubsystem.zeroGyro()));
+    m_driverController.rightBumper().onTrue(swerveSubsystem.setSlowSpeed()).onFalse(swerveSubsystem.setNormalSpeed());
+
+    Command driveCommand = toggleDriveMode.getSelected();
+    swerveSubsystem.setDefaultCommand(driveCommand);
+    toggleDriveMode.onChange(command -> {
+      Command currentDefault = swerveSubsystem.getDefaultCommand();
+      swerveSubsystem.removeDefaultCommand();
+      CommandScheduler.getInstance().cancel(currentDefault);
+      swerveSubsystem.setDefaultCommand(command);
+      System.out.println(swerveSubsystem.getDefaultCommand().getName());
+    });
     m_driverController.start().onTrue(new InstantCommand(() -> {swerveSubsystem.zeroGyro();System.out.println("Resetting gyro");}));
 
     // // states
