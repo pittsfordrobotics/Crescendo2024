@@ -12,6 +12,7 @@ import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.ReplanningConfig;
+import com.revrobotics.AbsoluteEncoder;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -521,5 +522,33 @@ public class SwerveSubsystem extends SubsystemBase {
    */
   public void addFakeVisionReading() {
     swerveDrive.addVisionMeasurement(new Pose2d(3, 3, Rotation2d.fromDegrees(65)), Timer.getFPGATimestamp());
+  }
+  public void setSwerveOffsets() {
+    Rotation2d[] currentOffsets = new Rotation2d[4];
+    Rotation2d[] newOffsets = new Rotation2d[4];
+    Rotation2d[] measuredPositions = new Rotation2d[4];
+    AbsoluteEncoder[] encoders = new AbsoluteEncoder[4];
+    for(int i = 0; i < 4; i++) {
+      encoders[i] = (AbsoluteEncoder)swerveDrive.getModules()[i].getAbsoluteEncoder().getAbsoluteEncoder();
+      currentOffsets[i] = Rotation2d.fromDegrees(encoders[i].getZeroOffset());
+      measuredPositions[i] = Rotation2d.fromDegrees(encoders[i].getPosition());
+      newOffsets[i] = currentOffsets[i].plus(measuredPositions[i]).plus(Rotation2d.fromDegrees(getAngleForModule(i)));
+      encoders[i].setZeroOffset(MathUtil.inputModulus(newOffsets[i].getDegrees(), 0, 360));
+      swerveDrive.getModules()[i].getAngleMotor().burnFlash();
+    }
+  }
+  private double getAngleForModule(int moduleNumber) {
+    switch (moduleNumber) {
+      case 0:
+        return -90;
+      case 1:
+        return 0;
+      case 2:
+        return -180;
+      case 3:
+        return -270;
+      default:
+      return 0;
+    }
   }
 }
