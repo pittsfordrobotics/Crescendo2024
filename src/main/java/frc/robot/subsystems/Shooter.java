@@ -18,8 +18,6 @@ import com.revrobotics.CANSparkBase.IdleMode;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
-import frc.robot.Constants.RobotConstants;
-import frc.robot.Constants.ShooterConstants;
 import frc.robot.commands.DisabledInstantCommand;
 import frc.robot.lib.FFCalculator;
 import edu.wpi.first.wpilibj.DigitalInput;
@@ -27,6 +25,7 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.ShooterConstants;
 
 public class Shooter extends SubsystemBase {
   private CANSparkFlex shooterMotorL;
@@ -155,6 +154,9 @@ public class Shooter extends SubsystemBase {
 
   @Override
   public void periodic() {
+    if(true) {
+      return;
+    }
     Shuffleboard.update();
 
     // Shooter OFFBOARD PID

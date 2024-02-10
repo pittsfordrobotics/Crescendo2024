@@ -133,14 +133,6 @@ public class RobotContainer {
     m_operatorController.y().onFalse(SHOOTER.setIndexer(-0.1));
   }
 
-  // Use this to pass the autonomous command to the main {@link Robot} class.
-  // @return the command to run in autonomous
-  public Command getAutonomousCommand() {
-    // // Choreo swerve auto
-    return null;
-    // return Autos.choreoSwerveAuto(m_swerveDrive, "NewPath");
-  }
-
   private double applyDeadband(double value, double deadband) {
     if (Math.abs(value) > deadband) {
       return value;
