@@ -26,6 +26,8 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ShooterConstants;
 
@@ -122,6 +124,7 @@ public class Shooter extends SubsystemBase {
     shooterpivotRPID.setP(ShooterConstants.SHOOTER_Pivot_P);
     shooterpivotRPID.setI(ShooterConstants.SHOOTER_Pivot_I);
     shooterpivotRPID.setD(ShooterConstants.SHOOTER_Pivot_D);
+    shooterpivotRPID.setOutputRange(-.05, .05);
     shooterpivot_R.burnFlash();
     // ShooterPivot L
     shooterpivot_L = new CANSparkMax(ShooterConstants.CAN_SHOOTER_PIVOT_L, MotorType.kBrushless);
@@ -224,11 +227,18 @@ public class Shooter extends SubsystemBase {
   // Drives the pivot to a given angle in degrees
   public Command setShooterPivotangle(double setpoint_deg) {
     // shooterpivotLPID.setReference(setpoint, ControlType.kPosition);
-    return this.runOnce(() -> shooterpivotRPID.setReference(setpoint_deg / 360, ControlType.kPosition));
+    // return custom command with an execute and im finished
+    // return this.runOnce(() -> shooterpivotRPID.setReference(setpoint_deg, ControlType.kPosition));
+    double setpoint_deg_clamped = MathUtil.clamp(setpoint_deg, 2, 90);
+
+    Command cmd = new RunCommand(() -> shooterpivotRPID.setReference(setpoint_deg_clamped, ControlType.kPosition, 0, FFCalculator.getInstance().calculateShooterFF()));
+    cmd.until(() -> Math.abs(shooterpivot_R_ABSEncoder.getPosition() - setpoint_deg) < 2);
+    return cmd;
   }
 
   // Zeros the pivot -- call when laying flat
   public void zeroPivot() {
+    // shooterpivot_R_ABSEncoder.setZeroOffset(shooterpivot_R_ABSEncoder.getPosition());
     shooterpivot_R_ABSEncoder.setZeroOffset(MathUtil
         .inputModulus(shooterpivot_R_ABSEncoder.getPosition() + shooterpivot_R_ABSEncoder.getZeroOffset(), 0, 360));
   }

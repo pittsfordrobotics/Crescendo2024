@@ -129,25 +129,26 @@ public class RobotContainer {
 
   private void configure_TEST_Bindings() {
     // Remember zeroed at intake pose -- +RPM means note goes out -- +Angle means move up relative to intake pose
-    // left bumper for shooter pivot pid test -- Untested -- make sure to get some sorta rate saftey net
-    // m_operatorController.leftBumper().onTrue(SHOOTER.setShooterPivotangle(60));
-    // m_operatorController.leftBumper().onTrue(SHOOTER.setShooterPivotraw(0.05));
 
-    // right bumper for intake pivot pid test -- Untested -- make sure to get some sorta rate saftey net
-    // m_operatorController.rightBumper().onTrue(INTAKE.setIntakePivotAngle(90));
-    // m_operatorController.rightBumper().onTrue(INTAKE.intakePivotRaw(.05));
 
+    // left bumper for shooter pivot pid test -- make sure to get some sorta rate saftey net
+    // m_operatorController.leftBumper().onTrue(SHOOTER.setShooterPivotangle(30));
+    m_operatorController.leftBumper().onTrue(SHOOTER.setShooterPivotraw(0.05));
+
+    // right bumper for intake pivot pid test -- make sure to get some sorta rate saftey net
+    m_operatorController.rightBumper().onTrue(INTAKE.setIntakePivotAngle(30));
+    m_operatorController.rightBumper().onTrue(INTAKE.intakePivotRaw(.05));
 
     // a button for shooter rpm pid test times 2.5 bc it works \-.-/ "theory only
-    // gets you so far" - Tested and works
-    m_operatorController.a().onTrue(SHOOTER.setshooterRPM(5700*2.5));
-    m_operatorController.a().onFalse(SHOOTER.setshooterRPM(-500*2.5));
+    // gets you so far"
+    m_operatorController.a().onTrue(SHOOTER.setshooterRPM(5700));
+    m_operatorController.a().onFalse(SHOOTER.setshooterRPM(-1000));
 
-    // b button for intake test -- Untested
+    // b button for intake test
     m_operatorController.b().onTrue(INTAKE.setIntakeRpmRAW(0.7));
-    m_operatorController.b().onFalse(INTAKE.setIntakeRpmRAW(0));
+    m_operatorController.b().onFalse(INTAKE.setIntakeRpmRAW(-.1));
 
-    // y button for indexer test -- Tested and works
+    // y button for indexer test
     m_operatorController.y().onTrue(SHOOTER.setIndexer(0.5));
     m_operatorController.y().onFalse(SHOOTER.setIndexer(-0.1));
   }
