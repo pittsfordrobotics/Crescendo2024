@@ -36,9 +36,7 @@ public class Shooter extends SubsystemBase {
   private CANSparkMax indexerMotorR;
   private CANSparkMax shooterpivot_L;
   private CANSparkMax shooterpivot_R;
-  private SparkLimitSwitch backLimitSwitch;
-  private DigitalInput backLimitSwitch1;
-  private DigitalInput backLimitSwitch2;
+  private DigitalInput backLimitSwitch;
 
   private SparkPIDController shooterpivotRPID;
   // private SparkPIDController RPMShooterLPid;
@@ -47,7 +45,6 @@ public class Shooter extends SubsystemBase {
   private PIDController RPMShooterLPid;
 
   private SparkAbsoluteEncoder shooterpivot_R_ABSEncoder;
-  private SparkAbsoluteEncoder shooterpivot_L_ABSEncoder;
 
   /** Creates a new Shooter. */
   public Shooter() {
@@ -133,8 +130,7 @@ public class Shooter extends SubsystemBase {
     shooterpivot_L.follow(shooterpivot_R, true);
 
     // Limit Switch
-    backLimitSwitch1 = new DigitalInput(0);
-    backLimitSwitch2 = new DigitalInput(1);
+    backLimitSwitch = new DigitalInput(0);
 
     try {
       Thread.sleep(200);
@@ -159,23 +155,23 @@ public class Shooter extends SubsystemBase {
     Shuffleboard.update();
 
     // Shooter OFFBOARD PID
-    // shooterMotorL.set(MathUtil.clamp(RPMShooterLPid.calculate(shooterMotorL.getEncoder().getVelocity()),-1,1));
-    // shooterMotorR.set(MathUtil.clamp(RPMShooterRPid.calculate(shooterMotorR.getEncoder().getVelocity()),-1,1));
+    shooterMotorL.set(MathUtil.clamp(RPMShooterLPid.calculate(shooterMotorL.getEncoder().getVelocity()),-1,1));
+    shooterMotorR.set(MathUtil.clamp(RPMShooterRPid.calculate(shooterMotorR.getEncoder().getVelocity()),-1,1));
 
-    // // For PidTuningOnly
-    // if (SmartDashboard.getNumber("Shooter Pivot P",
-    // ShooterConstants.SHOOTER_Pivot_P) != shooterpivotRPID.getP()) {
-    // shooterpivotRPID.setP(SmartDashboard.getNumber("Shooter Pivot P",
-    // ShooterConstants.SHOOTER_Pivot_P));
-    // }
-    // if (SmartDashboard.getNumber("Shooter Pivot D",
-    // ShooterConstants.SHOOTER_Pivot_D) != shooterpivotRPID.getD()) {
-    // shooterpivotRPID.setD(SmartDashboard.getNumber("Shooter Pivot D",
-    // ShooterConstants.SHOOTER_Pivot_D));
-    // }
-    // // // //
+    // For PidTuningOnly
+    if (SmartDashboard.getNumber("Shooter Pivot P",
+    ShooterConstants.SHOOTER_Pivot_P) != shooterpivotRPID.getP()) {
+    shooterpivotRPID.setP(SmartDashboard.getNumber("Shooter Pivot P",
+    ShooterConstants.SHOOTER_Pivot_P));
+    }
+    if (SmartDashboard.getNumber("Shooter Pivot D",
+    ShooterConstants.SHOOTER_Pivot_D) != shooterpivotRPID.getD()) {
+    shooterpivotRPID.setD(SmartDashboard.getNumber("Shooter Pivot D",
+    ShooterConstants.SHOOTER_Pivot_D));
+    }
+    // // //
 
-    // shooterpivotRPID.setFF(FFCalculator.getInstance().calculateShooterFF());
+    shooterpivotRPID.setFF(FFCalculator.getInstance().calculateShooterFF());
   }
 
   // Returns the RPM of the shooter (ABS of Left and Rights motor average)
@@ -184,12 +180,8 @@ public class Shooter extends SubsystemBase {
   }
 
   // returns true if the limit switch is pressed
-  // public boolean getLimitSwitch() {
-  // return backLimitSwitch.isPressed();
-  // }
-
   public boolean getLimitSwitch() {
-    return backLimitSwitch1.get() || backLimitSwitch2.get();
+    return backLimitSwitch.get();
   }
 
   // Returns the angle of the shooter pivot (Right motor in deg)
@@ -238,7 +230,7 @@ public class Shooter extends SubsystemBase {
   // Zeros the pivot -- call when laying flat
   public void zeroPivot() {
     shooterpivot_R_ABSEncoder.setZeroOffset(MathUtil
-        .inputModulus(shooterpivot_L_ABSEncoder.getPosition() + shooterpivot_R_ABSEncoder.getZeroOffset(), 0, 360));
+        .inputModulus(shooterpivot_R_ABSEncoder.getPosition() + shooterpivot_R_ABSEncoder.getZeroOffset(), 0, 360));
   }
 
   // puts the shooter motors in coast mode

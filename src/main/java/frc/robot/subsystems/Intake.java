@@ -72,37 +72,33 @@ public class Intake extends SubsystemBase {
     } catch (InterruptedException e) {
     }
 
-    // // For PidTuningOnly
-    // SmartDashboard.putNumber("Intake P", intakepivotPIDR.getP());
-    // SmartDashboard.putNumber("Intake D", intakepivotPIDR.getD());
-    // // // //
+    // For PidTuningOnly
+    SmartDashboard.putNumber("Intake P", intakepivotPIDR.getP());
+    SmartDashboard.putNumber("Intake D", intakepivotPIDR.getD());
+    // // //
 
     // Zeroed at intake position
-    // Shuffleboard.getTab("Intake").add("Zero Intake Pivot", new
-    // DisabledInstantCommand(this::zeroIntakePivot));
-    // Shuffleboard.getTab("Intake").add("Intake RPM", this.getIntakeRpm());
-    // Shuffleboard.getTab("Intake").add("Intake Pivot Angle",
-    // this.getIntakePivotAngle_deg());
+    Shuffleboard.getTab("Intake").add("Zero Intake Pivot", new DisabledInstantCommand(this::zeroIntakePivot));
+    Shuffleboard.getTab("Intake").add("Intake RPM", this.getIntakeRpm());
+    Shuffleboard.getTab("Intake").add("Intake Pivot Angle", this.getIntakePivotAngle_deg());
   }
 
   @Override
   public void periodic() {
     Shuffleboard.update();
 
-    // // For PidTuningOnly
-    // if (SmartDashboard.getNumber("Intake P", IntakeConstants.INTAKE_Pivot_P) !=
-    // intakepivotPIDR.getP()) {
-    // intakepivotPIDR.setP(SmartDashboard.getNumber("Intake P",
-    // IntakeConstants.INTAKE_Pivot_P));
-    // }
-    // if (SmartDashboard.getNumber("Intake D", IntakeConstants.INTAKE_Pivot_D) !=
-    // intakepivotPIDR.getD()) {
-    // intakepivotPIDR.setD(SmartDashboard.getNumber("Intake D",
-    // IntakeConstants.INTAKE_Pivot_D));
-    // }
-    // // // //
+    // For PidTuningOnly
+    if (SmartDashboard.getNumber("Intake P", IntakeConstants.INTAKE_Pivot_P) != intakepivotPIDR.getP()) {
+      intakepivotPIDR.setP(SmartDashboard.getNumber("Intake P",
+          IntakeConstants.INTAKE_Pivot_P));
+    }
+    if (SmartDashboard.getNumber("Intake D", IntakeConstants.INTAKE_Pivot_D) != intakepivotPIDR.getD()) {
+      intakepivotPIDR.setD(SmartDashboard.getNumber("Intake D",
+          IntakeConstants.INTAKE_Pivot_D));
+    }
+    // // //
 
-    // intakepivotPIDR.setFF(FFCalculator.getInstance().calculateIntakeFF());
+    intakepivotPIDR.setFF(FFCalculator.getInstance().calculateIntakeFF());
   }
 
   // Gets the RPM of the intake motor
