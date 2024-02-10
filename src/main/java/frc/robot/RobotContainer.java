@@ -49,8 +49,8 @@ public class RobotContainer {
             () -> -MathUtil.applyDeadband(m_driverController.getLeftX(), 0.1),
             () -> -m_driverController.getRightY(),
             () -> -m_driverController.getRightX(),
-            () -> m_driverController.getLeftTriggerAxis(),
-            () -> m_driverController.getRightTriggerAxis());
+            m_driverController::getLeftTriggerAxis,
+            m_driverController::getRightTriggerAxis);
     enhancedHeadingSteeringCommand.setName("Enhanced Heading Steer");
     Command headingSteeringCommand = swerveSubsystem.driveCommand(
             () -> -MathUtil.applyDeadband(m_driverController.getLeftY(), 0.1),

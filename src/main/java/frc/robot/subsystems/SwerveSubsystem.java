@@ -187,8 +187,8 @@ public class SwerveSubsystem extends SubsystemBase {
    */
   public Command driveCommand(DoubleSupplier translationX, DoubleSupplier translationY, DoubleSupplier headingX,
                               DoubleSupplier headingY) {
-    swerveDrive.setHeadingCorrection(true); // Normally you would want heading correction for this kind of control.
     return run(() -> {
+      swerveDrive.setHeadingCorrection(true);
       double[] deadbandRotationInputs = AllDeadbands.applyCircularDeadband(new double[] {headingX.getAsDouble(), headingY.getAsDouble()}, 0.95);
       double xInput = Math.pow(translationX.getAsDouble(), 3); // Smooth control out
       double yInput = Math.pow(translationY.getAsDouble(), 3); // Smooth control out
@@ -266,6 +266,7 @@ public class SwerveSubsystem extends SubsystemBase {
   public Command driveCommand(DoubleSupplier translationX, DoubleSupplier translationY,
                               DoubleSupplier angularRotationX) {
     return run(() -> {
+      swerveDrive.setHeadingCorrection(false);
       // Make the robot move
       swerveDrive.drive(new Translation2d(Math.pow(translationX.getAsDouble(), 3) * swerveDrive.getMaximumVelocity() * speedFactor,
                       Math.pow(translationY.getAsDouble(), 3) * swerveDrive.getMaximumVelocity() * speedFactor),

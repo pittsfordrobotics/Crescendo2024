@@ -159,8 +159,8 @@ public class Shooter extends SubsystemBase {
     Shuffleboard.update();
 
     // Shooter OFFBOARD PID
-    shooterMotorL.set(MathUtil.clamp(RPMShooterLPid.calculate(shooterMotorL.getEncoder().getVelocity()),-1,1));
-    shooterMotorR.set(MathUtil.clamp(RPMShooterRPid.calculate(shooterMotorR.getEncoder().getVelocity()),-1,1));
+    // shooterMotorL.set(MathUtil.clamp(RPMShooterLPid.calculate(shooterMotorL.getEncoder().getVelocity()),-1,1));
+    // shooterMotorR.set(MathUtil.clamp(RPMShooterRPid.calculate(shooterMotorR.getEncoder().getVelocity()),-1,1));
 
     // // For PidTuningOnly
     // if (SmartDashboard.getNumber("Shooter Pivot P",
@@ -175,7 +175,7 @@ public class Shooter extends SubsystemBase {
     // }
     // // // //
 
-    shooterpivotRPID.setFF(FFCalculator.getInstance().calculateShooterFF());
+    // shooterpivotRPID.setFF(FFCalculator.getInstance().calculateShooterFF());
   }
 
   // Returns the RPM of the shooter (ABS of Left and Rights motor average)
