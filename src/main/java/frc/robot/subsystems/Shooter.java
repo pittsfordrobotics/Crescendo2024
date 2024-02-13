@@ -115,8 +115,12 @@ public class Shooter extends SubsystemBase {
     // ShooterPivot R (Leader)
     shooterpivot_R = new CANSparkMax(ShooterConstants.CAN_SHOOTER_PIVOT_R, MotorType.kBrushless);
     shooterpivot_R.restoreFactoryDefaults();
-    shooterpivot_R.setSmartCurrentLimit(20);
+    shooterpivot_R.setSmartCurrentLimit(40);
+    shooterpivot_R.setInverted(true);
+    shooterpivot_R.setIdleMode(CANSparkMax.IdleMode.kBrake);
+
     shooterpivot_R_ABSEncoder = shooterpivot_R.getAbsoluteEncoder(Type.kDutyCycle);
+    shooterpivot_R_ABSEncoder.setInverted(true);
     shooterpivot_R_ABSEncoder.setPositionConversionFactor(360);
     // ShooterPivotPID R
     shooterpivotRPID = shooterpivot_R.getPIDController();
@@ -124,12 +128,14 @@ public class Shooter extends SubsystemBase {
     shooterpivotRPID.setP(ShooterConstants.SHOOTER_Pivot_P);
     shooterpivotRPID.setI(ShooterConstants.SHOOTER_Pivot_I);
     shooterpivotRPID.setD(ShooterConstants.SHOOTER_Pivot_D);
-    shooterpivotRPID.setOutputRange(-.05, .05);
+    // shooterpivotRPID.setOutputRange(-.05, .05);
     shooterpivot_R.burnFlash();
     // ShooterPivot L
     shooterpivot_L = new CANSparkMax(ShooterConstants.CAN_SHOOTER_PIVOT_L, MotorType.kBrushless);
     shooterpivot_L.restoreFactoryDefaults();
-    shooterpivot_L.setSmartCurrentLimit(20);
+    shooterpivot_L.setSmartCurrentLimit(40);
+    shooterpivot_L.setIdleMode(CANSparkMax.IdleMode.kBrake);
+
     shooterpivot_L.follow(shooterpivot_R, true);
 
     // Limit Switch
@@ -155,26 +161,26 @@ public class Shooter extends SubsystemBase {
 
   @Override
   public void periodic() {
-    Shuffleboard.update();
+    // Shuffleboard.update();
 
     // Shooter OFFBOARD PID
     shooterMotorL.set(MathUtil.clamp(RPMShooterLPid.calculate(shooterMotorL.getEncoder().getVelocity()),-1,1));
     shooterMotorR.set(MathUtil.clamp(RPMShooterRPid.calculate(shooterMotorR.getEncoder().getVelocity()),-1,1));
 
-    // For PidTuningOnly
-    if (SmartDashboard.getNumber("Shooter Pivot P",
-    ShooterConstants.SHOOTER_Pivot_P) != shooterpivotRPID.getP()) {
-    shooterpivotRPID.setP(SmartDashboard.getNumber("Shooter Pivot P",
-    ShooterConstants.SHOOTER_Pivot_P));
-    }
-    if (SmartDashboard.getNumber("Shooter Pivot D",
-    ShooterConstants.SHOOTER_Pivot_D) != shooterpivotRPID.getD()) {
-    shooterpivotRPID.setD(SmartDashboard.getNumber("Shooter Pivot D",
-    ShooterConstants.SHOOTER_Pivot_D));
-    }
+    // // For PidTuningOnly
+    // if (SmartDashboard.getNumber("Shooter Pivot P",
+    // ShooterConstants.SHOOTER_Pivot_P) != shooterpivotRPID.getP()) {
+    // shooterpivotRPID.setP(SmartDashboard.getNumber("Shooter Pivot P",
+    // ShooterConstants.SHOOTER_Pivot_P));
+    // }
+    // if (SmartDashboard.getNumber("Shooter Pivot D",
+    // ShooterConstants.SHOOTER_Pivot_D) != shooterpivotRPID.getD()) {
+    // shooterpivotRPID.setD(SmartDashboard.getNumber("Shooter Pivot D",
+    // ShooterConstants.SHOOTER_Pivot_D));
+    // }
     // // //
 
-    shooterpivotRPID.setFF(FFCalculator.getInstance().calculateShooterFF());
+    // shooterpivotRPID.setFF(FFCalculator.getInstance().calculateShooterFF());
   }
 
   // Returns the RPM of the shooter (ABS of Left and Rights motor average)
@@ -189,7 +195,7 @@ public class Shooter extends SubsystemBase {
 
   // Returns the angle of the shooter pivot (Right motor in deg)
   public double getShooterAngle_deg() {
-    return shooterpivot_R_ABSEncoder.getPosition() * 360;
+    return shooterpivot_R_ABSEncoder.getPosition();
   }
 
   public Command setShooterFFvalue(Double ShooterFFValue) {

@@ -8,7 +8,7 @@ public class IntakeConstants {
     public static final int CAN_INTAKE_PIVOT_L = 22;
     public static final int CAN_INTAKE_PIVOT_R = 23;
 
-    public static final double INTAKE_Pivot_P = .5;
+    public static final double INTAKE_Pivot_P = .05;
     public static final double INTAKE_Pivot_I = 0;
     public static final double INTAKE_Pivot_D = 0;
 

@@ -84,8 +84,8 @@ public class RobotContainer {
     zeroOffsetCommand.setName("Zero Offsets");
     Shuffleboard.getTab("CONFIG").add("Zero Swerve Module Offsets", zeroOffsetCommand);
     // Configure the trigger bindings
-    configure_COMP_Bindings();
-    // configure_TEST_Bindings();
+    // configure_COMP_Bindings();
+    configure_TEST_Bindings();
   }
 
   private void configure_COMP_Bindings() {
@@ -130,23 +130,24 @@ public class RobotContainer {
   private void configure_TEST_Bindings() {
     // Remember zeroed at intake pose -- +RPM means note goes out -- +Angle means move up relative to intake pose
 
-
     // left bumper for shooter pivot pid test -- make sure to get some sorta rate saftey net
     // m_operatorController.leftBumper().onTrue(SHOOTER.setShooterPivotangle(30));
-    m_operatorController.leftBumper().onTrue(SHOOTER.setShooterPivotraw(0.05));
+    m_operatorController.leftBumper().onTrue(SHOOTER.setShooterPivotraw(.1));
+    m_operatorController.leftBumper().onFalse(SHOOTER.setShooterPivotraw(0));
 
     // right bumper for intake pivot pid test -- make sure to get some sorta rate saftey net
-    m_operatorController.rightBumper().onTrue(INTAKE.setIntakePivotAngle(30));
-    m_operatorController.rightBumper().onTrue(INTAKE.intakePivotRaw(.05));
+    // m_operatorController.rightBumper().onTrue(INTAKE.setIntakePivotAngle(30));
+    m_operatorController.rightBumper().onTrue(INTAKE.intakePivotRaw(0.05));
+    m_operatorController.rightBumper().onFalse(INTAKE.intakePivotRaw(0.0));
 
     // a button for shooter rpm pid test times 2.5 bc it works \-.-/ "theory only
     // gets you so far"
-    m_operatorController.a().onTrue(SHOOTER.setshooterRPM(5700));
-    m_operatorController.a().onFalse(SHOOTER.setshooterRPM(-1000));
+    m_operatorController.a().onTrue(SHOOTER.setshooterRPM(5700*2.5));
+    m_operatorController.a().onFalse(SHOOTER.setshooterRPM(0));
 
     // b button for intake test
     m_operatorController.b().onTrue(INTAKE.setIntakeRpmRAW(0.7));
-    m_operatorController.b().onFalse(INTAKE.setIntakeRpmRAW(-.1));
+    m_operatorController.b().onFalse(INTAKE.setIntakeRpmRAW(0));
 
     // y button for indexer test
     m_operatorController.y().onTrue(SHOOTER.setIndexer(0.5));

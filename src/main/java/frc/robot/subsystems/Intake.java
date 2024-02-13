@@ -18,6 +18,7 @@ import frc.robot.Constants.IntakeConstants;
 import frc.robot.commands.DisabledInstantCommand;
 import frc.robot.lib.FFCalculator;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Intake extends SubsystemBase {
@@ -36,7 +37,8 @@ public class Intake extends SubsystemBase {
     // Intake Pivot Motor R (Leader)
     intakePivotMotorR = new CANSparkMax(IntakeConstants.CAN_INTAKE_PIVOT_R, MotorType.kBrushless);
     intakePivotMotorR.restoreFactoryDefaults();
-    intakePivotMotorR.setSmartCurrentLimit(20);
+    intakePivotMotorR.setSmartCurrentLimit(40);
+    intakePivotMotorR.setInverted(true);
     intakePivotABSEncoderR = intakePivotMotorR.getAbsoluteEncoder(Type.kDutyCycle);
     intakePivotABSEncoderR.setPositionConversionFactor(360);
 
@@ -56,7 +58,7 @@ public class Intake extends SubsystemBase {
     // Intake Pivot Motor L
     intakePivotMotorL = new CANSparkMax(IntakeConstants.CAN_INTAKE_PIVOT_L, MotorType.kBrushless);
     intakePivotMotorL.restoreFactoryDefaults();
-    intakePivotMotorL.setSmartCurrentLimit(20);
+    intakePivotMotorL.setSmartCurrentLimit(40);
     intakePivotMotorL.follow(intakePivotMotorR, true);
 
     intakePivotMotorL.burnFlash();
@@ -89,20 +91,20 @@ public class Intake extends SubsystemBase {
 
   @Override
   public void periodic() {
-    Shuffleboard.update();
+    // Shuffleboard.update();
 
-    // For PidTuningOnly
-    if (SmartDashboard.getNumber("Intake P", IntakeConstants.INTAKE_Pivot_P) != intakepivotPIDR.getP()) {
-      intakepivotPIDR.setP(SmartDashboard.getNumber("Intake P",
-          IntakeConstants.INTAKE_Pivot_P));
-    }
-    if (SmartDashboard.getNumber("Intake D", IntakeConstants.INTAKE_Pivot_D) != intakepivotPIDR.getD()) {
-      intakepivotPIDR.setD(SmartDashboard.getNumber("Intake D",
-          IntakeConstants.INTAKE_Pivot_D));
-    }
+    // // For PidTuningOnly
+    // if (SmartDashboard.getNumber("Intake P", IntakeConstants.INTAKE_Pivot_P) != intakepivotPIDR.getP()) {
+    //   intakepivotPIDR.setP(SmartDashboard.getNumber("Intake P",
+    //       IntakeConstants.INTAKE_Pivot_P));
+    // }
+    // if (SmartDashboard.getNumber("Intake D", IntakeConstants.INTAKE_Pivot_D) != intakepivotPIDR.getD()) {
+    //   intakepivotPIDR.setD(SmartDashboard.getNumber("Intake D",
+    //       IntakeConstants.INTAKE_Pivot_D));
+    // }
     // // //
 
-    intakepivotPIDR.setFF(FFCalculator.getInstance().calculateIntakeFF());
+    // intakepivotPIDR.setFF(FFCalculator.getInstance().calculateIntakeFF());
   }
 
   // Gets the RPM of the intake motor
@@ -134,8 +136,12 @@ public class Intake extends SubsystemBase {
   // Sets the intake pivot angle to a certain angle using PID on right motors
   // **set in degrees**
   public Command setIntakePivotAngle(double setpoint_deg) {
+
     double setpoint_deg_clamped = MathUtil.clamp(setpoint_deg, 2,178);
-    return this.run(() -> intakepivotPIDR.setReference(setpoint_deg_clamped, ControlType.kPosition));
+    Command cmd = new RunCommand(() -> intakepivotPIDR.setReference(setpoint_deg_clamped, ControlType.kPosition, 0, FFCalculator.getInstance().calculateIntakeFF()));
+    cmd.until(() -> Math.abs(intakePivotABSEncoderR.getPosition() - setpoint_deg) < 2);
+    return cmd;
+    // return this.run(() -> intakepivotPIDR.setReference(setpoint_deg_clamped, ControlType.kPosition));
   }
 
   // For Testing
