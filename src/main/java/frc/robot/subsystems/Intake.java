@@ -91,18 +91,18 @@ public class Intake extends SubsystemBase {
 
   @Override
   public void periodic() {
-    // Shuffleboard.update();
+    Shuffleboard.update();
 
-    // // For PidTuningOnly
-    // if (SmartDashboard.getNumber("Intake P", IntakeConstants.INTAKE_Pivot_P) != intakepivotPIDR.getP()) {
-    //   intakepivotPIDR.setP(SmartDashboard.getNumber("Intake P",
-    //       IntakeConstants.INTAKE_Pivot_P));
-    // }
-    // if (SmartDashboard.getNumber("Intake D", IntakeConstants.INTAKE_Pivot_D) != intakepivotPIDR.getD()) {
-    //   intakepivotPIDR.setD(SmartDashboard.getNumber("Intake D",
-    //       IntakeConstants.INTAKE_Pivot_D));
-    // }
-    // // //
+    // For PidTuningOnly
+    if (SmartDashboard.getNumber("Intake P", IntakeConstants.INTAKE_Pivot_P) != intakepivotPIDR.getP()) {
+      intakepivotPIDR.setP(SmartDashboard.getNumber("Intake P",
+          IntakeConstants.INTAKE_Pivot_P));
+    }
+    if (SmartDashboard.getNumber("Intake D", IntakeConstants.INTAKE_Pivot_D) != intakepivotPIDR.getD()) {
+      intakepivotPIDR.setD(SmartDashboard.getNumber("Intake D",
+          IntakeConstants.INTAKE_Pivot_D));
+    }
+    // //
 
     // intakepivotPIDR.setFF(FFCalculator.getInstance().calculateIntakeFF());
   }
