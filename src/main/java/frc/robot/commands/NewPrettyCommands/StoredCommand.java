@@ -21,7 +21,7 @@ public class StoredCommand extends SequentialCommandGroup {
     addCommands(
         new ParallelCommandGroup(shooter.setShooterPivotangle(RobotConstants.STORED_ShooterPivotAngle),
             intake.setIntakePivotAngle(RobotConstants.STORED_IntakePivotAngle)),
-        shooter.setIndexer(RobotConstants.INDEXER_HOLD_SPEED),
+        shooter.setIndexer(RobotConstants.INDEXER_IDLE_SPEED),
         new ParallelCommandGroup(intake.setIntakeRpmRAW(RobotConstants.STORED_IntakeSpeed),
             shooter.setshooterRPM(RobotConstants.STORED_ShooterRPM)));
   }

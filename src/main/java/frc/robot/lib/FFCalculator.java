@@ -56,6 +56,7 @@ public class FFCalculator {
         double L3 = IntakeConstants.L3_WpivtoCm2;
         double M1 = ShooterConstants.M1_Total_Mass_of_Shooter;
         double M2 = IntakeConstants.M2_Total_Mass_of_Intake;
+        double MT = M1 + M2;
         Rotation2d Theta_CM = theta.plus(Rotation2d.fromDegrees(ShooterConstants.Theta_Offset));
         Rotation2d Alpha_CM = alpha.plus(Rotation2d.fromDegrees(IntakeConstants.Alpha_Offset));
 
@@ -63,20 +64,14 @@ public class FFCalculator {
                 + (L2 * Math.cos(theta.plus(Rotation2d.fromDegrees(90)).getRadians())
                         + (L3 * Math.cos(theta.plus(Alpha_CM).getRadians())));
 
-        double CM2Y = (L1 * Math.sin(theta.getRadians()))
-                + (L2 * Math.sin(theta.plus(Rotation2d.fromDegrees(90)).getRadians())
-                        + (L3 * Math.sin(theta.plus(Alpha_CM).getRadians())));
-
         double CM1X = L1CM * Math.cos(Theta_CM.getRadians());
-        double CM1Y = L1CM * Math.sin(Theta_CM.getRadians());
 
-        double CMX = (CM2X * M2 + CM1X * M1) / (M1 + M2);
-        double CMY = (CM2Y * M2 + CM1Y * M1) / (M1 + M2);
+        double CMX = (CM2X * M2 + CM1X * M1) / MT;
 
-        // Change to be simplified like get rid of the atan crap and NO DIVIDING
-        double TotalTorque_ShoulderPiv = (Math.cos(Math.atan(CMY / CMX)) * 9.8 * (M1 + M2))
-                * Math.sqrt((CMX * CMX) + (CMY * CMY));
+        double TotalTorque_ShoulderPiv = CMX * 9.8 * MT;
         // return TotalTorque_ShoulderPiv * ShooterMultiplier;
+
+        // Simple Multiplier
         return ShooterMultiplier * Math.cos(theta.getRadians());
     }
 

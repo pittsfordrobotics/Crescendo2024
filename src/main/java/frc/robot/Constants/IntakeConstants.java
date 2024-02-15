@@ -12,6 +12,7 @@ public class IntakeConstants {
     public static final double INTAKE_Pivot_I = 0;
     public static final double INTAKE_Pivot_D = 0.1;
 
+    // FF constants
     // See diagram its very usefull
     // deg -> rad = deg * .0175
     // inches -> meters = inches * .0254
