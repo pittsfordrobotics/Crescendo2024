@@ -19,9 +19,9 @@ public final class ShooterConstants {
     public static final double SHOOTER_I = 0;
     public static final double SHOOTER_D = 0;
 
-    public static final double SHOOTER_Pivot_P = .05;
+    public static final double SHOOTER_Pivot_P = 0.05;
     public static final double SHOOTER_Pivot_I = 0;
-    public static final double SHOOTER_Pivot_D = 0;
+    public static final double SHOOTER_Pivot_D = 0.05;
 
     // See diagram its very usefull
     // deg -> rad = deg * .0175

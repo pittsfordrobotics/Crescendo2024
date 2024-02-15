@@ -133,7 +133,7 @@ public class Shooter extends SubsystemBase {
     shooterpivotRPID.setP(ShooterConstants.SHOOTER_Pivot_P);
     shooterpivotRPID.setI(ShooterConstants.SHOOTER_Pivot_I);
     shooterpivotRPID.setD(ShooterConstants.SHOOTER_Pivot_D);
-    // shooterpivotRPID.setOutputRange(-.05, .05);
+    shooterpivotRPID.setOutputRange(-.2, .2);
     shooterpivot_R.burnFlash();
     // ShooterPivot L
     shooterpivot_L = new CANSparkMax(ShooterConstants.CAN_SHOOTER_PIVOT_L, MotorType.kBrushless);
@@ -248,11 +248,11 @@ public class Shooter extends SubsystemBase {
     // return custom command with an execute and im finished
     // return this.runOnce(() -> shooterpivotRPID.setReference(setpoint_deg,
     // ControlType.kPosition));
-    double setpoint_deg_clamped = MathUtil.clamp(setpoint_deg, 2, 90);
+    double setpoint_deg_clamped = MathUtil.clamp(setpoint_deg, 0, 90);
 
     Command cmd = new RunCommand(() -> shooterpivotRPID.setReference(setpoint_deg_clamped, ControlType.kPosition, 0,
         FFCalculator.getInstance().calculateShooterFF()));
-    cmd.until(() -> Math.abs(shooterpivot_R_ABSEncoder.getPosition() - setpoint_deg) < 2);
+    // cmd.until(() -> Math.abs(shooterpivot_R_ABSEncoder.getPosition() - setpoint_deg) < 2);
     return cmd;
   }
 
