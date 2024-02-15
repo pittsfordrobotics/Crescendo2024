@@ -48,6 +48,7 @@ public class Intake extends SubsystemBase {
     intakepivotPIDR.setP(IntakeConstants.INTAKE_Pivot_P);
     intakepivotPIDR.setI(IntakeConstants.INTAKE_Pivot_I);
     intakepivotPIDR.setD(IntakeConstants.INTAKE_Pivot_D);
+    intakepivotPIDR.setOutputRange(-0.6, .6);
 
     intakePivotMotorR.burnFlash();
     try {
@@ -70,6 +71,7 @@ public class Intake extends SubsystemBase {
     // Intake Motor
     intakeMotor = new CANSparkMax(IntakeConstants.CAN_INTAKE, MotorType.kBrushless);
     intakeMotor.restoreFactoryDefaults();
+    intakeMotor.setInverted(true);
     intakeMotor.setSmartCurrentLimit(20);
 
     intakeMotor.burnFlash();
@@ -85,8 +87,8 @@ public class Intake extends SubsystemBase {
 
     // Zeroed at intake position
     Shuffleboard.getTab("Intake").add("Zero Intake Pivot", new DisabledInstantCommand(this::zeroIntakePivot));
-    Shuffleboard.getTab("Intake").add("Intake RPM", this.getIntakeRpm());
-    Shuffleboard.getTab("Intake").add("Intake Pivot Angle", this.getIntakePivotAngle_deg());
+    Shuffleboard.getTab("Intake").addDouble("Intake RPM", this::getIntakeRpm);
+    Shuffleboard.getTab("Intake").addDouble("Intake Pivot Angle", this::getIntakePivotAngle_deg);
   }
 
   @Override
@@ -137,9 +139,9 @@ public class Intake extends SubsystemBase {
   // **set in degrees**
   public Command setIntakePivotAngle(double setpoint_deg) {
 
-    double setpoint_deg_clamped = MathUtil.clamp(setpoint_deg, 2,178);
+    double setpoint_deg_clamped = MathUtil.clamp(setpoint_deg,0,180);
     Command cmd = new RunCommand(() -> intakepivotPIDR.setReference(setpoint_deg_clamped, ControlType.kPosition, 0, FFCalculator.getInstance().calculateIntakeFF()));
-    cmd.until(() -> Math.abs(intakePivotABSEncoderR.getPosition() - setpoint_deg) < 2);
+    // cmd.until(() -> Math.abs(intakePivotABSEncoderR.getPosition() - setpoint_deg) < 2);
     return cmd;
     // return this.run(() -> intakepivotPIDR.setReference(setpoint_deg_clamped, ControlType.kPosition));
   }

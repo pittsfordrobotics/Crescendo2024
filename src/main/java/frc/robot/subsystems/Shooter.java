@@ -63,14 +63,14 @@ public class Shooter extends SubsystemBase {
     RPMShooterLPid.setP(ShooterConstants.SHOOTER_P);
     RPMShooterLPid.setI(ShooterConstants.SHOOTER_I);
     RPMShooterLPid.setD(ShooterConstants.SHOOTER_D);
-    RPMShooterLPid.setFF(2.5);
+    RPMShooterLPid.setFF(.000155);
 
     // Shooter L OffBoard PID
-    // RPMShooterLPid = new PIDController(ShooterConstants.SHOOTER_P, ShooterConstants.SHOOTER_I,
-    //     ShooterConstants.SHOOTER_D);
+    // RPMShooterLPid = new PIDController(ShooterConstants.SHOOTER_P,
+    // ShooterConstants.SHOOTER_I,
+    // ShooterConstants.SHOOTER_D);
     // // RPMShooterLPid
     // RPMShooterLPid.setSetpoint(0);
-
 
     shooterMotorL.burnFlash();
     try {
@@ -91,11 +91,12 @@ public class Shooter extends SubsystemBase {
     RPMShooterRPid.setP(ShooterConstants.SHOOTER_P);
     RPMShooterRPid.setI(ShooterConstants.SHOOTER_I);
     RPMShooterRPid.setD(ShooterConstants.SHOOTER_D);
-    RPMShooterRPid.setFF(2.5);
+    RPMShooterRPid.setFF(.000158);
 
     // Shooter R OffBoard PID
-    // RPMShooterRPid = new PIDController(ShooterConstants.SHOOTER_P, ShooterConstants.SHOOTER_I,
-    //     ShooterConstants.SHOOTER_D);
+    // RPMShooterRPid = new PIDController(ShooterConstants.SHOOTER_P,
+    // ShooterConstants.SHOOTER_I,
+    // ShooterConstants.SHOOTER_D);
     // RPMShooterRPid.setSetpoint(0);
 
     shooterMotorR.burnFlash();
@@ -158,7 +159,9 @@ public class Shooter extends SubsystemBase {
     Shuffleboard.getTab("SHOOTER").add("Shooter Pivot Set Coast", new DisabledInstantCommand(this::coastShooter));
     Shuffleboard.getTab("SHOOTER").add("Shooter Pivot Set Brake", new DisabledInstantCommand(this::brakeShooter));
     Shuffleboard.getTab("SHOOTER").add("Shooter Pivot Zero", new DisabledInstantCommand(this::zeroPivot));
-    Shuffleboard.getTab("SHOOTER").addDouble("Shooter RPM", this::getShooterRpm);
+    Shuffleboard.getTab("SHOOTER").addDouble("Shooter RPM R", this::getShooterRpm_R);
+    Shuffleboard.getTab("SHOOTER").addDouble("Shooter RPM L", this::getShooterRpm_L);
+
     Shuffleboard.getTab("SHOOTER").addDouble("Shooter Angle", this::getShooterAngle_deg);
     Shuffleboard.getTab("SHOOTER").addBoolean("Shooter Limit Switch", this::getLimitSwitch);
   }
@@ -168,8 +171,10 @@ public class Shooter extends SubsystemBase {
     Shuffleboard.update();
 
     // // Shooter OFFBOARD PID
-    // shooterMotorL.set(MathUtil.clamp(RPMShooterLPid.calculate(shooterMotorL.getEncoder().getVelocity()), -1, 1));
-    // shooterMotorR.set(MathUtil.clamp(RPMShooterRPid.calculate(shooterMotorR.getEncoder().getVelocity()), -1, 1));
+    // shooterMotorL.set(MathUtil.clamp(RPMShooterLPid.calculate(shooterMotorL.getEncoder().getVelocity()),
+    // -1, 1));
+    // shooterMotorR.set(MathUtil.clamp(RPMShooterRPid.calculate(shooterMotorR.getEncoder().getVelocity()),
+    // -1, 1));
 
     // For PidTuningOnly
     if (SmartDashboard.getNumber("Shooter Pivot P",
@@ -188,8 +193,11 @@ public class Shooter extends SubsystemBase {
   }
 
   // Returns the RPM of the shooter (ABS of Left and Rights motor average)
-  public double getShooterRpm() {
+  public double getShooterRpm_R() {
     return shooterMotorR.getEncoder().getVelocity();
+  }
+  public double getShooterRpm_L() {
+    return shooterMotorL.getEncoder().getVelocity();
   }
 
   // returns true if the limit switch is pressed

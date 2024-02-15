@@ -52,7 +52,7 @@ public class Climber extends SubsystemBase {
     //Display & update motor status
     @Override
     public void periodic() {
-        SmartDashboard.putNumber("Motor Rotations", rightMotor.getEncoder().getPosition());
+        // SmartDashboard.putNumber("Motor Rotations", rightMotor.getEncoder().getPosition());
 
         // // For PidTuningOnly
         // if (SmartDashboard.getNumber("Climber P", ClimberConstants.CAN_CLIMBER_P) != climberPID.getP()) {

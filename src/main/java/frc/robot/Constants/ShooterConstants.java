@@ -15,11 +15,11 @@ public final class ShooterConstants {
     public static final int CAN_SHOOTER_PIVOT_L = 15;
     public static final int CAN_SHOOTER_PIVOT_R = 16;
 
-    public static final double SHOOTER_P = 0.0001;
+    public static final double SHOOTER_P = 0.0004;
     public static final double SHOOTER_I = 0;
     public static final double SHOOTER_D = 0;
 
-    public static final double SHOOTER_Pivot_P = .5;
+    public static final double SHOOTER_Pivot_P = .05;
     public static final double SHOOTER_Pivot_I = 0;
     public static final double SHOOTER_Pivot_D = 0;
 

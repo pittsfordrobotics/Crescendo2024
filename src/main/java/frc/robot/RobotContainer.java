@@ -53,7 +53,7 @@ public class RobotContainer {
   // The container for the robot. Contains subsystems, OI devices, and commands.
   public RobotContainer() {
     FFCalculator c = FFCalculator.getInstance();
-    // c.updateIntakePivotAngle(INTAKE::getIntakePivotAngle_deg);
+    c.updateIntakePivotAngle(INTAKE::getIntakePivotAngle_deg);
     c.updateShooterAngle(SHOOTER::getShooterAngle_deg);
     swerveSubsystem = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve/maxSwerve"));
     toggleDriveMode = new SendableChooser<>();
@@ -131,25 +131,32 @@ public class RobotContainer {
     // Remember zeroed at intake pose -- +RPM means note goes out -- +Angle means move up relative to intake pose
 
     // left bumper for shooter pivot pid test -- make sure to get some sorta rate saftey net
+    m_operatorController.leftBumper().onTrue(SHOOTER.setShooterPivotangle(45));
     // m_operatorController.leftBumper().onTrue(SHOOTER.setShooterPivotangle(30));
-    m_operatorController.leftBumper().onTrue(SHOOTER.setShooterPivotraw(.1));
-    m_operatorController.leftBumper().onFalse(SHOOTER.setShooterPivotraw(0));
+
+
+    // // works
+    // m_operatorController.leftBumper().onTrue(SHOOTER.setShooterPivotraw(.1));
+    // m_operatorController.leftBumper().onFalse(SHOOTER.setShooterPivotraw(0));
 
     // right bumper for intake pivot pid test -- make sure to get some sorta rate saftey net
-    // m_operatorController.rightBumper().onTrue(INTAKE.setIntakePivotAngle(30));
-    m_operatorController.rightBumper().onTrue(INTAKE.intakePivotRaw(0.05));
-    m_operatorController.rightBumper().onFalse(INTAKE.intakePivotRaw(0.0));
+    m_operatorController.rightBumper().onTrue(INTAKE.setIntakePivotAngle(120));
+    m_operatorController.rightBumper().onFalse(INTAKE.setIntakePivotAngle(0));
+
+    // // works
+    // m_operatorController.rightBumper().onTrue(INTAKE.intakePivotRaw(0.05));
+    // m_operatorController.rightBumper().onFalse(INTAKE.intakePivotRaw(0.0));
 
     // a button for shooter rpm pid test times 2.5 bc it works \-.-/ "theory only
-    // gets you so far"
-    m_operatorController.a().onTrue(SHOOTER.setshooterRPM(5700*2.5));
+    // gets you so far" -- Works
+    m_operatorController.a().onTrue(SHOOTER.setshooterRPM(5700));
     m_operatorController.a().onFalse(SHOOTER.setshooterRPM(0));
 
     // b button for intake test
     m_operatorController.b().onTrue(INTAKE.setIntakeRpmRAW(0.7));
     m_operatorController.b().onFalse(INTAKE.setIntakeRpmRAW(0));
 
-    // y button for indexer test
+    // y button for indexer test -- Works 
     m_operatorController.y().onTrue(SHOOTER.setIndexer(0.5));
     m_operatorController.y().onFalse(SHOOTER.setIndexer(-0.1));
   }
