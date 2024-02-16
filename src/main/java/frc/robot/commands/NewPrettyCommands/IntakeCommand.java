@@ -24,9 +24,8 @@ public class IntakeCommand extends SequentialCommandGroup {
     addCommands(
         new ParallelCommandGroup(shooter.setShooterPivotangle(RobotConstants.INTAKE_ShooterPivotAngle),
             intake.setIntakePivotAngle(RobotConstants.INTAKE_IntakePivotAngle)),
-        new ParallelCommandGroup(shooter.setIndexer(RobotConstants.INTAKE_Indexer_Speed),
+        new ParallelCommandGroup(shooter.setshooterRPM(RobotConstants.INTAKE_Shooter_Speed),
             intake.setIntakeRpmRAW(RobotConstants.INTAKE_Intake_Speed)),
-        shooter.setshooterRPM(RobotConstants.INTAKE_Shooter_Speed),
         new WaitUntilCommand(() -> shooter.getLimitSwitch()),
         new StoredCommand(shooter, intake));
   }
