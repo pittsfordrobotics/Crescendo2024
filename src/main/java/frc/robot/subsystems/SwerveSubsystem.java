@@ -268,11 +268,18 @@ public class SwerveSubsystem extends SubsystemBase {
       }
       // If both triggers are pressed, use right stick heading angle steering NOT THE TRIGGERS
       if (MathUtil.applyDeadband(leftRotationRate.getAsDouble(), 0.05) != 0 && MathUtil.applyDeadband(rightRotationRate.getAsDouble(), 0.05) != 0) {
-        swerveDrive.setHeadingCorrection(true);
-
-        // Make the robot move
-        driveFieldOriented(swerveDrive.swerveController.getTargetSpeeds(xInput * speedFactor, yInput * speedFactor, currentTargetAngle.getRadians(), swerveDrive.getYaw().getRadians(), swerveDrive.getMaximumVelocity()));
-
+        // If there is no current target angle (last action was spin), then don't command the angle
+        swerveDrive.setHeadingCorrection(currentTargetAngle != null);
+        if(currentTargetAngle != null) {
+          // Make the robot move
+          driveFieldOriented(swerveDrive.swerveController.getTargetSpeeds(xInput * speedFactor, yInput * speedFactor, currentTargetAngle.getRadians(), swerveDrive.getYaw().getRadians(), swerveDrive.getMaximumVelocity()));
+        } else {
+          swerveDrive.drive(new Translation2d(
+                          xInput * swerveDrive.getMaximumVelocity() * speedFactor,
+                          yInput * swerveDrive.getMaximumVelocity() * speedFactor),
+                  0,
+                  true, false);
+        }
       }
       // If left trigger pressed, rotate left at a rate proportional to the left trigger input
       else if (MathUtil.applyDeadband(leftRotationInput, 0.05) != 0) {
@@ -290,8 +297,8 @@ public class SwerveSubsystem extends SubsystemBase {
         swerveDrive.setHeadingCorrection(false);
         double rightRotationOutput = -Math.pow(rightRotationInput, 3) * swerveDrive.getMaximumAngularVelocity() * speedFactor;
         swerveDrive.drive(new Translation2d(
-                Math.pow(translationX.getAsDouble(), 3) * swerveDrive.getMaximumVelocity() * speedFactor,
-                Math.pow(translationY.getAsDouble(), 3) * swerveDrive.getMaximumVelocity() * speedFactor),
+                xInput * swerveDrive.getMaximumVelocity() * speedFactor,
+                yInput * swerveDrive.getMaximumVelocity() * speedFactor),
                 rightRotationOutput,
                 true, false);
         currentTargetAngle = null;
@@ -300,9 +307,16 @@ public class SwerveSubsystem extends SubsystemBase {
       else {
         // If there is no current target angle (last action was spin), then don't command the angle
         swerveDrive.setHeadingCorrection(currentTargetAngle != null);
-        // Make the robot move
-        driveFieldOriented(swerveDrive.swerveController.getTargetSpeeds(xInput * speedFactor, yInput * speedFactor, currentTargetAngle.getRadians(), swerveDrive.getYaw().getRadians(), swerveDrive.getMaximumVelocity()));
-
+        if(currentTargetAngle != null) {
+          // Make the robot move
+          driveFieldOriented(swerveDrive.swerveController.getTargetSpeeds(xInput * speedFactor, yInput * speedFactor, currentTargetAngle.getRadians(), swerveDrive.getYaw().getRadians(), swerveDrive.getMaximumVelocity()));
+        } else {
+          swerveDrive.drive(new Translation2d(
+                          xInput * swerveDrive.getMaximumVelocity() * speedFactor,
+                          yInput * swerveDrive.getMaximumVelocity() * speedFactor),
+                          0,
+                          true, false);
+        }
       }
     });
   }
