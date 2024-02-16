@@ -226,8 +226,11 @@ public class SwerveSubsystem extends SubsystemBase {
     return run(() -> {
       swerveDrive.setHeadingCorrection(true);
       double[] deadbandRotationInputs = AllDeadbands.applyCircularDeadband(new double[]{headingX.getAsDouble(), headingY.getAsDouble()}, 0.95);
-      double xInput = Math.pow(translationX.getAsDouble(), 3); // Smooth control out
-      double yInput = Math.pow(translationY.getAsDouble(), 3); // Smooth control out
+      double rawXInput = translationX.getAsDouble();
+      double rawYInput = translationY.getAsDouble();
+      double[] scaledDeadbandTranslationInputs = AllDeadbands.applyScalingCircularDeadband(new double[]{rawXInput, rawYInput}, 0.1);
+      double xInput = Math.pow(scaledDeadbandTranslationInputs[0], 3); // Smooth control out with scaled deadband
+      double yInput = Math.pow(scaledDeadbandTranslationInputs[1], 3); // Smooth control out with scaled deadband
       // Make the robot move
       driveFieldOriented(swerveDrive.swerveController.getTargetSpeeds(xInput * speedFactor, yInput * speedFactor,
               deadbandRotationInputs[0],
@@ -252,6 +255,13 @@ public class SwerveSubsystem extends SubsystemBase {
                               DoubleSupplier leftRotationRate, DoubleSupplier rightRotationRate) {
     return run(() -> {
       double[] deadbandRotationInputs = AllDeadbands.applyCircularDeadband(new double[]{rotationX.getAsDouble(), rotationY.getAsDouble()}, 0.95);
+      double leftRotationInput = leftRotationRate.getAsDouble();
+      double rightRotationInput = rightRotationRate.getAsDouble();
+      double rawXInput = translationX.getAsDouble();
+      double rawYInput = translationY.getAsDouble();
+      double[] scaledDeadbandTranslationInputs = AllDeadbands.applyScalingCircularDeadband(new double[]{rawXInput, rawYInput}, 0.1);
+      double xInput = Math.pow(scaledDeadbandTranslationInputs[0], 3); // Smooth control out with scaled deadband
+      double yInput = Math.pow(scaledDeadbandTranslationInputs[1], 3); // Smooth control out with scaled deadband
       // determining if target angle is commanded
       if (deadbandRotationInputs[0] != 0 || deadbandRotationInputs[1] != 0) {
         currentTargetAngle = Rotation2d.fromRadians(Math.atan2(deadbandRotationInputs[1], deadbandRotationInputs[0]));
@@ -259,37 +269,40 @@ public class SwerveSubsystem extends SubsystemBase {
       // If both triggers are pressed, use right stick heading angle steering NOT THE TRIGGERS
       if (MathUtil.applyDeadband(leftRotationRate.getAsDouble(), 0.05) != 0 && MathUtil.applyDeadband(rightRotationRate.getAsDouble(), 0.05) != 0) {
         swerveDrive.setHeadingCorrection(true);
-        double xInput = Math.pow(translationX.getAsDouble(), 3); // Smooth control out
-        double yInput = Math.pow(translationY.getAsDouble(), 3); // Smooth control out
+
         // Make the robot move
         driveFieldOriented(swerveDrive.swerveController.getTargetSpeeds(xInput * speedFactor, yInput * speedFactor, currentTargetAngle.getRadians(), swerveDrive.getYaw().getRadians(), swerveDrive.getMaximumVelocity()));
 
       }
       // If left trigger pressed, rotate left at a rate proportional to the left trigger input
-      else if (MathUtil.applyDeadband(leftRotationRate.getAsDouble(), 0.05) != 0) {
+      else if (MathUtil.applyDeadband(leftRotationInput, 0.05) != 0) {
         swerveDrive.setHeadingCorrection(false);
-        swerveDrive.drive(new Translation2d(Math.pow(translationX.getAsDouble(), 3) * swerveDrive.getMaximumVelocity() * speedFactor,
-                        Math.pow(translationY.getAsDouble(), 3) * swerveDrive.getMaximumVelocity() * speedFactor),
-                leftRotationRate.getAsDouble() * swerveDrive.getMaximumAngularVelocity() * speedFactor,
+        double leftRotationOutput = Math.pow(leftRotationInput, 3) * swerveDrive.getMaximumAngularVelocity() * speedFactor;
+        swerveDrive.drive(new Translation2d(
+                xInput * swerveDrive.getMaximumVelocity() * speedFactor,
+                yInput * swerveDrive.getMaximumVelocity() * speedFactor),
+                leftRotationOutput,
                 true, false);
-        currentTargetAngle = swerveDrive.getYaw();
+        currentTargetAngle = null;
       }
       // If right trigger pressed, rotate left at a rate proportional to the right trigger input
-      else if (MathUtil.applyDeadband(rightRotationRate.getAsDouble(), 0.05) != 0) {
+      else if (MathUtil.applyDeadband(rightRotationInput, 0.05) != 0) {
         swerveDrive.setHeadingCorrection(false);
-        swerveDrive.drive(new Translation2d(Math.pow(translationX.getAsDouble(), 3) * swerveDrive.getMaximumVelocity() * speedFactor,
-                        Math.pow(translationY.getAsDouble(), 3) * swerveDrive.getMaximumVelocity() * speedFactor),
-                -rightRotationRate.getAsDouble() * swerveDrive.getMaximumAngularVelocity() * speedFactor,
+        double rightRotationOutput = -Math.pow(rightRotationInput, 3) * swerveDrive.getMaximumAngularVelocity() * speedFactor;
+        swerveDrive.drive(new Translation2d(
+                Math.pow(translationX.getAsDouble(), 3) * swerveDrive.getMaximumVelocity() * speedFactor,
+                Math.pow(translationY.getAsDouble(), 3) * swerveDrive.getMaximumVelocity() * speedFactor),
+                rightRotationOutput,
                 true, false);
-        currentTargetAngle = swerveDrive.getYaw();
+        currentTargetAngle = null;
       }
       //If no triggers are pressed, use the right stick for heading angle steering
       else {
-        swerveDrive.setHeadingCorrection(true);
-        double xInput = Math.pow(translationX.getAsDouble(), 3); // Smooth control out
-        double yInput = Math.pow(translationY.getAsDouble(), 3); // Smooth control out
+        // If there is no current target angle (last action was spin), then don't command the angle
+        swerveDrive.setHeadingCorrection(currentTargetAngle != null);
         // Make the robot move
         driveFieldOriented(swerveDrive.swerveController.getTargetSpeeds(xInput * speedFactor, yInput * speedFactor, currentTargetAngle.getRadians(), swerveDrive.getYaw().getRadians(), swerveDrive.getMaximumVelocity()));
+
       }
     });
   }
@@ -305,10 +318,15 @@ public class SwerveSubsystem extends SubsystemBase {
   public Command driveCommand(DoubleSupplier translationX, DoubleSupplier translationY,
                               DoubleSupplier angularRotationX) {
     return run(() -> {
+      double rawXInput = translationX.getAsDouble();
+      double rawYInput = translationY.getAsDouble();
+      double[] scaledDeadbandTranslationInputs = AllDeadbands.applyScalingCircularDeadband(new double[]{rawXInput, rawYInput}, 0.1);
+      double xInput = Math.pow(scaledDeadbandTranslationInputs[0], 3); // Smooth control out with scaled deadband
+      double yInput = Math.pow(scaledDeadbandTranslationInputs[1], 3); // Smooth control out with scaled deadband
       swerveDrive.setHeadingCorrection(false);
       // Make the robot move
-      swerveDrive.drive(new Translation2d(Math.pow(translationX.getAsDouble(), 3) * swerveDrive.getMaximumVelocity() * speedFactor,
-                      Math.pow(translationY.getAsDouble(), 3) * swerveDrive.getMaximumVelocity() * speedFactor),
+      swerveDrive.drive(new Translation2d(xInput * swerveDrive.getMaximumVelocity() * speedFactor,
+                      yInput * swerveDrive.getMaximumVelocity() * speedFactor),
               Math.pow(angularRotationX.getAsDouble(), 3) * swerveDrive.getMaximumAngularVelocity() * speedFactor,
               true, false);
     });
@@ -573,7 +591,8 @@ public class SwerveSubsystem extends SubsystemBase {
    */
   public void configureDrivePID(double p) {
     for (SwerveModule module: swerveDrive.swerveDriveConfiguration.modules) {
-      module.getDriveMotor().configurePIDF(new PIDFConfig(p, 0, 0));
+      CANSparkMax driveMotor = (CANSparkMax)module.getDriveMotor().getMotor();
+      driveMotor.getPIDController().setP(p);
     }
   }
 
@@ -585,7 +604,9 @@ public class SwerveSubsystem extends SubsystemBase {
    */
   public void configureAnglePID(double p, double d) {
     for (SwerveModule module : swerveDrive.swerveDriveConfiguration.modules) {
-      module.getAngleMotor().configurePIDF(new PIDFConfig(p, 0, d));
+      CANSparkMax angleMotor = (CANSparkMax)module.getAngleMotor().getMotor();
+      angleMotor.getPIDController().setP(p);
+      angleMotor.getPIDController().setD(d);
     }
   }
 

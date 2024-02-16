@@ -48,22 +48,22 @@ public class RobotContainer {
     swerveSubsystem = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve/maxSwerve"));
     toggleDriveMode = new SendableChooser<>();
     Command enhancedHeadingSteeringCommand = swerveSubsystem.driveCommand(
-            () -> -MathUtil.applyDeadband(m_driverController.getLeftY(), 0.1),
-            () -> -MathUtil.applyDeadband(m_driverController.getLeftX(), 0.1),
+            () -> -m_driverController.getLeftY(),
+            () -> -m_driverController.getLeftX(),
             () -> -m_driverController.getRightY(),
             () -> -m_driverController.getRightX(),
             m_driverController::getLeftTriggerAxis,
             m_driverController::getRightTriggerAxis);
     enhancedHeadingSteeringCommand.setName("Enhanced Heading Steer");
     Command headingSteeringCommand = swerveSubsystem.driveCommand(
-            () -> -MathUtil.applyDeadband(m_driverController.getLeftY(), 0.1),
-            () -> -MathUtil.applyDeadband(m_driverController.getLeftX(), 0.1),
+            () -> -m_driverController.getLeftY(),
+            () -> -m_driverController.getLeftX(),
             () -> -m_driverController.getRightX(),
             () -> -m_driverController.getRightY());
     headingSteeringCommand.setName("Heading Steer");
     Command rotationRateSteeringCommand = swerveSubsystem.driveCommand(
-            () -> -MathUtil.applyDeadband(m_driverController.getLeftY(), 0.1),
-            () -> -MathUtil.applyDeadband(m_driverController.getLeftX(), 0.1),
+            () -> -m_driverController.getLeftY(),
+            () -> -m_driverController.getLeftX(),
             () -> -MathUtil.applyDeadband(m_driverController.getRightX(), 0.1));
     rotationRateSteeringCommand.setName("Rotation Rate Steer");
     toggleDriveMode.addOption("Enhanced Steering (BETA)", enhancedHeadingSteeringCommand);
