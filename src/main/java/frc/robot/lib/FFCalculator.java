@@ -6,6 +6,8 @@ package frc.robot.lib;
 
 import java.util.function.DoubleSupplier;
 
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.ShooterConstants;
@@ -26,6 +28,8 @@ public class FFCalculator {
     private DoubleSupplier intakePivotAngle = () -> 0.0;
 
     private FFCalculator() {
+        Shuffleboard.getTab("FFcalc").addDouble("ShoulderFF", this::calculateShooterFF);
+        Shuffleboard.getTab("FFcalc").addDouble("IntakeFF", this::calculateIntakeFF);
     }
 
     public void updateShooterAngle(DoubleSupplier shooterAngle) {
@@ -40,10 +44,11 @@ public class FFCalculator {
 
         // double ShooterMultiplier = ShooterConstants.SHOOTER_Pivot_FF_Multiplier;
         SmartDashboard.putNumber("Shooter FF Mult", ShooterConstants.SHOOTER_Pivot_FF_Multiplier);
-        double ShooterMultiplier = SmartDashboard.getNumber("Shooter FF Mult", ShooterConstants.SHOOTER_Pivot_FF_Multiplier);
-        
-        double theta = this.shooterAngle.getAsDouble();
-        double alpha = this.intakePivotAngle.getAsDouble();
+        double ShooterMultiplier = SmartDashboard.getNumber("Shooter FF Mult",
+                ShooterConstants.SHOOTER_Pivot_FF_Multiplier);
+
+        Rotation2d theta = Rotation2d.fromDegrees(this.shooterAngle.getAsDouble());
+        Rotation2d alpha = Rotation2d.fromDegrees(this.intakePivotAngle.getAsDouble());
 
         double L1 = ShooterConstants.L1_SpivtoWpivperp;
         double L1CM = ShooterConstants.L1CM1_SpivtoCM1;
@@ -51,40 +56,41 @@ public class FFCalculator {
         double L3 = IntakeConstants.L3_WpivtoCm2;
         double M1 = ShooterConstants.M1_Total_Mass_of_Shooter;
         double M2 = IntakeConstants.M2_Total_Mass_of_Intake;
-        double Theta_CM = theta + ShooterConstants.Theta_Offset;
-        double Alpha_CM = alpha + IntakeConstants.Alpha_Offset;
+        double MT = M1 + M2;
+        Rotation2d Theta_CM = theta.plus(Rotation2d.fromDegrees(ShooterConstants.Theta_Offset));
+        Rotation2d Alpha_CM = alpha.plus(Rotation2d.fromDegrees(IntakeConstants.Alpha_Offset));
 
-        double CM2X = (L1 * Math.cos(theta)) + (L2 * Math.cos(90 + theta)) + (L3 * Math.cos(Alpha_CM + theta));
-        double CM2Y = (L1 * Math.sin(theta)) + (L2 * Math.sin(90 + theta)) + (L3 * Math.sin(Alpha_CM + theta));
+        double CM2X = (L1 * Math.cos(theta.getRadians()))
+                + (L2 * Math.cos(theta.plus(Rotation2d.fromDegrees(90)).getRadians())
+                        + (L3 * Math.cos(theta.plus(Alpha_CM).getRadians())));
 
-        double CM1X = L1CM * Math.cos(Theta_CM);
-        double CM1Y = L1CM * Math.sin(Theta_CM);
+        double CM1X = L1CM * Math.cos(Theta_CM.getRadians());
 
-        double CMX = (CM2X * M2 + CM1X * M1) / (M1 + M2);
-        double CMY = (CM2Y * M2 + CM1Y * M1) / (M1 + M2);
+        double CMX = (CM2X * M2 + CM1X * M1) / MT;
 
-        // Change to be simplified like get rid of the atan crap and NO DIVIDING
-        double TotalTorque_ShoulderPiv = (Math.cos(Math.atan(CMY / CMX)) * 9.8 * (M1 + M2))
-                * Math.sqrt((CMX * CMX) + (CMY * CMY));
+        double TotalTorque_ShoulderPiv = CMX * 9.8 * MT;
         // return TotalTorque_ShoulderPiv * ShooterMultiplier;
-        return ShooterMultiplier * Math.cos(theta);
+
+        // Simple Multiplier
+        return ShooterMultiplier * Math.cos(theta.getRadians());
     }
 
     public double calculateIntakeFF() {
 
         // double IntakeMultiplier = IntakeConstants.INTAKE_Pivot_FF_Multiplier;
         SmartDashboard.putNumber("Intake FF Mult", IntakeConstants.INTAKE_Pivot_FF_Multiplier);
-        double IntakeMultiplier = SmartDashboard.getNumber("Intake FF Mult", IntakeConstants.INTAKE_Pivot_FF_Multiplier);
+        double IntakeMultiplier = SmartDashboard.getNumber("Intake FF Mult",
+                IntakeConstants.INTAKE_Pivot_FF_Multiplier);
 
-        double theta = shooterAngle.getAsDouble();
-        double alpha = intakePivotAngle.getAsDouble();
+        Rotation2d theta = Rotation2d.fromDegrees(this.shooterAngle.getAsDouble());
+        Rotation2d alpha = Rotation2d.fromDegrees(this.intakePivotAngle.getAsDouble());
 
         double L3 = IntakeConstants.L3_WpivtoCm2;
         double M2 = IntakeConstants.M2_Total_Mass_of_Intake;
-        double Alpha_CM = alpha + IntakeConstants.Alpha_Offset;
+        Rotation2d Alpha_CM = alpha.plus(Rotation2d.fromDegrees(IntakeConstants.Alpha_Offset));
 
-        double TotalTorque_IntakePiv = (Math.cos(theta + Alpha_CM) * 9.8 * (M2)) * L3;
-        // return TotalTorque_IntakePiv * IntakeMultiplier;        
-        return IntakeMultiplier * Math.cos(theta + Alpha_CM);
+        double TotalTorque_IntakePiv = (Math.cos(theta.plus(Alpha_CM).getRadians()) * 9.8 * (M2)) * L3;
+        // return TotalTorque_IntakePiv * IntakeMultiplier;
+        return IntakeMultiplier * Math.cos(theta.plus(Alpha_CM).getRadians());
     }
 }
