@@ -7,6 +7,7 @@ package frc.robot.commands.NewPrettyCommands;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.Constants.RobotConstants;
+import frc.robot.lib.StructureStates;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
 
@@ -24,5 +25,6 @@ public class StoredCommand extends SequentialCommandGroup {
         shooter.setIndexer(RobotConstants.INDEXER_IDLE_SPEED),
         new ParallelCommandGroup(intake.setIntakeRpmRAW(RobotConstants.STORED_IntakeSpeed),
             shooter.setshooterRPM(RobotConstants.STORED_ShooterRPM)));
+    StructureStates.setCurrentState(StructureStates.structureState.stored);
   }
 }

@@ -263,11 +263,11 @@ public class Shooter extends SubsystemBase {
   }
 
   // Drives both shooters to a common RPM setpoint using a supplier
-  public Command setshooterRPMSupplier(DoubleSupplier setpoint) {
+  public Command setshooterRPMSupplier() {
     return this.runOnce(() -> {
       // // onboard pid
-      RPMShooterLPid.setReference(setpoint.getAsDouble(), ControlType.kVelocity);
-      RPMShooterRPid.setReference(setpoint.getAsDouble(), ControlType.kVelocity);
+      RPMShooterLPid.setReference(SmartDashboard.getNumber("ShooterRPM_CHANGEME", 0), ControlType.kVelocity);
+      RPMShooterRPid.setReference(SmartDashboard.getNumber("ShooterRPM_CHANGEME", 0), ControlType.kVelocity);
 
       // // commands raw
       // shooterMotorR.set(setpoint.getAsDouble());
@@ -276,9 +276,8 @@ public class Shooter extends SubsystemBase {
   }
 
   // Drives the pivot to a angle using a double suplier (same as above just using a supplier)
-  public Command setShooterPivotangleSupplier(DoubleSupplier setpoint_deg) {
-    double setpoint_deg_clamped = MathUtil.clamp(setpoint_deg.getAsDouble(), 0, 90);
-    return this.runOnce(() -> shooterpivotRPID.setReference(setpoint_deg_clamped, ControlType.kPosition, 0,
+  public Command setShooterPivotangleSupplier() {
+    return this.runOnce(() -> shooterpivotRPID.setReference(SmartDashboard.getNumber("ShooterPivotAngle_CHANGEME", 20), ControlType.kPosition, 0,
         FFCalculator.getInstance().calculateShooterFF()));
   }
 

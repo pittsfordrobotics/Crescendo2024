@@ -11,15 +11,18 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.DisabledInstantCommand;
 import frc.robot.Constants.RobotConstants;
 import frc.robot.commands.NewPrettyCommands.AmpCommand;
 import frc.robot.commands.NewPrettyCommands.IntakeCommand;
-import frc.robot.commands.NewPrettyCommands.SpeakerCommand;
+import frc.robot.commands.NewPrettyCommands.PODIUMCommand;
+import frc.robot.commands.NewPrettyCommands.SUBWOOFCommand;
 import frc.robot.commands.NewPrettyCommands.StoredCommand;
 import frc.robot.lib.FFCalculator;
+import frc.robot.lib.StructureStates;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.SwerveSubsystem;
@@ -82,7 +85,10 @@ public class RobotContainer {
     zeroOffsetCommand.setName("Zero Offsets");
 
     Shuffleboard.getTab("CONFIG").add("Zero Swerve Module Offsets", zeroOffsetCommand);
-    
+
+    Shuffleboard.getTab("CONFIG").addString("Current Structure State",
+        () -> StructureStates.getCurrentState().toString());
+
     // Configure the trigger bindings
     // configure_COMP_Bindings();
     configure_TEST_Bindings();
@@ -96,20 +102,26 @@ public class RobotContainer {
     swerveSubsystem.setDefaultCommand(driveCommand);
 
     // // states
-    AmpCommand ampCommand = new AmpCommand(SHOOTER, INTAKE);
-    m_operatorController.a().onTrue(ampCommand);
-
-    SpeakerCommand speakerCommand = new SpeakerCommand(SHOOTER, INTAKE);
-    m_operatorController.b().onTrue(speakerCommand);
-
-    IntakeCommand intakeCommand = new IntakeCommand(SHOOTER, INTAKE);
-    m_operatorController.x().onTrue(intakeCommand);
-
     StoredCommand storedCommand = new StoredCommand(SHOOTER, INTAKE);
-    m_operatorController.y().onTrue(storedCommand);
+    IntakeCommand intakeCommand = new IntakeCommand(SHOOTER, INTAKE);
+    AmpCommand ampCommand = new AmpCommand(SHOOTER, INTAKE);
+    SUBWOOFCommand subwoofCommand = new SUBWOOFCommand(SHOOTER, INTAKE);
+    PODIUMCommand podiumCommand = new PODIUMCommand(SHOOTER, INTAKE);
 
-    // Runs the indexer while the right bumper is held -- essentally a shootcommand
-    m_driverController.rightBumper().whileTrue(SHOOTER.setIndexer(RobotConstants.INDEXER_SHOOT_SPEED)).whileFalse(SHOOTER.setIndexer(RobotConstants.INDEXER_IDLE_SPEED));
+    m_operatorController.a().onTrue(ampCommand); // Untested
+    m_operatorController.b().onTrue(subwoofCommand); // Untested
+    m_operatorController.y().onTrue(podiumCommand); // Untested
+
+    // m_driverController.x().onTrue(new ConditionalCommand(intakeCommand,
+    // storedCommand,
+    // () -> StructureStates.getCurrentState() !=
+    // StructureStates.structureState.intake));
+    m_driverController.x().onTrue(intakeCommand); // Untested
+    m_driverController.y().onTrue(storedCommand); // Untested
+
+    // Runs the indexer while the right bumper is held -- essentally a shoot command
+    m_driverController.rightBumper().whileTrue(SHOOTER.setIndexer(RobotConstants.INDEXER_SHOOT_SPEED))
+        .whileFalse(SHOOTER.setIndexer(RobotConstants.INDEXER_IDLE_SPEED));
 
     // Climber toggle on rightbumper
     m_operatorController.rightBumper().onTrue(CLIMBER.extend());
@@ -131,39 +143,32 @@ public class RobotContainer {
       System.out.println(swerveSubsystem.getDefaultCommand().getName());
     });
 
-    // Remember zeroed at intake pose -- +RPM means note goes out -- +Angle means
-    // move up relative to intake pose
+    // Remember zeroed at intake pose
+    // +RPM means note goes out & +Angle means move up relative to intake pose
     SmartDashboard.putNumber("ShooterPivotAngle_CHANGEME", 0);
     SmartDashboard.putNumber("ShooterRPM_CHANGEME", 0);
     SmartDashboard.putNumber("IntakePivotAngle_CHANGEME", 180);
 
-    // left bumper for shooter pivot pid test -- Works (tune pids and FF tho)
+    // LEFT BUMPER & TRIGGER -> shooter pivot -- Works (tune pids and FF tho)
     m_operatorController.leftBumper().onTrue(SHOOTER.setShooterPivotangle(53));
     m_operatorController.leftBumper().onFalse(SHOOTER.setShooterPivotangle(0.0));
-    // left trigger for shooter pivot based on suplier -- untested
-    m_operatorController.leftTrigger().whileTrue(
-        SHOOTER.setShooterPivotangleSupplier(() -> SmartDashboard.getNumber("ShooterPivotAngle_CHANGEME", 0)));
+    m_operatorController.leftTrigger().whileTrue(SHOOTER.setShooterPivotangleSupplier());
 
-    // right bumper for intake pivot pid test -- Works (tune pids and FF tho)
+    // RIGHT BUMPER & TRIGGER -> intake pivot -- Works (tune pids and FF tho)
     m_operatorController.rightBumper().onFalse(INTAKE.setIntakePivotAngle(180));
     m_operatorController.rightBumper().onTrue(INTAKE.setIntakePivotAngle(0));
-    // right trigger for intake pivot based on suplier -- untested
-    m_operatorController.rightTrigger().whileTrue(
-        INTAKE.setIntakePivotAngleSupplier(() -> SmartDashboard.getNumber("IntakePivotAngle_CHANGEME", 170)));
+    m_operatorController.rightTrigger().whileTrue(INTAKE.setIntakePivotAngleSupplier());
 
-    // Shooter PID RPM -- Works
+    // A -> Shooter RPM (X for supplier) -- Works
     m_operatorController.a().onTrue(SHOOTER.setshooterRPM(5400));
     m_operatorController.a().onFalse(SHOOTER.setshooterRPM(-1000));
-    // Shooter RPM based on supplier -- untested
-    m_operatorController.x()
-        .onTrue(SHOOTER.setshooterRPMSupplier(() -> SmartDashboard.getNumber("ShooterRPM_CHANGEME", 0)));
-    m_operatorController.x().onFalse(SHOOTER.setshooterRPM(-1000));
+    m_operatorController.x().whileTrue(SHOOTER.setshooterRPMSupplier());
 
-    // Intake RAW command -- Untested
+    // B -> Intake RAW command -- Untested
     m_operatorController.b().onTrue(INTAKE.setIntakeRpmRAW(0.7));
     m_operatorController.b().onFalse(INTAKE.setIntakeRpmRAW(0));
 
-    // Indexer test -- Works
+    // Y -> Indexer test -- Works
     m_operatorController.y().onTrue(SHOOTER.setIndexer(0.5));
     m_operatorController.y().onFalse(SHOOTER.setIndexer(-0.1));
   }

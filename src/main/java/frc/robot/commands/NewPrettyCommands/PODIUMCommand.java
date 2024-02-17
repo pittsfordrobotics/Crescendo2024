@@ -14,17 +14,17 @@ import frc.robot.subsystems.Shooter;
 // NOTE:  Consider using this command inline, rather than writing a subclass.  For more
 // information, see:
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
-public class AmpCommand extends SequentialCommandGroup {
-  /** Creates a new AmpCommand. */
-  public AmpCommand(Shooter shooter, Intake intake) {
+public class PODIUMCommand extends SequentialCommandGroup {
+  /** Creates a new SpeakerCommand. */
+  public PODIUMCommand(Shooter shooter, Intake intake) {
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
     addCommands(
-        new ParallelCommandGroup(shooter.setShooterPivotangle(RobotConstants.AMP_ShooterPivotAngle),
-            intake.setIntakePivotAngle(RobotConstants.AMP_IntakePivotAngle)),
+        new ParallelCommandGroup(shooter.setShooterPivotangle(RobotConstants.PODIUM_ShooterPivotAngle),
+            intake.setIntakePivotAngle(RobotConstants.PODIUM_IntakePivotAngle)),
         shooter.setIndexer(RobotConstants.INDEXER_IDLE_SPEED),
-        new ParallelCommandGroup(intake.setIntakeRpmRAW(RobotConstants.AMP_IntakeSpeed),
-            shooter.setshooterRPM(RobotConstants.AMP_ShooterRPM)));
-    StructureStates.setCurrentState(StructureStates.structureState.amp);
+        new ParallelCommandGroup(intake.setIntakeRpmRAW(RobotConstants.PODIUM_IntakeSpeed),
+            shooter.setshooterRPM(RobotConstants.PODIUM_ShooterRPM)));
+    StructureStates.setCurrentState(StructureStates.structureState.podium);
   }
 }

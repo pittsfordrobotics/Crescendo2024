@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.Constants.RobotConstants;
+import frc.robot.lib.StructureStates;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
 
@@ -28,5 +29,6 @@ public class IntakeCommand extends SequentialCommandGroup {
             intake.setIntakeRpmRAW(RobotConstants.INTAKE_Intake_Speed)),
         new WaitUntilCommand(() -> shooter.getLimitSwitch()),
         new StoredCommand(shooter, intake));
+    StructureStates.setCurrentState(StructureStates.structureState.intake);
   }
 }
