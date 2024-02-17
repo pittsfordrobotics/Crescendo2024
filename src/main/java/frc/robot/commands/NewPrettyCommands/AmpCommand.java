@@ -21,7 +21,7 @@ public class AmpCommand extends SequentialCommandGroup {
     addCommands(
         new ParallelCommandGroup(shooter.setShooterPivotangle(RobotConstants.AMP_ShooterPivotAngle),
             intake.setIntakePivotAngle(RobotConstants.AMP_IntakePivotAngle)),
-        shooter.setIndexer(RobotConstants.INDEXER_HOLD_SPEED),
+        shooter.setIndexer(RobotConstants.INDEXER_IDLE_SPEED),
         new ParallelCommandGroup(intake.setIntakeRpmRAW(RobotConstants.AMP_IntakeSpeed),
             shooter.setshooterRPM(RobotConstants.AMP_ShooterRPM)));
 

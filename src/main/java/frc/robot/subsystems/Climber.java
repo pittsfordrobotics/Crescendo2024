@@ -52,7 +52,7 @@ public class Climber extends SubsystemBase {
     //Display & update motor status
     @Override
     public void periodic() {
-        SmartDashboard.putNumber("Motor Rotations", rightMotor.getEncoder().getPosition());
+        // SmartDashboard.putNumber("Motor Rotations", rightMotor.getEncoder().getPosition());
 
         // // For PidTuningOnly
         // if (SmartDashboard.getNumber("Climber P", ClimberConstants.CAN_CLIMBER_P) != climberPID.getP()) {
@@ -66,17 +66,17 @@ public class Climber extends SubsystemBase {
 
     //Use pid to reach a predetermined height (Rotations)
     public Command extend() {
-        return this.run(() -> climberPID.setReference(ClimberConstants.EXTENSION_SETPOINT, ControlType.kPosition));
+        return this.runOnce(() -> climberPID.setReference(ClimberConstants.EXTENSION_SETPOINT, ControlType.kPosition));
     }
 
     //Use pid to retract to a predetermined height (Rotations)
     public Command retract() {
-        return this.run(() -> climberPID.setReference(ClimberConstants.RETRACTION_SETPOINT, ControlType.kPosition));
+        return this.runOnce(() -> climberPID.setReference(ClimberConstants.RETRACTION_SETPOINT, ControlType.kPosition));
     }
 
     //Make the climber motor rotate to zero
     public Command setToZero() {
-        return this.run(() -> climberPID.setReference(0, ControlType.kPosition));
+        return this.runOnce(() -> climberPID.setReference(0, ControlType.kPosition));
     }
 
     //Zeros the climber's relative encoder

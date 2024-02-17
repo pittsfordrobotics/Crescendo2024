@@ -19,10 +19,10 @@ public class SpeakerCommand extends SequentialCommandGroup {
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
     addCommands(
-        new ParallelCommandGroup(shooter.setShooterPivotangle(RobotConstants.SPEAKER_ShooterPivotAngle),
-            intake.setIntakePivotAngle(RobotConstants.SPEAKER_IntakePivotAngle)),
-        shooter.setIndexer(RobotConstants.INDEXER_HOLD_SPEED),
-        new ParallelCommandGroup(intake.setIntakeRpmRAW(RobotConstants.SPEAKER_IntakeSpeed),
-            shooter.setshooterRPM(RobotConstants.SPEAKER_ShooterRPM)));
+        new ParallelCommandGroup(shooter.setShooterPivotangle(RobotConstants.SUBWOOF_ShooterPivotAngle),
+            intake.setIntakePivotAngle(RobotConstants.SUBWOOF_IntakePivotAngle)),
+        shooter.setIndexer(RobotConstants.INDEXER_IDLE_SPEED),
+        new ParallelCommandGroup(intake.setIntakeRpmRAW(RobotConstants.SUBWOOF_IntakeSpeed),
+            shooter.setshooterRPM(RobotConstants.SUBWOOF_ShooterRPM)));
   }
 }
