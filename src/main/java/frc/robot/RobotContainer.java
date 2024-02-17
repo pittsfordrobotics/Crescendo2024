@@ -5,9 +5,6 @@
 package frc.robot;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -18,7 +15,6 @@ import frc.robot.commands.DisabledInstantCommand;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -35,9 +31,6 @@ import frc.robot.subsystems.SwerveSubsystem;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import frc.robot.subsystems.Climber;
 import java.io.File;
-import java.util.Optional;
-import java.util.function.BooleanSupplier;
-import java.util.function.Consumer;
 import com.choreo.lib.Choreo;
 import com.choreo.lib.ChoreoTrajectory;
 public class RobotContainer {
@@ -215,10 +208,9 @@ public class RobotContainer {
         }
       }),
       autoCommandFactory.generateChoreoCommand(onepiecept1traj),
+      // put actions between these
       autoCommandFactory.generateChoreoCommand(onepiecept2traj),
       autoCommandFactory.generateChoreoCommand(onepiecept3traj)
-      // do action
-      // get new command
     );
 
     autoChooser.setDefaultOption("One Piece Middle", onepiecemiddle);
@@ -226,7 +218,7 @@ public class RobotContainer {
     SmartDashboard.putData(autoChooser);
   }
   public Command getAutonomousCommand() {
-    // return new RunCommand(() -> swerveSubsystem.drive(new Translation2d(.1, .2), .3, false), swerveSubsystem);
+    // return new RunCommand(() -> swerveSubsystem.drive(new Translation2d(.1, .2), .3, false), swerveSubsystem); // test drive command, for debugging
     return autoChooser.getSelected();
   }
 }

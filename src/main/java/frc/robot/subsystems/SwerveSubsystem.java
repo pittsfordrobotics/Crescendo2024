@@ -8,11 +8,14 @@ package frc.robot.subsystems;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.PathConstraints;
+import com.revrobotics.AbsoluteEncoder;
+// Unused imports that'll be used for pathplanner when implemented for on-the-fly pathing, don't remove rn
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.ReplanningConfig;
-import com.revrobotics.AbsoluteEncoder;
+import edu.wpi.first.wpilibj.DriverStation;
+
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -22,7 +25,6 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -106,7 +108,7 @@ public class SwerveSubsystem extends SubsystemBase {
   /**
    * Setup AutoBuilder for PathPlanner.
    */
-  // TODO: Reimplement if choreo does not work
+  // TODO: Implement for on-the-fly pathing (ex. path to next to speaker)
   // public void setupPathPlanner() {
   //   AutoBuilder.configureHolonomic(
   //       this::getPose, // Robot pose supplier
