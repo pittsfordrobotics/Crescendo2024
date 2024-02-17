@@ -4,7 +4,6 @@
 
 package frc.robot;
 
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -30,10 +29,10 @@ import java.io.File;
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   private final SwerveSubsystem swerveSubsystem;
-  private final SendableChooser<Command> toggleDriveMode;
-  private final Climber CLIMBER = new Climber();
-  private final Shooter SHOOTER = new Shooter();
-  private final Intake INTAKE = new Intake();
+  private final SendableChooser<Command> driveModeChooser;
+  private final Climber climber;
+  private final Shooter shooter;
+  private final Intake intake;
 
   private final CommandXboxController m_driverController = new CommandXboxController(
       OperatorConstants.kDriverControllerPort);
@@ -42,12 +41,15 @@ public class RobotContainer {
 
   // The container for the robot. Contains subsystems, OI devices, and commands.
   public RobotContainer() {
+    climber = new Climber();
+    shooter = new Shooter();
+    intake = new Intake();
+    swerveSubsystem = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve/maxSwerve"));
     FFCalculator c = FFCalculator.getInstance();
     // c.updateIntakePivotAngle(INTAKE::getIntakePivotAngle_deg);
-    c.updateShooterAngle(SHOOTER::getShooterAngle_deg);
-    swerveSubsystem = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve/maxSwerve"));
-    toggleDriveMode = new SendableChooser<>();
-    Command enhancedHeadingSteeringCommand = swerveSubsystem.driveCommand(
+    c.updateShooterAngle(shooter::getShooterAngle_deg);
+    driveModeChooser = new SendableChooser<>();
+    Command enhancedHeadingSteeringCommand = swerveSubsystem.enhancedHeadingDriveCommand(
             () -> -m_driverController.getLeftY(),
             () -> -m_driverController.getLeftX(),
             () -> -m_driverController.getRightY(),
@@ -55,21 +57,21 @@ public class RobotContainer {
             m_driverController::getLeftTriggerAxis,
             m_driverController::getRightTriggerAxis);
     enhancedHeadingSteeringCommand.setName("Enhanced Heading Steer");
-    Command headingSteeringCommand = swerveSubsystem.driveCommand(
+    Command headingSteeringCommand = swerveSubsystem.headingDriveCommand(
             () -> -m_driverController.getLeftY(),
             () -> -m_driverController.getLeftX(),
             () -> -m_driverController.getRightX(),
             () -> -m_driverController.getRightY());
     headingSteeringCommand.setName("Heading Steer");
-    Command rotationRateSteeringCommand = swerveSubsystem.driveCommand(
+    Command rotationRateSteeringCommand = swerveSubsystem.rotationRateDriveCommand(
             () -> -m_driverController.getLeftY(),
             () -> -m_driverController.getLeftX(),
-            () -> -MathUtil.applyDeadband(m_driverController.getRightX(), 0.1));
+            () -> -m_driverController.getRightX());
     rotationRateSteeringCommand.setName("Rotation Rate Steer");
-    toggleDriveMode.addOption("Enhanced Steering (BETA)", enhancedHeadingSteeringCommand);
-    toggleDriveMode.addOption("Heading Steering", headingSteeringCommand);
-    toggleDriveMode.setDefaultOption("Rotation Rate Steering", rotationRateSteeringCommand);
-    Shuffleboard.getTab("CONFIG").add(toggleDriveMode);
+    driveModeChooser.addOption("Enhanced Steering (BETA)", enhancedHeadingSteeringCommand);
+    driveModeChooser.addOption("Heading Steering", headingSteeringCommand);
+    driveModeChooser.setDefaultOption("Rotation Rate Steering", rotationRateSteeringCommand);
+    Shuffleboard.getTab("CONFIG").add(driveModeChooser);
     DisabledInstantCommand zeroOffsetCommand = new DisabledInstantCommand(swerveSubsystem::setSwerveOffsets);
     zeroOffsetCommand.setName("Zero Offsets");
     Shuffleboard.getTab("CONFIG").add("Zero Swerve Module Offsets", zeroOffsetCommand);
@@ -82,12 +84,12 @@ public class RobotContainer {
     // Swerve Drive Command
     // This command works for sim, there is no need for a separate sim drive command
     // The sim drive command's angle is position-based and not commanded by angular velocity, so this should be used regardless
-    m_driverController.start().onTrue(new DisabledInstantCommand(() -> swerveSubsystem.zeroGyro()));
+    m_driverController.start().onTrue(new DisabledInstantCommand(swerveSubsystem::zeroGyro));
     m_driverController.rightBumper().onTrue(swerveSubsystem.setSlowSpeed()).onFalse(swerveSubsystem.setNormalSpeed());
 
-    Command driveCommand = toggleDriveMode.getSelected();
+    Command driveCommand = driveModeChooser.getSelected();
     swerveSubsystem.setDefaultCommand(driveCommand);
-    toggleDriveMode.onChange(command -> {
+    driveModeChooser.onChange(command -> {
       Command currentDefault = swerveSubsystem.getDefaultCommand();
       swerveSubsystem.removeDefaultCommand();
       CommandScheduler.getInstance().cancel(currentDefault);
@@ -97,24 +99,24 @@ public class RobotContainer {
     m_driverController.start().onTrue(new InstantCommand(() -> {swerveSubsystem.zeroGyro();System.out.println("Resetting gyro");}));
 
     // // states
-    AmpCommand ampCommand = new AmpCommand(SHOOTER, INTAKE);
+    AmpCommand ampCommand = new AmpCommand(shooter, intake);
     m_driverController.a().onTrue(ampCommand);
 
-    SpeakerCommand speakerCommand = new SpeakerCommand(SHOOTER, INTAKE);
+    SpeakerCommand speakerCommand = new SpeakerCommand(shooter, intake);
     m_driverController.b().onTrue(speakerCommand);
 
-    IntakeCommand intakeCommand = new IntakeCommand(SHOOTER, INTAKE);
+    IntakeCommand intakeCommand = new IntakeCommand(shooter, intake);
     m_driverController.x().onTrue(intakeCommand);
 
-    StoredCommand storedCommand = new StoredCommand(SHOOTER, INTAKE);
+    StoredCommand storedCommand = new StoredCommand(shooter, intake);
     m_driverController.y().onFalse(storedCommand);
 
     // Runs the indexer while the right bumper is held -- essentally a shootcommand
-    m_driverController.rightBumper().whileTrue(SHOOTER.setIndexer(RobotConstants.INDEXER_SHOOT_SPEED));
+    m_driverController.rightBumper().whileTrue(shooter.setIndexer(RobotConstants.INDEXER_SHOOT_SPEED));
 
     // Climber toggle on x
-    m_operatorController.x().toggleOnTrue(CLIMBER.extend());
-    m_operatorController.x().toggleOnFalse(CLIMBER.retract());
+    m_operatorController.x().toggleOnTrue(climber.extend());
+    m_operatorController.x().toggleOnFalse(climber.retract());
   }
 
   private void configure_TEST_Bindings() {
@@ -130,16 +132,16 @@ public class RobotContainer {
 
     // a button for shooter rpm pid test times 2.5 bc it works \-.-/ "theory only
     // gets you so far" - Tested and works
-    m_operatorController.a().onTrue(SHOOTER.setshooterRPM(5700*2.5));
-    m_operatorController.a().onFalse(SHOOTER.setshooterRPM(-500*2.5));
+    m_operatorController.a().onTrue(shooter.setshooterRPM(5700*2.5));
+    m_operatorController.a().onFalse(shooter.setshooterRPM(-500*2.5));
 
     // b button for intake test -- Untested
-    m_operatorController.b().onTrue(INTAKE.setIntakeRpmRAW(0.7));
-    m_operatorController.b().onFalse(INTAKE.setIntakeRpmRAW(0));
+    m_operatorController.b().onTrue(intake.setIntakeRpmRAW(0.7));
+    m_operatorController.b().onFalse(intake.setIntakeRpmRAW(0));
 
     // y button for indexer test -- Tested and works
-    m_operatorController.y().onTrue(SHOOTER.setIndexer(0.5));
-    m_operatorController.y().onFalse(SHOOTER.setIndexer(-0.1));
+    m_operatorController.y().onTrue(shooter.setIndexer(0.5));
+    m_operatorController.y().onFalse(shooter.setIndexer(-0.1));
   }
 
   // Use this to pass the autonomous command to the main {@link Robot} class.
@@ -148,12 +150,5 @@ public class RobotContainer {
     // // Choreo swerve auto
     return null;
     // return Autos.choreoSwerveAuto(m_swerveDrive, "NewPath");
-  }
-
-  private double applyDeadband(double value, double deadband) {
-    if (Math.abs(value) > deadband) {
-      return value;
-    }
-    return 0;
   }
 }
