@@ -19,11 +19,11 @@ public class AmpCommand extends SequentialCommandGroup {
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
     addCommands(
-        new ParallelCommandGroup(shooter.setShooterPivotangle(RobotConstants.AMP_ShooterPivotAngle),
-            intake.setIntakePivotAngle(RobotConstants.AMP_IntakePivotAngle)),
-        shooter.setIndexer(RobotConstants.INDEXER_IDLE_SPEED),
-        new ParallelCommandGroup(intake.setIntakeRpmRAW(RobotConstants.AMP_IntakeSpeed),
-            shooter.setshooterRPM(RobotConstants.AMP_ShooterRPM)));
+        new ParallelCommandGroup(shooter.setPivotAngleCommand(RobotConstants.AMP_ShooterPivotAngle),
+            intake.setPivotAngleCommand(RobotConstants.AMP_IntakePivotAngle)),
+        shooter.spinIndexerCommand(RobotConstants.INDEXER_IDLE_SPEED),
+        new ParallelCommandGroup(intake.spinIntakeCommand(RobotConstants.AMP_IntakeSpeed),
+            shooter.setShooterRPMCommand(RobotConstants.AMP_ShooterRPM)));
 
     // The above sets the position to the amp state but does not release the note
     // I want to add commands that wait for a boolean to be true then set the

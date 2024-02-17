@@ -25,7 +25,6 @@ import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.SwerveSubsystem;
 
-import frc.robot.subsystems.Climber;
 import java.io.File;
 
 public class RobotContainer {
@@ -48,8 +47,8 @@ public class RobotContainer {
     intake = new Intake();
     swerveSubsystem = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve/maxSwerve"));
     FFCalculator c = FFCalculator.getInstance();
-    // c.updateIntakePivotAngle(INTAKE::getIntakePivotAngle_deg);
-    c.updateShooterAngle(shooter::getShooterAngle_deg);
+    // c.updateIntakePivotAngle(intake::getIntakePivotAngle_deg);
+    c.updateShooterAngle(shooter::getShooterAngleDeg);
     driveModeChooser = new SendableChooser<>();
     Command enhancedHeadingSteeringCommand = swerveSubsystem.enhancedHeadingDriveCommand(
             () -> -m_driverController.getLeftY(),
@@ -84,7 +83,7 @@ public class RobotContainer {
 
   private void configure_COMP_Bindings() {
     // Swerve
-    m_driverController.start().onTrue(new DisabledInstantCommand(() -> swerveSubsystem.zeroGyro()));
+    m_driverController.start().onTrue(new DisabledInstantCommand(swerveSubsystem::zeroGyro));
     m_driverController.leftBumper().onTrue(swerveSubsystem.setSlowSpeed()).onFalse(swerveSubsystem.setNormalSpeed());
     Command driveCommand = driveModeChooser.getSelected();
     swerveSubsystem.setDefaultCommand(driveCommand);
@@ -101,31 +100,31 @@ public class RobotContainer {
     AmpCommand ampCommand = new AmpCommand(shooter, intake);
     m_operatorController.a().onTrue(ampCommand);
 
-    SpeakerCommand speakerCommand = new SpeakerCommand(SHOOTER, INTAKE);
+    SpeakerCommand speakerCommand = new SpeakerCommand(shooter, intake);
     m_operatorController.b().onTrue(speakerCommand);
 
-    IntakeCommand intakeCommand = new IntakeCommand(SHOOTER, INTAKE);
+    IntakeCommand intakeCommand = new IntakeCommand(shooter, intake);
     m_operatorController.x().onTrue(intakeCommand);
 
-    StoredCommand storedCommand = new StoredCommand(SHOOTER, INTAKE);
+    StoredCommand storedCommand = new StoredCommand(shooter, intake);
     m_operatorController.y().onTrue(storedCommand);
 
     // Runs the indexer while the right bumper is held -- essentally a shootcommand
-    m_driverController.rightBumper().whileTrue(SHOOTER.setIndexer(RobotConstants.INDEXER_SHOOT_SPEED)).whileFalse(SHOOTER.setIndexer(RobotConstants.INDEXER_IDLE_SPEED));
+    m_driverController.rightBumper().whileTrue(shooter.spinIndexerCommand(RobotConstants.INDEXER_SHOOT_SPEED)).whileFalse(shooter.spinIndexerCommand(RobotConstants.INDEXER_IDLE_SPEED));
 
     // Climber toggle on rightbumper
-    m_operatorController.rightBumper().onTrue(CLIMBER.extend());
-    m_operatorController.rightBumper().onFalse(CLIMBER.retract());
+    m_operatorController.rightBumper().onTrue(climber.extendCommand());
+    m_operatorController.rightBumper().onFalse(climber.retractCommand());
   }
 
   private void configure_TEST_Bindings() {
     // Swerve Drive Command chooser
-    m_driverController.start().onTrue(new DisabledInstantCommand(() -> swerveSubsystem.zeroGyro()));
+    m_driverController.start().onTrue(new DisabledInstantCommand(swerveSubsystem::zeroGyro));
     m_driverController.leftBumper().onTrue(swerveSubsystem.setSlowSpeed()).onFalse(swerveSubsystem.setNormalSpeed());
 
-    Command driveCommand = toggleDriveMode.getSelected();
+    Command driveCommand = driveModeChooser.getSelected();
     swerveSubsystem.setDefaultCommand(driveCommand);
-    toggleDriveMode.onChange(command -> {
+    driveModeChooser.onChange(command -> {
       Command currentDefault = swerveSubsystem.getDefaultCommand();
       swerveSubsystem.removeDefaultCommand();
       CommandScheduler.getInstance().cancel(currentDefault);
@@ -135,39 +134,39 @@ public class RobotContainer {
 
     // Remember zeroed at intake pose -- +RPM means note goes out -- +Angle means
     // move up relative to intake pose
-    SmartDashboard.putNumber("ShooterPivotAngle_CHANGEME", 0);
-    SmartDashboard.putNumber("ShooterRPM_CHANGEME", 0);
+    SmartDashboard.putNumber("shooterPivotAngle_CHANGEME", 0);
+    SmartDashboard.putNumber("shooterRPM_CHANGEME", 0);
     SmartDashboard.putNumber("IntakePivotAngle_CHANGEME", 180);
 
     // left bumper for shooter pivot pid test -- Works (tune pids and FF tho)
-    m_operatorController.leftBumper().onTrue(SHOOTER.setShooterPivotangle(53));
-    m_operatorController.leftBumper().onFalse(SHOOTER.setShooterPivotangle(0.0));
+    m_operatorController.leftBumper().onTrue(shooter.setPivotAngleCommand(53));
+    m_operatorController.leftBumper().onFalse(shooter.setPivotAngleCommand(0.0));
     // left trigger for shooter pivot based on suplier -- untested
     m_operatorController.leftTrigger().whileTrue(
-        SHOOTER.setShooterPivotangleSupplier(() -> SmartDashboard.getNumber("ShooterPivotAngle_CHANGEME", 0)));
+        shooter.setPivotAngleSupplier(() -> SmartDashboard.getNumber("shooterPivotAngle_CHANGEME", 0)));
 
     // right bumper for intake pivot pid test -- Works (tune pids and FF tho)
-    m_operatorController.rightBumper().onFalse(INTAKE.setIntakePivotAngle(180));
-    m_operatorController.rightBumper().onTrue(INTAKE.setIntakePivotAngle(0));
+    m_operatorController.rightBumper().onFalse(intake.setPivotAngleCommand(180));
+    m_operatorController.rightBumper().onTrue(intake.setPivotAngleCommand(0));
     // right trigger for intake pivot based on suplier -- untested
     m_operatorController.rightTrigger().whileTrue(
-        INTAKE.setIntakePivotAngleSupplier(() -> SmartDashboard.getNumber("IntakePivotAngle_CHANGEME", 170)));
+        intake.setPivotAngleSupplier(() -> SmartDashboard.getNumber("IntakePivotAngle_CHANGEME", 170)));
 
-    // Shooter PID RPM -- Works
-    m_operatorController.a().onTrue(SHOOTER.setshooterRPM(5400));
-    m_operatorController.a().onFalse(SHOOTER.setshooterRPM(-1000));
-    // Shooter RPM based on supplier -- untested
+    // shooter PID RPM -- Works
+    m_operatorController.a().onTrue(shooter.setShooterRPMCommand(5400));
+    m_operatorController.a().onFalse(shooter.setShooterRPMCommand(-1000));
+    // shooter RPM based on supplier -- untested
     m_operatorController.x()
-        .onTrue(SHOOTER.setshooterRPMSupplier(() -> SmartDashboard.getNumber("ShooterRPM_CHANGEME", 0)));
-    m_operatorController.x().onFalse(SHOOTER.setshooterRPM(-1000));
+        .onTrue(shooter.setShooterRPMSupplier(() -> SmartDashboard.getNumber("shooterRPM_CHANGEME", 0)));
+    m_operatorController.x().onFalse(shooter.setShooterRPMCommand(-1000));
 
     // Intake RAW command -- Untested
-    m_operatorController.b().onTrue(INTAKE.setIntakeRpmRAW(0.7));
-    m_operatorController.b().onFalse(INTAKE.setIntakeRpmRAW(0));
+    m_operatorController.b().onTrue(intake.spinIntakeCommand(0.7));
+    m_operatorController.b().onFalse(intake.spinIntakeCommand(0));
 
     // Indexer test -- Works
-    m_operatorController.y().onTrue(SHOOTER.setIndexer(0.5));
-    m_operatorController.y().onFalse(SHOOTER.setIndexer(-0.1));
+    m_operatorController.y().onTrue(shooter.spinIndexerCommand(0.5));
+    m_operatorController.y().onFalse(shooter.spinIndexerCommand(-0.1));
   }
 
   // Use this to pass the autonomous command to the main {@link Robot} class.
