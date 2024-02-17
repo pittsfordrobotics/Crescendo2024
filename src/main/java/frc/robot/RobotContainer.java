@@ -4,55 +4,42 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.Filesystem;
-import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.DisabledInstantCommand;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import frc.robot.Constants.OperatorConstants;
-import frc.robot.commands.DisabledInstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.RobotConstants;
 import frc.robot.commands.NewPrettyCommands.AmpCommand;
 import frc.robot.commands.NewPrettyCommands.IntakeCommand;
 import frc.robot.commands.NewPrettyCommands.SpeakerCommand;
 import frc.robot.commands.NewPrettyCommands.StoredCommand;
+import frc.robot.lib.AutoCommandFactory;
 import frc.robot.lib.FFCalculator;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.SwerveSubsystem;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-
 import frc.robot.subsystems.Climber;
 import java.io.File;
-import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import java.util.Optional;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
-import java.util.function.DoubleSupplier;
-import java.util.function.Supplier;
-
 import com.choreo.lib.Choreo;
 import com.choreo.lib.ChoreoTrajectory;
-import com.pathplanner.lib.auto.NamedCommands;
-import edu.wpi.first.wpilibj.smartdashboard.*;
-import edu.wpi.first.wpilibj.simulation.*;
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   private final SwerveSubsystem swerveSubsystem;
@@ -60,6 +47,8 @@ public class RobotContainer {
   private final Climber CLIMBER = new Climber();
   private final Shooter SHOOTER = new Shooter();
   private final Intake INTAKE = new Intake();
+
+  private final AutoCommandFactory autoCommandFactory;
 
  private final SendableChooser<Command> autoChooser = new SendableChooser<>();
 
@@ -69,6 +58,7 @@ public class RobotContainer {
       OperatorConstants.kOperatorControllerPort);
 
   // The container for the robot. Contains subsystems, OI devices, and commands.
+
   public RobotContainer() {
     // FF Calculator
     FFCalculator c = FFCalculator.getInstance();
@@ -78,6 +68,8 @@ public class RobotContainer {
     // Swerve Stuff
     swerveSubsystem = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve/maxSwerve"));
     toggleDriveMode = new SendableChooser<>();
+
+    autoCommandFactory = new AutoCommandFactory(swerveSubsystem);
 
     Command enhancedHeadingSteeringCommand = swerveSubsystem.driveCommand(
         () -> -MathUtil.applyDeadband(m_driverController.getLeftY(), 0.1),
@@ -114,12 +106,13 @@ public class RobotContainer {
     // Configure the trigger bindings
     // configure_COMP_Bindings();
     configure_TEST_Bindings();
+    autoConfig();
   }
 
   private void configure_COMP_Bindings() {
     // Swerve
     m_driverController.start().onTrue(new DisabledInstantCommand(() -> swerveSubsystem.zeroGyro()));
-    m_driverController.leftBumper().onTrue(swerveSubsystem.setSlowSpeed()).onFalse(swerveSubsystem.setNormalSpeed());
+    m_driverController.leftBumper().onTrue(swerveSubsystem.setSlowSpeed()).onFalse(swerveSubsystem.setNormalSpeed()); 
     Command driveCommand = toggleDriveMode.getSelected();
     swerveSubsystem.setDefaultCommand(driveCommand);
 
@@ -209,66 +202,31 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public void autoConfig() {
-    // TODO: Replace these with X and Y translate pids (should be same) and rotational pid tuned using shuffleboard when chassis is ready
-    // swerveSubsystem.getSwerveDrive().swerveController.config.headingPIDF.p may be useful
-    double xTranslateP = 0;
-    double yTranslateP = 0;
-    double angleP = 0;
+    ChoreoTrajectory onepiecept1traj = Choreo.getTrajectory("onepiecemiddle.1");
+    ChoreoTrajectory onepiecept2traj = Choreo.getTrajectory("onepiecemiddle.2");
+    ChoreoTrajectory onepiecept3traj = Choreo.getTrajectory("onepiecemiddle.3");
 
-    // PID controllers
-    var xController = new PIDController(xTranslateP, 0.0, 0.0); // PIDController for field-relative X translation (input: Y error in meters, output: m/s).
-    var yController = new PIDController(yTranslateP, 0, 0); // PIDController for field-relative Y translation (input: Y error in meters, output: m/s).
-    var thetaController = new PIDController(angleP, 0.0, 0.0); // PID controller to correct for rotation error
-    thetaController.enableContinuousInput(-Math.PI, Math.PI); // A function that consumes the target robot-relative chassis speeds and commands them to the robot.
-    Consumer<ChassisSpeeds> speedsConsumer = (ChassisSpeeds speeds) -> swerveSubsystem.drive(new Translation2d(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond), speeds.omegaRadiansPerSecond, false); // Consumes target robot-relative chassis speeds and commands them to the robot
-    // Supplier<Pose2d> poseSupplier = swerveSubsystem::getPose;// Robot pose2d supplier
-    BooleanSupplier allianceSupplier = () -> { // TODO: Use the fact that the alliance is present when the robot becomes disabled but connected
-        Optional<DriverStation.Alliance> alliance = DriverStation.getAlliance();
-          return alliance.isPresent() && (alliance.get() == Alliance.Red);
-      };
-    ChoreoTrajectory onepiecept1traj = Choreo.getTrajectory("NewPath.1"); // this is ok to be declared since will be calling mirrorpath on it if we duplicate paths for each alliance to avoid crashes in sim
-    ChoreoTrajectory onepiecept2traj = Choreo.getTrajectory("NewPath.2");
-    Command onepiecept1 = Choreo.choreoSwerveCommand(
-      allianceSupplier.getAsBoolean() ? onepiecept1traj : onepiecept1traj.flipped(),
-      swerveSubsystem::getPose,
-      xController, 
-      yController, 
-      thetaController,
-      speedsConsumer, 
-      allianceSupplier, // Whether or not to mirror the path based on alliance (assumes path created for blue)
-      swerveSubsystem // Subsystems to require, typically drivetrain only
-      );
-    Command onepiecept2 = Choreo.choreoSwerveCommand(
-      allianceSupplier.getAsBoolean() ? onepiecept2traj : onepiecept2traj.flipped(),
-      swerveSubsystem::getPose, 
-      xController, 
-      yController, 
-      thetaController,
-      speedsConsumer, 
-      allianceSupplier, // Whether or not to mirror the path based on alliance (assumes path created for blue)
-      swerveSubsystem // Subsystems to require, typically drivetrain only
-      );
-    
-    //swerveCommand.setName("NewPath.1");
-    Command onepiece = new SequentialCommandGroup(
-    //shoot
-    onepiecept1, 
-    Commands.print("run the thing\n\n\n\n\n\n\n\n\n\n"),
-    onepiecept2);
-    autoChooser.setDefaultOption("NewPath.1", onepiece);
+    Command onepiecemiddle = new SequentialCommandGroup(
+      Commands.runOnce(() -> {
+        if(DriverStation.getAlliance().get() == Alliance.Blue) {
+          swerveSubsystem.resetOdometry(onepiecept2traj.getInitialPose());
+        } else {
+          swerveSubsystem.resetOdometry(onepiecept2traj.flipped().getInitialPose());
+        }
+      }),
+      autoCommandFactory.generateChoreoCommand(onepiecept1traj),
+      autoCommandFactory.generateChoreoCommand(onepiecept2traj),
+      autoCommandFactory.generateChoreoCommand(onepiecept3traj)
+      // do action
+      // get new command
+    );
+
+    autoChooser.setDefaultOption("One Piece Middle", onepiecemiddle);
     autoChooser.addOption("Do nothing", new InstantCommand());
     SmartDashboard.putData(autoChooser);
-
   }
   public Command getAutonomousCommand() {
-    // Initial choreo trajectories must be named the same things as their commands
-    // System.out.println(autoChooser.getSelected().getName());
-    // ChoreoTrajectory initTraj = Choreo.getTrajectory(autoChooser.getSelected().getName());
-    // if(DriverStation.getAlliance().get() == Alliance.Blue) {
-    //   swerveSubsystem.resetOdometry(initTraj.getInitialPose());
-    // } else {
-    //   swerveSubsystem.resetOdometry(initTraj.flipped().getInitialPose());
-    // }
+    // return new RunCommand(() -> swerveSubsystem.drive(new Translation2d(.1, .2), .3, false), swerveSubsystem);
     return autoChooser.getSelected();
   }
 }
