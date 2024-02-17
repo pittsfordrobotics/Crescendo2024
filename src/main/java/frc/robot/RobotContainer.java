@@ -15,6 +15,7 @@ import frc.robot.commands.DisabledInstantCommand;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -198,7 +199,7 @@ public class RobotContainer {
     ChoreoTrajectory onepiecept1traj = Choreo.getTrajectory("onepiecemiddle.1");
     ChoreoTrajectory onepiecept2traj = Choreo.getTrajectory("onepiecemiddle.2");
     ChoreoTrajectory onepiecept3traj = Choreo.getTrajectory("onepiecemiddle.3");
-
+    ChoreoTrajectory onepiecept4traj = Choreo.getTrajectory("onepiecemiddle.4");
     Command onepiecemiddle = new SequentialCommandGroup(
       Commands.runOnce(() -> {
         if(DriverStation.getAlliance().get() == Alliance.Blue) {
@@ -207,10 +208,15 @@ public class RobotContainer {
           swerveSubsystem.resetOdometry(onepiecept2traj.flipped().getInitialPose());
         }
       }),
+      // shoot (robot is right against speaker)
       autoCommandFactory.generateChoreoCommand(onepiecept1traj),
-      // put actions between these
-      autoCommandFactory.generateChoreoCommand(onepiecept2traj),
-      autoCommandFactory.generateChoreoCommand(onepiecept3traj)
+      new ParallelCommandGroup(
+        autoCommandFactory.generateChoreoCommand(onepiecept2traj)
+        // intake, end when note collected
+        ),
+      autoCommandFactory.generateChoreoCommand(onepiecept3traj),
+      // shoot (robot is not against speaker)
+      autoCommandFactory.generateChoreoCommand(onepiecept4traj) // drive out of starting area fully
     );
 
     autoChooser.setDefaultOption("One Piece Middle", onepiecemiddle);
