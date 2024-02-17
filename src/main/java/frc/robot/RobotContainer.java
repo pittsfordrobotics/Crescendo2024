@@ -167,12 +167,11 @@ public class RobotContainer {
         Optional<DriverStation.Alliance> alliance = DriverStation.getAlliance();
           return alliance.isPresent() && (alliance.get() == Alliance.Red);
       };
-
     ChoreoTrajectory onepiecept1traj = Choreo.getTrajectory("NewPath.1"); // this is ok to be declared since will be calling mirrorpath on it if we duplicate paths for each alliance to avoid crashes in sim
     ChoreoTrajectory onepiecept2traj = Choreo.getTrajectory("NewPath.2");
     Command onepiecept1 = Choreo.choreoSwerveCommand(
-      onepiecept1traj,
-      swerveSubsystem::getPose, 
+      allianceSupplier.getAsBoolean() ? onepiecept1traj : onepiecept1traj.flipped(),
+      swerveSubsystem::getPose,
       xController, 
       yController, 
       thetaController,
@@ -181,7 +180,7 @@ public class RobotContainer {
       swerveSubsystem // Subsystems to require, typically drivetrain only
       );
     Command onepiecept2 = Choreo.choreoSwerveCommand(
-      onepiecept2traj,
+      allianceSupplier.getAsBoolean() ? onepiecept2traj : onepiecept2traj.flipped(),
       swerveSubsystem::getPose, 
       xController, 
       yController, 
@@ -192,7 +191,11 @@ public class RobotContainer {
       );
     
     //swerveCommand.setName("NewPath.1");
-    Command onepiece = new SequentialCommandGroup(onepiecept1, Commands.print("run the thing\n\n\n\n\n\n\n\n\n\n"), onepiecept2);
+    Command onepiece = new SequentialCommandGroup(
+    //shoot
+    onepiecept1, 
+    Commands.print("run the thing\n\n\n\n\n\n\n\n\n\n"),
+    onepiecept2);
     autoChooser.setDefaultOption("NewPath.1", onepiece);
     autoChooser.addOption("Do nothing", new InstantCommand());
     SmartDashboard.putData(autoChooser);

@@ -18,29 +18,11 @@
                 {
                     "x": 1.3508737087249756,
                     "y": 5.655642509460449,
-                    "heading": 0,
+                    "heading": -0.19634954084936207,
                     "isInitialGuess": false,
                     "translationConstrained": true,
                     "headingConstrained": true,
                     "controlIntervalCount": 11
-                },
-                {
-                    "x": 2.4572041034698486,
-                    "y": 7.018513202667236,
-                    "heading": 0,
-                    "isInitialGuess": false,
-                    "translationConstrained": true,
-                    "headingConstrained": false,
-                    "controlIntervalCount": 10
-                },
-                {
-                    "x": 2.4572041034698486,
-                    "y": 5.559439659118652,
-                    "heading": 0,
-                    "isInitialGuess": false,
-                    "translationConstrained": true,
-                    "headingConstrained": false,
-                    "controlIntervalCount": 40
                 }
             ],
             "trajectory": [
@@ -253,18 +235,6 @@
                 {
                     "scope": [
                         "last"
-                    ],
-                    "type": "StopPoint"
-                },
-                {
-                    "scope": [
-                        1
-                    ],
-                    "type": "StopPoint"
-                },
-                {
-                    "scope": [
-                        2
                     ],
                     "type": "StopPoint"
                 }
