@@ -86,9 +86,6 @@ public class RobotContainer {
 
     Shuffleboard.getTab("CONFIG").add("Zero Swerve Module Offsets", zeroOffsetCommand);
 
-    Shuffleboard.getTab("CONFIG").addString("Current Structure State",
-        () -> StructureStates.getCurrentState().toString());
-
     // Configure the trigger bindings
     // configure_COMP_Bindings();
     configure_TEST_Bindings();
@@ -155,17 +152,17 @@ public class RobotContainer {
     m_operatorController.leftTrigger().whileTrue(SHOOTER.setShooterPivotangleSupplier());
 
     // RIGHT BUMPER & TRIGGER -> intake pivot -- Works (tune pids and FF tho)
-    m_operatorController.rightBumper().onFalse(INTAKE.setIntakePivotAngle(180));
-    m_operatorController.rightBumper().onTrue(INTAKE.setIntakePivotAngle(0));
+    m_operatorController.rightBumper().onFalse(INTAKE.setIntakePivotAngle(0));
+    m_operatorController.rightBumper().onTrue(INTAKE.setIntakePivotAngle(180));
     m_operatorController.rightTrigger().whileTrue(INTAKE.setIntakePivotAngleSupplier());
 
     // A -> Shooter RPM (X for supplier) -- Works
     m_operatorController.a().onTrue(SHOOTER.setshooterRPM(5400));
-    m_operatorController.a().onFalse(SHOOTER.setshooterRPM(-1000));
+    m_operatorController.a().onFalse(SHOOTER.setshooterRPM(-1500));
     m_operatorController.x().whileTrue(SHOOTER.setshooterRPMSupplier());
 
     // B -> Intake RAW command -- Untested
-    m_operatorController.b().onTrue(INTAKE.setIntakeRpmRAW(0.7));
+    m_operatorController.b().onTrue(INTAKE.setIntakeRpmRAW(-0.75));
     m_operatorController.b().onFalse(INTAKE.setIntakeRpmRAW(0));
 
     // Y -> Indexer test -- Works

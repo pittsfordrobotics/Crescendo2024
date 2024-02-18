@@ -20,11 +20,10 @@ public class StoredCommand extends SequentialCommandGroup {
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
     addCommands(
-        new ParallelCommandGroup(shooter.setShooterPivotangle(RobotConstants.STORED_ShooterPivotAngle),
-            intake.setIntakePivotAngle(RobotConstants.STORED_IntakePivotAngle)),
-        shooter.setIndexer(RobotConstants.INDEXER_IDLE_SPEED),
         new ParallelCommandGroup(intake.setIntakeRpmRAW(RobotConstants.STORED_IntakeSpeed),
             shooter.setshooterRPM(RobotConstants.STORED_ShooterRPM)));
+        new SequentialCommandGroup(shooter.setShooterPivotangle(RobotConstants.STORED_ShooterPivotAngle),
+            intake.setIntakePivotAngle(RobotConstants.STORED_IntakePivotAngle));
     StructureStates.setCurrentState(StructureStates.structureState.stored);
   }
 }

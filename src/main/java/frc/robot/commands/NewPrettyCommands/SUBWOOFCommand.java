@@ -20,11 +20,10 @@ public class SUBWOOFCommand extends SequentialCommandGroup {
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
     addCommands(
-        new ParallelCommandGroup(shooter.setShooterPivotangle(RobotConstants.SUBWOOF_ShooterPivotAngle),
-            intake.setIntakePivotAngle(RobotConstants.SUBWOOF_IntakePivotAngle)),
-        shooter.setIndexer(RobotConstants.INDEXER_IDLE_SPEED),
         new ParallelCommandGroup(intake.setIntakeRpmRAW(RobotConstants.SUBWOOF_IntakeSpeed),
-            shooter.setshooterRPM(RobotConstants.SUBWOOF_ShooterRPM)));
+            shooter.setshooterRPM(RobotConstants.SUBWOOF_ShooterRPM)),
+        new SequentialCommandGroup(shooter.setShooterPivotangle(RobotConstants.SUBWOOF_ShooterPivotAngle),
+            intake.setIntakePivotAngle(RobotConstants.SUBWOOF_IntakePivotAngle)));
     StructureStates.setCurrentState(StructureStates.structureState.amp);
   }
 }

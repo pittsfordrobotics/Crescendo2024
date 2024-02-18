@@ -43,6 +43,7 @@ public class Intake extends SubsystemBase {
     intakePivotMotorR.setInverted(true);
     intakePivotABSEncoderR = intakePivotMotorR.getAbsoluteEncoder(Type.kDutyCycle);
     intakePivotABSEncoderR.setPositionConversionFactor(360);
+    intakePivotABSEncoderR.setInverted(true);
     // Intake Pivot Pid (in the right motor controller)
     intakepivotPIDR = intakePivotMotorR.getPIDController();
     intakepivotPIDR.setFeedbackDevice(intakePivotABSEncoderR);
@@ -52,7 +53,7 @@ public class Intake extends SubsystemBase {
     intakepivotPIDR.setPositionPIDWrappingEnabled(true);
     intakepivotPIDR.setPositionPIDWrappingMaxInput(360);
     intakepivotPIDR.setPositionPIDWrappingMinInput(0);
-    intakepivotPIDR.setOutputRange(-0.6, .6);
+    intakepivotPIDR.setOutputRange(-0.8, .8);
 
     intakePivotMotorR.burnFlash();
     try {
