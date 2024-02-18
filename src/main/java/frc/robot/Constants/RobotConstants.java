@@ -16,8 +16,8 @@ public class RobotConstants {
     // Intake "state"
     public static final double INTAKE_IntakePivotAngle = 10;
     public static final double INTAKE_ShooterPivotAngle = 0;
-    public static final double INTAKE_Intake_Speed = -.5;
-    public static final double INTAKE_Shooter_Speed = -1250;
+    public static final double INTAKE_IntakeSpeed = -.5;
+    public static final double INTAKE_ShooterRPM = -1250;
 
     // Stored "state"
     public static final double STORED_ShooterPivotAngle = 0;
