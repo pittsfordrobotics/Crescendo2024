@@ -232,7 +232,8 @@ public class Shooter extends SubsystemBase {
   public Command setShooterPivotangle(double setpoint_deg) {
     double setpoint_deg_clamped = MathUtil.clamp(setpoint_deg, 0, 90);
     Command cmd = Commands.run(() -> shooterpivotRPID.setReference(setpoint_deg_clamped, ControlType.kPosition, 0,
-        FFCalculator.getInstance().calculateShooterFF()), this);
+        FFCalculator.getInstance().calculateShooterFF()), this)
+        .until(() -> Math.abs(shooterpivot_R_ABSEncoder.getPosition() - setpoint_deg_clamped) < 2.5); // the until possibly breaks stuff
     return cmd;
   }
 

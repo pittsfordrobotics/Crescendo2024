@@ -117,8 +117,8 @@ public class RobotContainer {
     m_driverController.y().onTrue(storedCommand); // Untested
 
     // Runs the indexer while the right bumper is held -- essentally a shoot command
-    m_driverController.rightBumper().whileTrue(SHOOTER.setIndexer(RobotConstants.INDEXER_SHOOT_SPEED))
-        .whileFalse(SHOOTER.setIndexer(RobotConstants.INDEXER_IDLE_SPEED));
+    m_driverController.rightBumper().onTrue(SHOOTER.setIndexer(RobotConstants.INDEXER_SHOOT_SPEED))
+        .onFalse(SHOOTER.setIndexer(RobotConstants.INDEXER_IDLE_SPEED));
 
     // Climber toggle on rightbumper
     m_operatorController.rightBumper().onTrue(CLIMBER.extend());

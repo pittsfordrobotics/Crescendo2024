@@ -156,7 +156,9 @@ public class Intake extends SubsystemBase {
   // **set in degrees**
   public Command setIntakePivotAngle(double setpoint_deg) {
     double setpoint_deg_clamped = MathUtil.clamp(setpoint_deg,0,170);
-    Command cmd = new RunCommand(() -> intakepivotPIDR.setReference(setpoint_deg_clamped, ControlType.kPosition, 0, FFCalculator.getInstance().calculateIntakeFF()), this);
+    Command cmd = new RunCommand(() -> intakepivotPIDR.setReference(
+      setpoint_deg_clamped, ControlType.kPosition, 0, FFCalculator.getInstance().calculateIntakeFF()), this)
+      .until(() -> Math.abs(intakePivotABSEncoderR.getPosition() - setpoint_deg_clamped) < 2.5); // the until may break some stuff
     return cmd;
   }
 
