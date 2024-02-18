@@ -27,4 +27,28 @@ public class AllDeadbands {
         }
         return outputs;
     }
+    /** Applies a circular deadband to a double array and scales output magnitude from 0 to 1 by distance from inside of deadband.
+     * @param inputs the array of inputs to apply deadband to
+     * @param deadband the radius of the circular deadband
+     * @return the array of inputs, zero if within deadband, otherwise unchanged
+     */
+    public static double[] applyScalingCircularDeadband(double[] inputs, double deadband) {
+        double radiusSquared = 0;
+        double scaledRadius = 0;
+        int len = 0;
+        double[] outputs;
+        for (double input : inputs) {
+            radiusSquared += Math.pow(input, 2);
+            len ++;
+        }
+        double radius = Math.sqrt(radiusSquared);
+        outputs = new double[len];
+        if(radius >= deadband) {
+            scaledRadius = radius - deadband;
+            for(int i = 0; i < len; i++) {
+                outputs[i] = inputs[i] * scaledRadius / radius;
+            }
+        }
+        return outputs;
+    }
 }
