@@ -22,7 +22,7 @@ public class StoredCommand extends SequentialCommandGroup {
     addCommands(
         new ParallelCommandGroup(intake.spinIntakeCommand(RobotConstants.STORED_IntakeSpeed),
             shooter.setShooterRPMCommand(RobotConstants.STORED_ShooterRPM)),
-        new SequentialCommandGroup(shooter.setShooterPivotangle(RobotConstants.STORED_ShooterPivotAngle),
+        new SequentialCommandGroup(shooter.setPivotAngleCommand(RobotConstants.STORED_ShooterPivotAngle),
             intake.setPivotAngleCommand(RobotConstants.STORED_IntakePivotAngle)));
     StructureStates.setCurrentState(StructureStates.structureState.stored);
   }

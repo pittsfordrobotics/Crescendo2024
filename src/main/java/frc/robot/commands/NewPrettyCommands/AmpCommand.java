@@ -15,15 +15,19 @@ import frc.robot.subsystems.Shooter;
 // information, see:
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
 public class AmpCommand extends SequentialCommandGroup {
-  /** Creates a new AmpCommand. */
-  public AmpCommand(Shooter shooter, Intake intake) {
-    // Add your commands in the addCommands() call, e.g.
-    // addCommands(new FooCommand(), new BarCommand());
-    addCommands(
-        new ParallelCommandGroup(intake.spinIntakeCommand(RobotConstants.AMP_IntakeSpeed),
-            shooter.setShooterRPMCommand(RobotConstants.AMP_ShooterRPM)),
-        new SequentialCommandGroup(shooter.setShooterPivotangle(RobotConstants.AMP_ShooterPivotAngle),
-            intake.setPivotAngleCommand(RobotConstants.AMP_IntakePivotAngle)));
-    StructureStates.setCurrentState(StructureStates.structureState.amp);
-  }
+    /** Creates a new AmpCommand. */
+    public AmpCommand(Shooter shooter, Intake intake) {
+        // Add your commands in the addCommands() call, e.g.
+        // addCommands(new FooCommand(), new BarCommand());
+        addCommands(
+                new ParallelCommandGroup(
+                        intake.spinIntakeCommand(RobotConstants.AMP_IntakeSpeed),
+                        shooter.setShooterRPMCommand(RobotConstants.AMP_ShooterRPM)),
+                new SequentialCommandGroup(
+                        shooter.setPivotAngleCommand(RobotConstants.AMP_ShooterPivotAngle),
+                        shooter.waitForPivotAngleCommand(),
+                        intake.setPivotAngleCommand(RobotConstants.AMP_IntakePivotAngle),
+                        intake.waitForPivotAngleCommand()));
+        StructureStates.setCurrentState(StructureStates.structureState.amp);
+    }
 }

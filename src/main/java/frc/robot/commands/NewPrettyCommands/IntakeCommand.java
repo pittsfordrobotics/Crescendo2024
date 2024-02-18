@@ -17,18 +17,21 @@ import frc.robot.subsystems.Shooter;
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
 
 public class IntakeCommand extends SequentialCommandGroup {
-  /** Creates a new StartIntake2. */
-  public IntakeCommand(Shooter shooter, Intake intake) {
-    // Add your commands in the addCommands() call, e.g.
-    // addCommands(new FooCommand(), new BarCommand());
+	/** Creates a new StartIntake2. */
+	public IntakeCommand(Shooter shooter, Intake intake) {
+		// Add your commands in the addCommands() call, e.g.
+		// addCommands(new FooCommand(), new BarCommand());
 
-    addCommands(
-        new ParallelCommandGroup(shooter.setShooterRPMCommand(RobotConstants.INTAKE_ShooterRPM),
-            intake.spinIntakeCommand(RobotConstants.INTAKE_IntakeSpeed)),
-        new SequentialCommandGroup(shooter.setShooterPivotangle(RobotConstants.INTAKE_ShooterPivotAngle),
-            intake.setPivotAngleCommand(RobotConstants.INTAKE_IntakePivotAngle)),
-        new WaitUntilCommand(() -> shooter.getLimitSwitch()),
-        new StoredCommand(shooter, intake));
-    StructureStates.setCurrentState(StructureStates.structureState.intake);
-  }
+		addCommands(
+				new ParallelCommandGroup(shooter.setShooterRPMCommand(RobotConstants.INTAKE_ShooterRPM),
+						intake.spinIntakeCommand(RobotConstants.INTAKE_IntakeSpeed)),
+				new SequentialCommandGroup(
+						shooter.setPivotAngleCommand(RobotConstants.INTAKE_ShooterPivotAngle),
+						shooter.waitForPivotAngleCommand(),
+						intake.setPivotAngleCommand(RobotConstants.INTAKE_IntakePivotAngle),
+						intake.waitForPivotAngleCommand()),
+				new WaitUntilCommand(() -> shooter.getLimitSwitch()),
+				new StoredCommand(shooter, intake));
+		StructureStates.setCurrentState(StructureStates.structureState.intake);
+	}
 }
