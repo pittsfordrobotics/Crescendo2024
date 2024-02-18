@@ -20,10 +20,10 @@ public class AmpCommand extends SequentialCommandGroup {
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
     addCommands(
-        new ParallelCommandGroup(intake.setIntakeRpmRAW(RobotConstants.AMP_IntakeSpeed),
-            shooter.setshooterRPM(RobotConstants.AMP_ShooterRPM)),
+        new ParallelCommandGroup(intake.spinIntakeCommand(RobotConstants.AMP_IntakeSpeed),
+            shooter.setShooterRPMCommand(RobotConstants.AMP_ShooterRPM)),
         new SequentialCommandGroup(shooter.setShooterPivotangle(RobotConstants.AMP_ShooterPivotAngle),
-            intake.setIntakePivotAngle(RobotConstants.AMP_IntakePivotAngle)));
+            intake.setPivotAngleCommand(RobotConstants.AMP_IntakePivotAngle)));
     StructureStates.setCurrentState(StructureStates.structureState.amp);
   }
 }

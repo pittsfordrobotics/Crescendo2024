@@ -100,11 +100,11 @@ public class RobotContainer {
     m_driverController.start().onTrue(new InstantCommand(() -> {swerveSubsystem.zeroGyro();System.out.println("Resetting gyro");}));
 
     // // states
-    StoredCommand storedCommand = new StoredCommand(SHOOTER, INTAKE);
-    IntakeCommand intakeCommand = new IntakeCommand(SHOOTER, INTAKE);
-    AmpCommand ampCommand = new AmpCommand(SHOOTER, INTAKE);
-    SUBWOOFCommand subwoofCommand = new SUBWOOFCommand(SHOOTER, INTAKE);
-    PODIUMCommand podiumCommand = new PODIUMCommand(SHOOTER, INTAKE);
+    StoredCommand storedCommand = new StoredCommand(shooter, intake);
+    IntakeCommand intakeCommand = new IntakeCommand(shooter, intake);
+    AmpCommand ampCommand = new AmpCommand(shooter, intake);
+    SUBWOOFCommand subwoofCommand = new SUBWOOFCommand(shooter, intake);
+    PODIUMCommand podiumCommand = new PODIUMCommand(shooter, intake);
 
     m_operatorController.a().onTrue(ampCommand); // Untested
     m_operatorController.b().onTrue(subwoofCommand); // Untested
@@ -118,8 +118,8 @@ public class RobotContainer {
     m_driverController.y().onTrue(storedCommand); // Untested
 
     // Runs the indexer while the right bumper is held -- essentally a shoot command
-    m_driverController.rightBumper().onTrue(SHOOTER.setIndexer(RobotConstants.INDEXER_SHOOT_SPEED))
-        .onFalse(SHOOTER.setIndexer(RobotConstants.INDEXER_IDLE_SPEED));
+    m_driverController.rightBumper().onTrue(shooter.spinIndexerCommand(RobotConstants.INDEXER_SHOOT_SPEED))
+        .onFalse(shooter.spinIndexerCommand(RobotConstants.INDEXER_IDLE_SPEED));
 
     // Climber toggle on rightbumper
     m_operatorController.rightBumper().onTrue(climber.extendCommand());
@@ -148,27 +148,27 @@ public class RobotContainer {
     SmartDashboard.putNumber("IntakePivotAngle_CHANGEME", 180);
 
     // LEFT BUMPER & TRIGGER -> shooter pivot -- Works (tune pids and FF tho)
-    m_operatorController.leftBumper().onTrue(SHOOTER.setShooterPivotangle(53));
-    m_operatorController.leftBumper().onFalse(SHOOTER.setShooterPivotangle(0.0));
-    m_operatorController.leftTrigger().whileTrue(SHOOTER.setShooterPivotangleSupplier());
+    m_operatorController.leftBumper().onTrue(shooter.setShooterPivotangle(53));
+    m_operatorController.leftBumper().onFalse(shooter.setShooterPivotangle(0.0));
+    m_operatorController.leftTrigger().whileTrue(shooter.setShooterPivotangleSupplier());
 
     // RIGHT BUMPER & TRIGGER -> intake pivot -- Works (tune pids and FF tho)
-    m_operatorController.rightBumper().onFalse(INTAKE.setIntakePivotAngle(0));
-    m_operatorController.rightBumper().onTrue(INTAKE.setIntakePivotAngle(180));
-    m_operatorController.rightTrigger().whileTrue(INTAKE.setIntakePivotAngleSupplier());
+    m_operatorController.rightBumper().onFalse(intake.setPivotAngleCommand(180));
+    m_operatorController.rightBumper().onTrue(intake.setPivotAngleCommand(0));
+    m_operatorController.rightTrigger().whileTrue(intake.setPivotAngleSupplierCommand());
 
     // A -> Shooter RPM (X for supplier) -- Works
-    m_operatorController.a().onTrue(SHOOTER.setshooterRPM(5400));
-    m_operatorController.a().onFalse(SHOOTER.setshooterRPM(-1500));
-    m_operatorController.x().whileTrue(SHOOTER.setshooterRPMSupplier());
+    m_operatorController.a().onTrue(shooter.setShooterRPMCommand(5400));
+    m_operatorController.a().onFalse(shooter.setShooterRPMCommand(-1500));
+    m_operatorController.x().whileTrue(shooter.setshooterRPMSupplierCommand());
 
     // B -> Intake RAW command -- Untested
-    m_operatorController.b().onTrue(INTAKE.setIntakeRpmRAW(-0.75));
-    m_operatorController.b().onFalse(INTAKE.setIntakeRpmRAW(0));
+    m_operatorController.b().onTrue(intake.spinIntakeCommand(-0.75));
+    m_operatorController.b().onFalse(intake.spinIntakeCommand(0));
 
     // Y -> Indexer test -- Works
-    m_operatorController.y().onTrue(SHOOTER.setIndexer(0.5));
-    m_operatorController.y().onFalse(SHOOTER.setIndexer(-0.1));
+    m_operatorController.y().onTrue(shooter.spinIndexerCommand(0.5));
+    m_operatorController.y().onFalse(shooter.spinIndexerCommand(-0.1));
   }
 
   // Use this to pass the autonomous command to the main {@link Robot} class.

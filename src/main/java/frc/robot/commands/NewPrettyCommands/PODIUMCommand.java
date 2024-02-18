@@ -20,10 +20,10 @@ public class PODIUMCommand extends SequentialCommandGroup {
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
     addCommands(
-        new ParallelCommandGroup(intake.setIntakeRpmRAW(RobotConstants.PODIUM_IntakeSpeed),
-            shooter.setshooterRPM(RobotConstants.PODIUM_ShooterRPM)));
+        new ParallelCommandGroup(intake.spinIntakeCommand(RobotConstants.PODIUM_IntakeSpeed),
+            shooter.setShooterRPMCommand(RobotConstants.PODIUM_ShooterRPM)));
         new SequentialCommandGroup(shooter.setShooterPivotangle(RobotConstants.PODIUM_ShooterPivotAngle),
-            intake.setIntakePivotAngle(RobotConstants.PODIUM_IntakePivotAngle));
+            intake.setPivotAngleCommand(RobotConstants.PODIUM_IntakePivotAngle));
     StructureStates.setCurrentState(StructureStates.structureState.podium);
   }
 }

@@ -37,23 +37,23 @@ public class Intake extends SubsystemBase {
   public Intake() {
 
     // Intake Pivot Motor R (Leader)
-    intakePivotMotorR = new CANSparkMax(IntakeConstants.CAN_INTAKE_PIVOT_R, MotorType.kBrushless);
-    intakePivotMotorR.restoreFactoryDefaults();
-    intakePivotMotorR.setSmartCurrentLimit(40);
-    intakePivotMotorR.setInverted(true);
-    intakePivotABSEncoderR = intakePivotMotorR.getAbsoluteEncoder(Type.kDutyCycle);
-    intakePivotABSEncoderR.setPositionConversionFactor(360);
-    intakePivotABSEncoderR.setInverted(true);
+    pivotMotorR = new CANSparkMax(IntakeConstants.CAN_INTAKE_PIVOT_R, MotorType.kBrushless);
+    pivotMotorR.restoreFactoryDefaults();
+    pivotMotorR.setSmartCurrentLimit(40);
+    pivotMotorR.setInverted(true);
+    pivotRABSEncoder = pivotMotorR.getAbsoluteEncoder(Type.kDutyCycle);
+    pivotRABSEncoder.setPositionConversionFactor(360);
+    pivotRABSEncoder.setInverted(true);
     // Intake Pivot Pid (in the right motor controller)
-    intakepivotPIDR = intakePivotMotorR.getPIDController();
-    intakepivotPIDR.setFeedbackDevice(intakePivotABSEncoderR);
-    intakepivotPIDR.setP(IntakeConstants.INTAKE_Pivot_P);
-    intakepivotPIDR.setI(IntakeConstants.INTAKE_Pivot_I);
-    intakepivotPIDR.setD(IntakeConstants.INTAKE_Pivot_D);
-    intakepivotPIDR.setPositionPIDWrappingEnabled(true);
-    intakepivotPIDR.setPositionPIDWrappingMaxInput(360);
-    intakepivotPIDR.setPositionPIDWrappingMinInput(0);
-    intakepivotPIDR.setOutputRange(-0.8, .8);
+    pivotRPID = pivotMotorR.getPIDController();
+    pivotRPID.setFeedbackDevice(pivotRABSEncoder);
+    pivotRPID.setP(IntakeConstants.INTAKE_Pivot_P);
+    pivotRPID.setI(IntakeConstants.INTAKE_Pivot_I);
+    pivotRPID.setD(IntakeConstants.INTAKE_Pivot_D);
+    pivotRPID.setPositionPIDWrappingEnabled(true);
+    pivotRPID.setPositionPIDWrappingMaxInput(360);
+    pivotRPID.setPositionPIDWrappingMinInput(0);
+    pivotRPID.setOutputRange(-0.8, .8);
 
     pivotMotorR.burnFlash();
     try {
@@ -156,9 +156,9 @@ public class Intake extends SubsystemBase {
   // **set in degrees**
   public Command setPivotAngleCommand(double setpoint_deg) {
     double setpoint_deg_clamped = MathUtil.clamp(setpoint_deg,0,170);
-    Command cmd = new RunCommand(() -> intakepivotPIDR.setReference(
+    Command cmd = new RunCommand(() -> pivotRPID.setReference(
       setpoint_deg_clamped, ControlType.kPosition, 0, FFCalculator.getInstance().calculateIntakeFF()), this)
-      .until(() -> Math.abs(intakePivotABSEncoderR.getPosition() - setpoint_deg_clamped) < 2.5); // the until may break some stuff
+      .until(() -> Math.abs(pivotRABSEncoder.getPosition() - setpoint_deg_clamped) < 2.5); // the until may break some stuff
     return cmd;
   }
 
@@ -168,6 +168,6 @@ public class Intake extends SubsystemBase {
 //  }
   
   // Sets the intake pivot angle to a certain angle using a supplier
-  public Command setIntakePivotAngleSupplier() {
-    return this.runOnce(() -> intakepivotPIDR.setReference(SmartDashboard.getNumber("IntakePivotAngle_CHANGEME", 170), ControlType.kPosition, 0, FFCalculator.getInstance().calculateIntakeFF()));
+  public Command setPivotAngleSupplierCommand() {
+    return this.runOnce(() -> pivotRPID.setReference(SmartDashboard.getNumber("IntakePivotAngle_CHANGEME", 170), ControlType.kPosition, 0, FFCalculator.getInstance().calculateIntakeFF()));
   }}

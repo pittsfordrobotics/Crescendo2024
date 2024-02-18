@@ -221,9 +221,9 @@ public class Shooter extends SubsystemBase {
   // Drives the pivot to a given angle in degrees
   public Command setShooterPivotangle(double setpoint_deg) {
     double setpoint_deg_clamped = MathUtil.clamp(setpoint_deg, 0, 90);
-    Command cmd = Commands.run(() -> shooterpivotRPID.setReference(setpoint_deg_clamped, ControlType.kPosition, 0,
+    Command cmd = Commands.run(() -> pivotRPID.setReference(setpoint_deg_clamped, ControlType.kPosition, 0,
         FFCalculator.getInstance().calculateShooterFF()), this)
-        .until(() -> Math.abs(shooterpivot_R_ABSEncoder.getPosition() - setpoint_deg_clamped) < 2.5); // the until possibly breaks stuff
+        .until(() -> Math.abs(pivotRABSEncoder.getPosition() - setpoint_deg_clamped) < 2.5); // the until possibly breaks stuff
     return cmd;
   }
 
@@ -254,11 +254,11 @@ public class Shooter extends SubsystemBase {
 //  }
 
   // Drives both shooters to a common RPM setpoint using a supplier
-  public Command setshooterRPMSupplier() {
+  public Command setshooterRPMSupplierCommand() {
     return this.runOnce(() -> {
       // // onboard pid
-      RPMShooterLPid.setReference(SmartDashboard.getNumber("ShooterRPM_CHANGEME", 0), ControlType.kVelocity);
-      RPMShooterRPid.setReference(SmartDashboard.getNumber("ShooterRPM_CHANGEME", 0), ControlType.kVelocity);
+      shooterLPID.setReference(SmartDashboard.getNumber("ShooterRPM_CHANGEME", 0), ControlType.kVelocity);
+      shooterRPID.setReference(SmartDashboard.getNumber("ShooterRPM_CHANGEME", 0), ControlType.kVelocity);
 
       // // commands raw
       // shooterMotorR.set(setpoint.getAsDouble());
@@ -268,7 +268,7 @@ public class Shooter extends SubsystemBase {
 
   // Drives the pivot to a angle using a double suplier (same as above just using a supplier)
   public Command setShooterPivotangleSupplier() {
-    return this.runOnce(() -> shooterpivotRPID.setReference(SmartDashboard.getNumber("ShooterPivotAngle_CHANGEME", 20), ControlType.kPosition, 0,
+    return this.runOnce(() -> pivotRPID.setReference(SmartDashboard.getNumber("ShooterPivotAngle_CHANGEME", 20), ControlType.kPosition, 0,
         FFCalculator.getInstance().calculateShooterFF()));
   }
 }
