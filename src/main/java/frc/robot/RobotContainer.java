@@ -198,32 +198,32 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public void autoConfig() {
-    ChoreoTrajectory onepiecept1traj = Choreo.getTrajectory("onepiecemiddle.1");
-    ChoreoTrajectory onepiecept2traj = Choreo.getTrajectory("onepiecemiddle.2");
-    ChoreoTrajectory onepiecept3traj = Choreo.getTrajectory("onepiecemiddle.3");
-    ChoreoTrajectory onepiecept4traj = Choreo.getTrajectory("onepiecemiddle.4");
+    ChoreoTrajectory twonotemiddletraj1 = Choreo.getTrajectory("twonotemiddle.1");
+    ChoreoTrajectory twonotemiddletraj2 = Choreo.getTrajectory("twonotemiddle.2");
+    ChoreoTrajectory twonotemiddletraj3 = Choreo.getTrajectory("twonotemiddle.3");
+    ChoreoTrajectory twonotemiddletraj4 = Choreo.getTrajectory("twonotemiddle.4");
     AutoSpeakerCommand shootSubwooferCommand = new AutoSpeakerCommand(SHOOTER, INTAKE);
     AutoSpeakerCommand shootPodiumCommand = new AutoSpeakerCommand(SHOOTER, INTAKE);
     // Intake command here after fixed
     Command onepiecemiddle = new SequentialCommandGroup(
       Commands.runOnce(() -> {
         if(DriverStation.getAlliance().get() == Alliance.Blue) {
-          swerveSubsystem.resetOdometry(onepiecept2traj.getInitialPose());
+          swerveSubsystem.resetOdometry(twonotemiddletraj1.getInitialPose());
         } else {
-          swerveSubsystem.resetOdometry(onepiecept2traj.flipped().getInitialPose());
+          swerveSubsystem.resetOdometry(twonotemiddletraj1.flipped().getInitialPose());
         }
       }),
       // shoot (robot is right against speaker)
       shootSubwooferCommand,
-      autoCommandFactory.generateChoreoCommand(onepiecept1traj),
+      autoCommandFactory.generateChoreoCommand(twonotemiddletraj1),
       new ParallelCommandGroup(
-        autoCommandFactory.generateChoreoCommand(onepiecept2traj)
+        autoCommandFactory.generateChoreoCommand(twonotemiddletraj2)
         // intake, end when note collected
         ),
-      autoCommandFactory.generateChoreoCommand(onepiecept3traj),
+      autoCommandFactory.generateChoreoCommand(twonotemiddletraj3),
       // shoot (robot is not against speaker)
       shootPodiumCommand,
-      autoCommandFactory.generateChoreoCommand(onepiecept4traj) // drive out of starting area fully
+      autoCommandFactory.generateChoreoCommand(twonotemiddletraj4) // drive out of starting area fully
     );
 
     autoChooser.setDefaultOption("One Piece Middle", onepiecemiddle);
