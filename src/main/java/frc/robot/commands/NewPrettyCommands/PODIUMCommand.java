@@ -16,14 +16,14 @@ import frc.robot.subsystems.Shooter;
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
 public class PODIUMCommand extends SequentialCommandGroup {
   /** Creates a new SpeakerCommand. */
-  public PODIUMCommand(Shooter shooter, Intake intake) {
+    public PODIUMCommand(Shooter shooter, Intake intake) {
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
-    addCommands(
-        new ParallelCommandGroup(intake.spinIntakeCommand(RobotConstants.PODIUM_IntakeSpeed),
-            shooter.setShooterRPMCommand(RobotConstants.PODIUM_ShooterRPM)));
-        new SequentialCommandGroup(shooter.setShooterPivotangle(RobotConstants.PODIUM_ShooterPivotAngle),
-            intake.setPivotAngleCommand(RobotConstants.PODIUM_IntakePivotAngle));
-    StructureStates.setCurrentState(StructureStates.structureState.podium);
+        addCommands(
+            new ParallelCommandGroup(intake.spinIntakeCommand(RobotConstants.PODIUM_IntakeSpeed),
+                shooter.setShooterRPMCommand(RobotConstants.PODIUM_ShooterRPM)),
+            new SequentialCommandGroup(shooter.setShooterPivotangle(RobotConstants.PODIUM_ShooterPivotAngle),
+                intake.setPivotAngleCommand(RobotConstants.PODIUM_IntakePivotAngle)));
+        StructureStates.setCurrentState(StructureStates.structureState.podium);
   }
 }
