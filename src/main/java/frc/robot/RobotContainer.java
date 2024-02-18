@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.DisabledInstantCommand;
+import frc.robot.commands.AutoActionCommands.AutoSpeakerCommand;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -20,6 +21,7 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.Constants.RobotConstants;
+import frc.robot.Constants.FieldConstants.Speaker;
 import frc.robot.commands.NewPrettyCommands.AmpCommand;
 import frc.robot.commands.NewPrettyCommands.IntakeCommand;
 import frc.robot.commands.NewPrettyCommands.SpeakerCommand;
@@ -200,6 +202,9 @@ public class RobotContainer {
     ChoreoTrajectory onepiecept2traj = Choreo.getTrajectory("onepiecemiddle.2");
     ChoreoTrajectory onepiecept3traj = Choreo.getTrajectory("onepiecemiddle.3");
     ChoreoTrajectory onepiecept4traj = Choreo.getTrajectory("onepiecemiddle.4");
+    AutoSpeakerCommand shootSubwooferCommand = new AutoSpeakerCommand(SHOOTER, INTAKE);
+    AutoSpeakerCommand shootPodiumCommand = new AutoSpeakerCommand(SHOOTER, INTAKE);
+    // Intake command here after fixed
     Command onepiecemiddle = new SequentialCommandGroup(
       Commands.runOnce(() -> {
         if(DriverStation.getAlliance().get() == Alliance.Blue) {
@@ -209,6 +214,7 @@ public class RobotContainer {
         }
       }),
       // shoot (robot is right against speaker)
+      shootSubwooferCommand,
       autoCommandFactory.generateChoreoCommand(onepiecept1traj),
       new ParallelCommandGroup(
         autoCommandFactory.generateChoreoCommand(onepiecept2traj)
@@ -216,6 +222,7 @@ public class RobotContainer {
         ),
       autoCommandFactory.generateChoreoCommand(onepiecept3traj),
       // shoot (robot is not against speaker)
+      shootPodiumCommand,
       autoCommandFactory.generateChoreoCommand(onepiecept4traj) // drive out of starting area fully
     );
 
