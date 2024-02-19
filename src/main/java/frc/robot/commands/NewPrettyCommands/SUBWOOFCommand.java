@@ -14,16 +14,19 @@ import frc.robot.subsystems.Shooter;
 // NOTE:  Consider using this command inline, rather than writing a subclass.  For more
 // information, see:
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
-public class StoredCommand extends SequentialCommandGroup {
-  /** Creates a new StoredCommand. */
-  public StoredCommand(Shooter shooter, Intake intake) {
+public class SUBWOOFCommand extends SequentialCommandGroup {
+  /** Creates a new SpeakerCommand. */
+  public SUBWOOFCommand(Shooter shooter, Intake intake) {
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
     addCommands(
-        new ParallelCommandGroup(intake.spinIntakeCommand(RobotConstants.STORED_IntakeSpeed),
-            shooter.setShooterRPMCommand(RobotConstants.STORED_ShooterRPM)),
-        new SequentialCommandGroup(shooter.setPivotAngleCommand(RobotConstants.STORED_ShooterPivotAngle),
-            intake.setPivotAngleCommand(RobotConstants.STORED_IntakePivotAngle)));
-    StructureStates.setCurrentState(StructureStates.structureState.stored);
+        new ParallelCommandGroup(intake.spinIntakeCommand(RobotConstants.SUBWOOF_IntakeSpeed),
+            shooter.setShooterRPMCommand(RobotConstants.SUBWOOF_ShooterRPM)),
+        new SequentialCommandGroup(
+            shooter.setPivotAngleCommand(RobotConstants.SUBWOOF_ShooterPivotAngle),
+            shooter.waitForPivotAngleCommand(),
+            intake.setPivotAngleCommand(RobotConstants.SUBWOOF_IntakePivotAngle),
+            intake.waitForPivotAngleCommand()));
+    StructureStates.setCurrentState(StructureStates.structureState.subwoof);
   }
 }
