@@ -28,7 +28,6 @@ import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.subsystems.Vision.Vision;
 import frc.robot.subsystems.Vision.VisionIO;
-import frc.robot.commands.DriveToPoint_Test;
 import frc.robot.lib.VisionData;
 
 import java.io.File;
@@ -40,6 +39,7 @@ public class RobotContainer {
   private final Climber climber;
   private final Shooter shooter;
   private final Intake intake;
+  private final Vision vision;
 
   private final CommandXboxController m_driverController = new CommandXboxController(
       OperatorConstants.kDriverControllerPort);
@@ -52,6 +52,8 @@ public class RobotContainer {
     shooter = new Shooter();
     intake = new Intake();
     swerveSubsystem = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve/maxSwerve"));
+    vision = new Vision(VisionConstants.LIMELIGHT1,  VisionConstants.LIMELIGHT2, swerveSubsystem::addVisionData);
+
     FFCalculator c = FFCalculator.getInstance();
     c.updateIntakePivotAngle(intake::getPivotAngleDeg);
     c.updateShooterAngle(shooter::getPivotAngleDeg);

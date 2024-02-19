@@ -39,16 +39,15 @@ public class Vision extends SubsystemBase {
     private final VisionIO[] io;
     private final Map<Integer, Double> lastTagDetectionTimes = new HashMap<>();
 
-    public Vision(VisionIO ioLimelight1, Consumer<VisionData> visionDataConsumer) {
+    public Vision(VisionIO ioLimelight1, VisionIO ioLimelight2, Consumer<VisionData> visionDataConsumer) {
         this.visionDataConsumer = visionDataConsumer;
-        io = new VisionIO[] { ioLimelight1 };
+        io = new VisionIO[] { ioLimelight1, ioLimelight2 };
         FieldConstants.aprilTags.getTags().forEach((AprilTag tag) -> lastTagDetectionTimes.put(tag.ID, 0.0));
     }
     private final VisionIO.VisionIOInputs[] inputs = new VisionIO.VisionIOInputs[] { new VisionIO.VisionIOInputs() };
-    private final String[] camNames = new String[] { VisionConstants.LIMELIGHT1_NAME };
+    private final String[] camNames = new String[] { VisionConstants.LIMELIGHT1_NAME, VisionConstants.LIMELIGHT2_NAME };
     
     private Pipelines pipeline = Pipelines.Test; // default pipeline
-
 
     @Override
     public void periodic() {
@@ -80,7 +79,7 @@ public class Vision extends SubsystemBase {
                 );
                 Pose2d visionCalcPose = robotPose3d.toPose2d();
                 
-                Shuffleboard.getTab("Vision").add("Vision Not exited?", true);
+                Shuffleboard.getTab("Vision").add("Vision Not exited?", false);
                 Shuffleboard.getTab("Vision").add("Vision/Pose" + i + "/X", visionCalcPose.getX());
                 Shuffleboard.getTab("Vision").add("Vision/Pose" + i + "/Y", visionCalcPose.getY());
                 Shuffleboard.getTab("Vision").add("Vision/Pose" + i + "/Theta", visionCalcPose.getRotation().getDegrees());
