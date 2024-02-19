@@ -228,9 +228,9 @@ public class SwerveSubsystem extends SubsystemBase {
       double[] deadbandRotationInputs = AllDeadbands.applyCircularDeadband(new double[]{headingX.getAsDouble(), headingY.getAsDouble()}, 0.95);
       double rawXInput = translationX.getAsDouble();
       double rawYInput = translationY.getAsDouble();
-      double[] scaledDeadbandTranslationInputs = AllDeadbands.applyScalingCircularDeadband(new double[]{rawXInput, rawYInput}, 0.1);
-      double xInput = Math.pow(scaledDeadbandTranslationInputs[0], 3); // Smooth control out with scaled deadband
-      double yInput = Math.pow(scaledDeadbandTranslationInputs[1], 3); // Smooth control out with scaled deadband
+      double[] scaledDeadbandTranslationInputs = AllDeadbands.applyScaledSquaredCircularDeadband(new double[]{rawXInput, rawYInput}, 0.1);
+      double xInput = scaledDeadbandTranslationInputs[0];
+      double yInput = scaledDeadbandTranslationInputs[1];
       // Make the robot move
       driveFieldOriented(swerveDrive.swerveController.getTargetSpeeds(xInput * speedFactor, yInput * speedFactor,
               deadbandRotationInputs[0],
@@ -259,9 +259,9 @@ public class SwerveSubsystem extends SubsystemBase {
       double rightRotationInput = MathUtil.applyDeadband(rightRotationRate.getAsDouble(), 0.05);
       double rawXInput = translationX.getAsDouble();
       double rawYInput = translationY.getAsDouble();
-      double[] scaledDeadbandTranslationInputs = AllDeadbands.applyScalingCircularDeadband(new double[]{rawXInput, rawYInput}, 0.1);
-      double xInput = Math.pow(scaledDeadbandTranslationInputs[0], 3); // Smooth control out with scaled deadband
-      double yInput = Math.pow(scaledDeadbandTranslationInputs[1], 3); // Smooth control out with scaled deadband
+      double[] scaledDeadbandTranslationInputs = AllDeadbands.applyScaledSquaredCircularDeadband(new double[]{rawXInput, rawYInput}, 0.1);
+      double xInput = scaledDeadbandTranslationInputs[0];
+      double yInput = scaledDeadbandTranslationInputs[1];
       // determining if target angle is commanded
       if (deadbandRotationInputs[0] != 0 || deadbandRotationInputs[1] != 0) {
         currentTargetAngle = Rotation2d.fromRadians(Math.atan2(deadbandRotationInputs[1], deadbandRotationInputs[0]));
@@ -318,10 +318,10 @@ public class SwerveSubsystem extends SubsystemBase {
     return run(() -> {
       double rawXInput = translationX.getAsDouble();
       double rawYInput = translationY.getAsDouble();
-      double[] scaledDeadbandTranslationInputs = AllDeadbands.applyScalingCircularDeadband(new double[]{rawXInput, rawYInput}, 0.1);
-      double xInput = Math.pow(scaledDeadbandTranslationInputs[0], 3); // Smooth control out with scaled deadband
-      double yInput = Math.pow(scaledDeadbandTranslationInputs[1], 3); // Smooth control out with scaled deadband
-      double rotationRate = MathUtil.applyDeadband(angularRotationX.getAsDouble(), 0.1);
+      double[] scaledDeadbandTranslationInputs = AllDeadbands.applyScaledSquaredCircularDeadband(new double[]{rawXInput, rawYInput}, 0.1);
+      double xInput = scaledDeadbandTranslationInputs[0];
+      double yInput = scaledDeadbandTranslationInputs[1];
+      double rotationRate = Math.pow(MathUtil.applyDeadband(angularRotationX.getAsDouble(), 0.1), 3);
       swerveDrive.setHeadingCorrection(false);
       // Make the robot move
       swerveDrive.drive(new Translation2d(xInput * swerveDrive.getMaximumVelocity() * speedFactor,
