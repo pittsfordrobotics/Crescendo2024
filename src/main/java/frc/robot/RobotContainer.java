@@ -48,7 +48,7 @@ public class RobotContainer {
     intake = new Intake();
     swerveSubsystem = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve/maxSwerve"));
     FFCalculator c = FFCalculator.getInstance();
-    // c.updateIntakePivotAngle(intake::getIntakePivotAngle_deg);
+    c.updateIntakePivotAngle(intake::getPivotAngleDeg);
     c.updateShooterAngle(shooter::getPivotAngleDeg);
     driveModeChooser = new SendableChooser<>();
     Command enhancedHeadingSteeringCommand = swerveSubsystem.enhancedHeadingDriveCommand(
