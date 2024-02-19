@@ -26,10 +26,10 @@ public class RobotConstants {
     public static final double STORED_IntakeSpeed = 0;
 
     // Amp "state"
-    public static final double AMP_ShooterPivotAngle = 60;
+    public static final double AMP_ShooterPivotAngle = 48;
     public static final double AMP_IntakePivotAngle = 0;
     public static final double AMP_ShooterRPM = 2000;
-    public static final double AMP_IntakeSpeed = 1;
+    public static final double AMP_IntakeSpeed = .6;
 
     // Speaker_SUBWOOF "state"
     public static final double SUBWOOF_ShooterPivotAngle = 53;
