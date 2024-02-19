@@ -9,5 +9,5 @@ Inside are subsystems for:
 * the shooter (there are still some unresolved issues with SPARK Flexes and Vortices);
 * the end effectors (current code is deprecated).
 
-Currently there are several in-development features in branches; these are to be merged soon. There is also some 
-outdated code in the master branch; these are to be removed once said merging occurs.
+Currently, there are several in-development features in branches; these are to be merged soon. There is also some 
+outdated code in the master branch; these are to be removed once said merging occurs. 
