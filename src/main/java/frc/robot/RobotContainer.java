@@ -78,8 +78,8 @@ public class RobotContainer {
     zeroOffsetCommand.setName("Zero Offsets");
     Shuffleboard.getTab("CONFIG").add("Zero Swerve Module Offsets", zeroOffsetCommand);
     // Configure the trigger bindings
-    // configure_COMP_Bindings();
-    configure_TEST_Bindings();
+    configure_COMP_Bindings();
+    // configure_TEST_Bindings();
   }
 
   private void configure_COMP_Bindings() {
