@@ -37,7 +37,7 @@ public class Intake extends SubsystemBase {
   /** Creates a new Intake. */
   public Intake() {
     pivotAngleSetpointDeg = RobotConstants.STORED_IntakePivotAngle;
-    // Intake Pivot Motor R (Leader)
+        // Intake Pivot Motor R (Leader)
     pivotMotorR = new CANSparkMax(IntakeConstants.CAN_INTAKE_PIVOT_R, MotorType.kBrushless);
     pivotMotorR.restoreFactoryDefaults();
     pivotMotorR.setSmartCurrentLimit(40);

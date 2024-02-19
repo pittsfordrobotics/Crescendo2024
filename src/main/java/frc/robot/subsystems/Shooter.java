@@ -51,7 +51,7 @@ public class Shooter extends SubsystemBase {
     shooterMotorL = new CANSparkFlex(ShooterConstants.CAN_SHOOTER_L, MotorType.kBrushless);
     shooterMotorL.restoreFactoryDefaults();
     shooterMotorL.setIdleMode(IdleMode.kCoast);
-    shooterMotorL.setSmartCurrentLimit(40);
+    shooterMotorL.setSmartCurrentLimit(45);
     // Shooter left pid
     shooterRPID = shooterMotorL.getPIDController();
     shooterRPID.setFeedbackDevice(shooterMotorL.getEncoder());
@@ -61,16 +61,12 @@ public class Shooter extends SubsystemBase {
     shooterRPID.setFF(ShooterConstants.SHOOTER_L_FFGain);
 
     shooterMotorL.burnFlash();
-    try {
-      Thread.sleep(200);
-    } catch (InterruptedException e) {
-    }
 
     // Shooter Motor R
     shooterMotorR = new CANSparkFlex(ShooterConstants.CAN_SHOOTER_R, MotorType.kBrushless);
     shooterMotorR.restoreFactoryDefaults();
     shooterMotorR.setIdleMode(IdleMode.kCoast);
-    shooterMotorR.setSmartCurrentLimit(40);
+    shooterMotorR.setSmartCurrentLimit(45);
     shooterMotorR.setInverted(true);
     // Shooter right pid
     shooterLPID = shooterMotorR.getPIDController();
@@ -81,10 +77,6 @@ public class Shooter extends SubsystemBase {
     shooterLPID.setFF(ShooterConstants.SHOOTER_R_FFGain);
 
     shooterMotorR.burnFlash();
-    try {
-      Thread.sleep(200);
-    } catch (InterruptedException e) {
-    }
 
     // // INDEXER // //
     // Index Motor R (Leader)
@@ -212,6 +204,9 @@ public class Shooter extends SubsystemBase {
       // shooterMotorR.set(setpoint);
       // shooterMotorL.set(setpoint);
     });
+  }
+  public Command spinShooterCommand(double output) {
+    return this.run(() -> {shooterMotorL.set(output);shooterMotorR.set(output);});
   }
   public Command waitForShooterRPMCommand() {
     Command cmd = new WaitUntilCommand(() -> Math.abs(getShooterLRPM() - shooterRPMSetpoint) < 50 &&
