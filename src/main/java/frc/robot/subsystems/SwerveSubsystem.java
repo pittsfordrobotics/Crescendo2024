@@ -681,9 +681,10 @@ public class SwerveSubsystem extends SubsystemBase {
   // Vision Stuff
 
   // Takes a point and returns the desired heading for the swerve to be pointing at the given point using the curent pose
-  private double getAngletoPointCommand(Pose2d targetPoint) {      
+  private double getAngletoPoint(Pose2d targetPoint) {      
     Pose2d currentPose = this.getPose();
     double desired_heading_deg = Math.toDegrees(Math.atan2(targetPoint.getY() - currentPose.getY(), targetPoint.getX() - currentPose.getX()));
     return desired_heading_deg;
   }
+
 }
