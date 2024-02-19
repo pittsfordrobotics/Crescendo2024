@@ -36,5 +36,5 @@ public final class ShooterConstants {
     public static final double L1_SpivtoWpivperp = 14.625 * 0.0254;
     public static final double L1CM1_SpivtoCM1 = 10 * 0.0254;
     public static final double M1_Total_Mass_of_Shooter = 30 * 0.453592;
-    public static final double SHOOTER_Pivot_FF_Multiplier = 1;
+    public static final double SHOOTER_Pivot_FF_Multiplier = 0.83;
 }

@@ -29,7 +29,11 @@ public class FFCalculator {
 
     private FFCalculator() {
         Shuffleboard.getTab("FFcalc").addDouble("ShoulderFF", this::calculateShooterFF);
-        Shuffleboard.getTab("FFcalc").addDouble("IntakeFF", this::calculateIntakeFF);
+        Shuffleboard.getTab("FFcalc").addDouble("IntakeFF", this::calculateIntakeFF);        
+        SmartDashboard.putNumber("Shooter FF Mult", ShooterConstants.SHOOTER_Pivot_FF_Multiplier);
+        SmartDashboard.putNumber("Intake FF Mult", IntakeConstants.INTAKE_Pivot_FF_Multiplier);
+
+
     }
 
     public void updateShooterAngle(DoubleSupplier shooterAngle) {
@@ -43,7 +47,6 @@ public class FFCalculator {
     public double calculateShooterFF() {
 
         // double ShooterMultiplier = ShooterConstants.SHOOTER_Pivot_FF_Multiplier;
-        SmartDashboard.putNumber("Shooter FF Mult", ShooterConstants.SHOOTER_Pivot_FF_Multiplier);
         double ShooterMultiplier = SmartDashboard.getNumber("Shooter FF Mult",
                 ShooterConstants.SHOOTER_Pivot_FF_Multiplier);
 
@@ -78,7 +81,6 @@ public class FFCalculator {
     public double calculateIntakeFF() {
 
         // double IntakeMultiplier = IntakeConstants.INTAKE_Pivot_FF_Multiplier;
-        SmartDashboard.putNumber("Intake FF Mult", IntakeConstants.INTAKE_Pivot_FF_Multiplier);
         double IntakeMultiplier = SmartDashboard.getNumber("Intake FF Mult",
                 IntakeConstants.INTAKE_Pivot_FF_Multiplier);
 
