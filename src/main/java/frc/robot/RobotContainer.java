@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -12,6 +14,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.Constants.RobotConstants;
 import frc.robot.Constants.VisionConstants;
@@ -27,8 +30,6 @@ import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.subsystems.Vision.Vision;
-import frc.robot.subsystems.Vision.VisionIO;
-import frc.robot.lib.VisionData;
 
 import java.io.File;
 
@@ -45,6 +46,7 @@ public class RobotContainer {
       OperatorConstants.kDriverControllerPort);
   private final CommandXboxController m_operatorController = new CommandXboxController(
       OperatorConstants.kOperatorControllerPort);
+  Command speakerTargetSteeringCommand;
 
   // The container for the robot. Contains subsystems, OI devices, and commands.
   public RobotContainer() {
@@ -76,6 +78,10 @@ public class RobotContainer {
             () -> -m_driverController.getLeftY(),
             () -> -m_driverController.getLeftX(),
             () -> -m_driverController.getRightX());
+    speakerTargetSteeringCommand = swerveSubsystem.driveTranslationAndPointAtTarget(
+            () -> -m_driverController.getLeftY(),
+            () -> -m_driverController.getLeftX(),
+            () -> FieldConstants.Speaker.centerSpeakerOpening);
     rotationRateSteeringCommand.setName("Rotation Rate Steer");
     driveModeChooser.addOption("Enhanced Steering (BETA)", enhancedHeadingSteeringCommand);
     driveModeChooser.addOption("Heading Steering", headingSteeringCommand);
@@ -93,6 +99,7 @@ public class RobotContainer {
     // Swerve
     m_driverController.start().onTrue(new DisabledInstantCommand(swerveSubsystem::zeroGyro));
     m_driverController.leftBumper().onTrue(swerveSubsystem.setSlowSpeed()).onFalse(swerveSubsystem.setNormalSpeed());
+    m_driverController.rightBumper().whileTrue(speakerTargetSteeringCommand);
     Command driveCommand = driveModeChooser.getSelected();
     swerveSubsystem.setDefaultCommand(driveCommand);
     driveModeChooser.onChange(command -> {

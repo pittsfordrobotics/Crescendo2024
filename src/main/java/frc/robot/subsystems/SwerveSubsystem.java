@@ -38,6 +38,7 @@ import frc.robot.lib.AllDeadbands;
 
 import java.io.File;
 import java.util.function.DoubleSupplier;
+import java.util.function.Supplier;
 
 import swervelib.SwerveController;
 import swervelib.SwerveDrive;
@@ -235,6 +236,23 @@ public class SwerveSubsystem extends SubsystemBase {
       driveFieldOriented(swerveDrive.swerveController.getTargetSpeeds(xInput * speedFactor, yInput * speedFactor,
               deadbandRotationInputs[0],
               deadbandRotationInputs[1],
+              swerveDrive.getYaw().getRadians(),
+              swerveDrive.getMaximumVelocity()));
+    });
+  }
+  public Command headingDriveCommand(DoubleSupplier translationX, DoubleSupplier translationY, Supplier<Rotation2d> headingAngle) {
+    return run(() -> {
+      swerveDrive.setHeadingCorrection(true);
+      double rawXInput = translationX.getAsDouble();
+      double rawYInput = translationY.getAsDouble();
+      double[] scaledDeadbandTranslationInputs = AllDeadbands.applyScaledSquaredCircularDeadband(new double[]{rawXInput, rawYInput}, 0.1);
+      double xInput = scaledDeadbandTranslationInputs[0];
+      double yInput = scaledDeadbandTranslationInputs[1];
+      // Make the robot move
+      driveFieldOriented(swerveDrive.swerveController.getTargetSpeeds(
+              xInput * speedFactor,
+              yInput * speedFactor,
+              headingAngle.get().getDegrees(),
               swerveDrive.getYaw().getRadians(),
               swerveDrive.getMaximumVelocity()));
     });
@@ -697,4 +715,30 @@ public class SwerveSubsystem extends SubsystemBase {
     });
   }
 
+  /**<h2>Vision Targeting</h2>
+   * Drives field oriented with translation X, Y, and points at the given target point
+   * @param translationX Supplier of translation in X axis
+   * @param translationY Supplier of translation in Y axis
+   * @param targetPointSupplier Supplier of target point
+   * @return A RunCommand that drives the swerve drive with given translation and rotation
+   */
+  public Command driveTranslationAndPointAtTarget(DoubleSupplier translationX, DoubleSupplier translationY, Supplier<Pose2d> targetPointSupplier){
+    return run(() -> {
+      double desiredHeadingDeg = getAngleToPoint(targetPointSupplier.get());
+      Rotation2d desired_heading = Rotation2d.fromDegrees(desiredHeadingDeg);
+      swerveDrive.setHeadingCorrection(true);
+      double rawXInput = translationX.getAsDouble();
+      double rawYInput = translationY.getAsDouble();
+      double[] scaledDeadbandTranslationInputs = AllDeadbands.applyScaledSquaredCircularDeadband(new double[]{rawXInput, rawYInput}, 0.1);
+      double xInput = scaledDeadbandTranslationInputs[0];
+      double yInput = scaledDeadbandTranslationInputs[1];
+      // Make the robot move
+      driveFieldOriented(swerveDrive.swerveController.getTargetSpeeds(
+              xInput * speedFactor,
+              yInput * speedFactor,
+              desiredHeadingDeg,
+              swerveDrive.getYaw().getRadians(),
+              swerveDrive.getMaximumVelocity()));
+    });
+  }
 }
