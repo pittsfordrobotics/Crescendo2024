@@ -13,7 +13,7 @@
         "wheelRadius": 0.050799972568014815
     },
     "paths": {
-        "onepiecemiddle": {
+        "twonotemiddle": {
             "waypoints": [
                 {
                     "x": 1.4,
@@ -702,7 +702,8 @@
                     "scope": [
                         2
                     ],
-                    "type": "StopPoint"
+                    "type": "StopPoint",
+                    "direction": 0
                 }
             ],
             "usesControlIntervalGuessing": true,

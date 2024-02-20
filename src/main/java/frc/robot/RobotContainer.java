@@ -205,7 +205,7 @@ public class RobotContainer {
     AutoSpeakerCommand shootSubwooferCommand = new AutoSpeakerCommand(SHOOTER, INTAKE);
     AutoSpeakerCommand shootPodiumCommand = new AutoSpeakerCommand(SHOOTER, INTAKE);
     // Intake command here after fixed
-    Command onepiecemiddle = new SequentialCommandGroup(
+    Command twonotemiddle = new SequentialCommandGroup(
       Commands.runOnce(() -> {
         if(DriverStation.getAlliance().get() == Alliance.Blue) {
           swerveSubsystem.resetOdometry(twonotemiddletraj1.getInitialPose());
@@ -226,7 +226,7 @@ public class RobotContainer {
       autoCommandFactory.generateChoreoCommand(twonotemiddletraj4) // drive out of starting area fully
     );
 
-    autoChooser.setDefaultOption("One Piece Middle", onepiecemiddle);
+    autoChooser.setDefaultOption("Two Note Middle", twonotemiddle);
     autoChooser.addOption("Do nothing", new InstantCommand());
     SmartDashboard.putData(autoChooser);
   }
