@@ -44,7 +44,7 @@ public class Vision extends SubsystemBase {
         io = new VisionIO[] { ioLimelight1, ioLimelight2 };
         FieldConstants.aprilTags.getTags().forEach((AprilTag tag) -> lastTagDetectionTimes.put(tag.ID, 0.0));
     }
-    private final VisionIO.VisionIOInputs[] inputs = new VisionIO.VisionIOInputs[] { new VisionIO.VisionIOInputs() };
+    private final VisionIO.VisionIOInputs[] inputs = new VisionIO.VisionIOInputs[] {new VisionIO.VisionIOInputs(), new VisionIO.VisionIOInputs()};
     private final String[] camNames = new String[] { VisionConstants.LIMELIGHT1_NAME, VisionConstants.LIMELIGHT2_NAME };
     
     private Pipelines pipeline = Pipelines.Test; // default pipeline
@@ -143,6 +143,6 @@ public class Vision extends SubsystemBase {
             }
         }
         Shuffleboard.getTab("Vision").add("Vision/NumPoses", allRobotPoses.size());
-        Shuffleboard.getTab("Vison").add("Vision/NumTags", (Double[]) allRobotPoses.toArray());
+        Shuffleboard.getTab("Vison").add("Vision/NumTags", allRobotPoses.toArray());
     }
 }
