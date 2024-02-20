@@ -14,19 +14,19 @@ import frc.robot.subsystems.Shooter;
 // NOTE:  Consider using this command inline, rather than writing a subclass.  For more
 // information, see:
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
-public class PODIUMCommand extends SequentialCommandGroup {
+public class CommonSpeakerCommand extends SequentialCommandGroup {
   /** Creates a new SpeakerCommand. */
-    public PODIUMCommand(Shooter shooter, Intake intake) {
+  public CommonSpeakerCommand(Shooter shooter, Intake intake, double ShooterAngle, double IntakeAngle, double ShooterRPM) {
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
-        addCommands(
-            new ParallelCommandGroup(intake.spinIntakeCommand(RobotConstants.PODIUM_IntakeSpeed),
-                shooter.setShooterRPMCommand(RobotConstants.PODIUM_ShooterRPM)),
-            new SequentialCommandGroup(
-                intake.setPivotAngleCommand(RobotConstants.PODIUM_IntakePivotAngle),
-                intake.waitForPivotAngleCommand()),
-                shooter.setPivotAngleCommand(RobotConstants.PODIUM_ShooterPivotAngle),
-                shooter.waitForPivotAngleCommand());
-        StructureStates.setCurrentState(StructureStates.structureState.podium);
+    addCommands(
+        new ParallelCommandGroup(intake.spinIntakeCommand(RobotConstants.SUBWOOF_IntakeSpeed),
+            shooter.setShooterRPMCommand(ShooterRPM)),
+        new SequentialCommandGroup(
+            intake.setPivotAngleCommand(IntakeAngle),
+            intake.waitForPivotAngleCommand()),
+            shooter.setPivotAngleCommand(ShooterAngle),
+            shooter.waitForPivotAngleCommand());
+    StructureStates.setCurrentState(StructureStates.structureState.commonSpeaker);
   }
 }

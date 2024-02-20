@@ -8,7 +8,7 @@ package frc.robot.lib;
 public class StructureStates {
 
 public enum structureState{
-    stored, intake, amp, subwoof, podium
+    stored, intake, amp, subwoof, podium, commonSpeaker
 }
 public static structureState currentState;
 

@@ -165,14 +165,14 @@ public class RobotContainer {
     SmartDashboard.putNumber("IntakePivotAngle_CHANGEME", 180);
 
     // LEFT BUMPER & TRIGGER -> shooter pivot -- Works (tune pids and FF tho)
-    // m_operatorController.leftBumper().onTrue(shooter.setPivotAngleCommand(53));
-    // m_operatorController.leftBumper().onFalse(shooter.setPivotAngleCommand(0.0));
-    // m_operatorController.leftTrigger().whileTrue(shooter.setPivotAngleSupplierCommand());
+    m_operatorController.leftBumper().onTrue(shooter.setPivotAngleCommand(53));
+    m_operatorController.leftBumper().onFalse(shooter.setPivotAngleCommand(0.0));
+    m_operatorController.leftTrigger().whileTrue(shooter.setPivotAngleSupplierCommand());
 
     // RIGHT BUMPER & TRIGGER -> intake pivot -- Works (tune pids and FF tho)
-    // m_operatorController.rightBumper().onFalse(intake.setPivotAngleCommand(180));
-    // m_operatorController.rightBumper().onTrue(intake.setPivotAngleCommand(0));
-    // m_operatorController.rightTrigger().whileTrue(intake.setPivotAngleSupplierCommand());
+    m_operatorController.rightBumper().onFalse(intake.setPivotAngleCommand(70));
+    m_operatorController.rightBumper().onTrue(intake.setPivotAngleCommand(0));
+    m_operatorController.rightTrigger().whileTrue(intake.setPivotAngleSupplierCommand());
 
     // A -> Shooter RPM (X for supplier) -- Works
     m_operatorController.a().onTrue(shooter.setShooterRPMCommand(5400));
