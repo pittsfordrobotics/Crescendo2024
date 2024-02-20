@@ -222,7 +222,7 @@ public class RobotContainer {
       autoCommandFactory.generateChoreoCommand(twonotemiddletraj1),
       new ParallelCommandGroup(
         autoCommandFactory.generateChoreoCommand(twonotemiddletraj2),
-        new IntakeCommand(shooter, intake),
+        new IntakeCommand(shooter, intake)
         ),
       autoCommandFactory.generateChoreoCommand(twonotemiddletraj3),
       new SUBWOOFCommand(shooter, intake),
