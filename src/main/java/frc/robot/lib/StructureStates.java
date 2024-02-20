@@ -10,7 +10,7 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 public class StructureStates {
 
 public enum structureState{
-    stored, intake, amp, subwoof, podium
+    stored, intake, amp, subwoof, podium, commonSpeaker
 }
 public static structureState currentState;
 

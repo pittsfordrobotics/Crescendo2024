@@ -14,19 +14,19 @@ import frc.robot.subsystems.Shooter;
 // NOTE:  Consider using this command inline, rather than writing a subclass.  For more
 // information, see:
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
-public class SUBWOOFCommand extends SequentialCommandGroup {
+public class CommonSpeakerCommand extends SequentialCommandGroup {
   /** Creates a new SpeakerCommand. */
-  public SUBWOOFCommand(Shooter shooter, Intake intake) {
+  public CommonSpeakerCommand(Shooter shooter, Intake intake, double ShooterAngle, double IntakeAngle, double ShooterRPM) {
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
     addCommands(
         new ParallelCommandGroup(intake.spinIntakeCommand(RobotConstants.SUBWOOF_IntakeSpeed),
-            shooter.setShooterRPMCommand(RobotConstants.SUBWOOF_ShooterRPM)),
+            shooter.setShooterRPMCommand(ShooterRPM)),
         new SequentialCommandGroup(
-            intake.setPivotAngleCommand(RobotConstants.SUBWOOF_IntakePivotAngle),
+            intake.setPivotAngleCommand(IntakeAngle),
             intake.waitForPivotAngleCommand()),
-            shooter.setPivotAngleCommand(RobotConstants.SUBWOOF_ShooterPivotAngle),
+            shooter.setPivotAngleCommand(ShooterAngle),
             shooter.waitForPivotAngleCommand());
-    StructureStates.setCurrentState(StructureStates.structureState.subwoof);
+    StructureStates.setCurrentState(StructureStates.structureState.commonSpeaker);
   }
 }
