@@ -44,6 +44,8 @@ public class RobotContainer {
 
   private final AutoCommandFactory autoCommandFactory;
 
+  // TODO: Move subsystem commands here
+
  private final SendableChooser<Command> autoChooser = new SendableChooser<>();
   private final CommandXboxController m_driverController = new CommandXboxController(
       OperatorConstants.kDriverControllerPort);
@@ -55,6 +57,7 @@ public class RobotContainer {
     climber = new Climber();
     shooter = new Shooter();
     intake = new Intake();
+
     swerveSubsystem = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve/maxSwerve"));
     FFCalculator c = FFCalculator.getInstance();
     c.updateIntakePivotAngle(intake::getPivotAngleDeg);
@@ -110,11 +113,14 @@ public class RobotContainer {
     m_driverController.start().onTrue(new InstantCommand(() -> {swerveSubsystem.zeroGyro();System.out.println("Resetting gyro");}));
 
     // // states
+    SUBWOOFCommand subwoofCommand = new SUBWOOFCommand(shooter, intake);
     StoredCommand storedCommand = new StoredCommand(shooter, intake);
     IntakeCommand intakeCommand = new IntakeCommand(shooter, intake);
     AmpCommand ampCommand = new AmpCommand(shooter, intake);
-    SUBWOOFCommand subwoofCommand = new SUBWOOFCommand(shooter, intake);
     PODIUMCommand podiumCommand = new PODIUMCommand(shooter, intake);
+
+    Command idleIndexerCommand = shooter.spinIndexerCommand(RobotConstants.INDEXER_IDLE_SPEED);
+    Command shootIndexerCommand = shooter.spinIndexerCommand(RobotConstants.INDEXER_SHOOT_SPEED);
 
     m_operatorController.a().onTrue(ampCommand); // Untested
     m_operatorController.b().onTrue(subwoofCommand); // Untested
@@ -126,10 +132,8 @@ public class RobotContainer {
     // StructureStates.structureState.intake));
     m_driverController.x().onTrue(intakeCommand); // Untested
     m_driverController.y().onTrue(storedCommand); // Untested
-
+    
     // Runs the indexer while the right bumper is held -- essentally a shoot command
-    Command idleIndexerCommand = shooter.spinIndexerCommand(RobotConstants.INDEXER_IDLE_SPEED);
-    Command shootIndexerCommand = shooter.spinIndexerCommand(RobotConstants.INDEXER_SHOOT_SPEED);
     CommandScheduler.getInstance().schedule(idleIndexerCommand); // initial command / default
     m_driverController.rightBumper().onTrue(shootIndexerCommand)
         .onFalse(idleIndexerCommand);
@@ -201,7 +205,7 @@ public class RobotContainer {
     ChoreoTrajectory twonotemiddletraj2 = Choreo.getTrajectory("twonotemiddle.2");
     ChoreoTrajectory twonotemiddletraj3 = Choreo.getTrajectory("twonotemiddle.3");
     ChoreoTrajectory twonotemiddletraj4 = Choreo.getTrajectory("twonotemiddle.4");
-    // Intake command here after fixed
+
     Command twonotemiddle = new SequentialCommandGroup(
       Commands.runOnce(() -> {
         if(DriverStation.getAlliance().get() == Alliance.Blue) {
@@ -210,16 +214,22 @@ public class RobotContainer {
           swerveSubsystem.resetOdometry(twonotemiddletraj1.flipped().getInitialPose());
         }
       }),
-      // shoot (robot is right against speaker)
-      //shootSubwooferCommand,
+      new SUBWOOFCommand(shooter, intake),
+      Commands.waitSeconds(0.5), // move to position and spin up
+      shooter.spinIndexerCommand(RobotConstants.INDEXER_SHOOT_SPEED),
+      Commands.waitSeconds(0.25),
+      shooter.spinIndexerCommand(RobotConstants.INDEXER_IDLE_SPEED),
       autoCommandFactory.generateChoreoCommand(twonotemiddletraj1),
       new ParallelCommandGroup(
-        autoCommandFactory.generateChoreoCommand(twonotemiddletraj2)
-        // intake, end when note collected
+        autoCommandFactory.generateChoreoCommand(twonotemiddletraj2),
+        new IntakeCommand(shooter, intake),
         ),
       autoCommandFactory.generateChoreoCommand(twonotemiddletraj3),
-      // shoot (robot is not against speaker)
-      //shootPodiumCommand,
+      new SUBWOOFCommand(shooter, intake),
+      Commands.waitSeconds(0.5), // move to position and spin up
+      shooter.spinIndexerCommand(RobotConstants.INDEXER_SHOOT_SPEED),
+      Commands.waitSeconds(0.25),
+      shooter.spinIndexerCommand(RobotConstants.INDEXER_IDLE_SPEED),
       autoCommandFactory.generateChoreoCommand(twonotemiddletraj4) // drive out of starting area fully
     );
 

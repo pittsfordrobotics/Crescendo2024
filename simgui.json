@@ -2,11 +2,7 @@
   "NTProvider": {
     "types": {
       "/FMSInfo": "FMSInfo",
-<<<<<<< HEAD
       "/Shuffleboard/CONFIG/SendableChooser[1]": "String Chooser",
-=======
-      "/Shuffleboard/CONFIG/SendableChooser[0]": "String Chooser",
->>>>>>> a60fae4d0d3e77683f96fb4eb9f7b4ef87e72c3e
       "/Shuffleboard/CONFIG/SwerveSubsystem": "Subsystem",
       "/Shuffleboard/CONFIG/Zero Swerve Module Offsets": "Command",
       "/Shuffleboard/Intake/Intake Pivot Brake": "Command",
@@ -16,83 +12,12 @@
       "/Shuffleboard/SHOOTER/Shooter Pivot Set Brake": "Command",
       "/Shuffleboard/SHOOTER/Shooter Pivot Set Coast": "Command",
       "/Shuffleboard/SHOOTER/Shooter Pivot Zero": "Command",
-<<<<<<< HEAD
-      "/SmartDashboard/Auto Routine": "String Chooser",
       "/SmartDashboard/Field": "Field2d",
       "/SmartDashboard/Pigeon 2 (v6) [0]": "Gyro",
-      "/SmartDashboard/SendableChooser[0]": "String Chooser",
-      "/SmartDashboard/auto routine": "String Chooser"
-=======
-      "/SmartDashboard/Field": "Field2d",
-      "/SmartDashboard/Pigeon 2 (v6) [0]": "Gyro"
->>>>>>> a60fae4d0d3e77683f96fb4eb9f7b4ef87e72c3e
-    },
-    "windows": {
-      "/SmartDashboard/Field": {
-        "bottom": 1476,
-        "height": 8.210550308227539,
-        "left": 150,
-        "right": 2961,
-        "top": 79,
-        "width": 16.541748046875,
-        "window": {
-          "visible": true
-        }
-      }
-    }
-<<<<<<< HEAD
-  },
-  "NetworkTables": {
-    "Persistent Values": {
-      "open": false
-    },
-    "retained": {
-      "SmartDashboard": {
-        "auto routine": {
-          "open": true
-        },
-        "open": true
-      }
-    },
-    "transitory": {
-      "Shuffleboard": {
-        ".metadata": {
-          "open": true
-        },
-        "open": true
-      },
-      "SmartDashboard": {
-        "Auto Routine": {
-          "open": true,
-          "string[]##v_/SmartDashboard/Auto Routine/options": {
-            "open": true
-          }
-        },
-        "SendableChooser[0]": {
-          "open": true,
-          "string[]##v_/SmartDashboard/SendableChooser[0]/options": {
-            "open": true
-          }
-        },
-        "open": true
-      }
+      "/SmartDashboard/SendableChooser[0]": "String Chooser"
     }
   },
   "NetworkTables Info": {
-    "Clients": {
-      "open": true
-    },
-    "Connections": {
-      "open": true
-    },
-    "Server": {
-      "open": true
-    },
-    "shuffleboard@1": {
-      "open": true
-    },
     "visible": true
-=======
->>>>>>> a60fae4d0d3e77683f96fb4eb9f7b4ef87e72c3e
   }
 }
