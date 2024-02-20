@@ -18,13 +18,13 @@ public class Climber extends SubsystemBase {
     private SparkPIDController climberPID;
 
     public Climber() {
-        //L Motor
+        // Initialize the left motor.
         leftMotor = new CANSparkMax(ClimberConstants.CAN_CLIMBER_L, MotorType.kBrushless);
         leftMotor.restoreFactoryDefaults();
         leftMotor.burnFlash();
         leftMotor.setSmartCurrentLimit(20);
 
-        //R Motor
+        // Initialize the right motor.
         rightMotor = new CANSparkMax(ClimberConstants.CAN_CLIMBER_R, MotorType.kBrushless);
         rightMotor.restoreFactoryDefaults();
         rightMotor.burnFlash();
@@ -48,7 +48,9 @@ public class Climber extends SubsystemBase {
         rightMotor.getEncoder().setPosition(0);
     }
 
-    //Display & update motor status
+    /**
+     * Display & update motor status
+     */
     @Override
     public void periodic() {
         // SmartDashboard.putNumber("Motor Rotations", rightMotor.getEncoder().getPosition());
@@ -78,7 +80,9 @@ public class Climber extends SubsystemBase {
         return this.runOnce(() -> climberPID.setReference(0, ControlType.kPosition));
     }
 
-    //Zeros the climber's relative encoder
+    /**
+     * @return a command to zero encoder.
+     */
     public Command zeroEncoderCommand() {
         return this.runOnce(() -> rightMotor.getEncoder().setPosition(0));
     }

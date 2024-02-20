@@ -97,7 +97,7 @@ public class RobotContainer {
     });
     m_driverController.start().onTrue(new InstantCommand(() -> {swerveSubsystem.zeroGyro();System.out.println("Resetting gyro");}));
 
-    // // states
+    // states
     StoredCommand storedCommand = new StoredCommand(shooter, intake);
     IntakeCommand intakeCommand = new IntakeCommand(shooter, intake);
     AmpCommand ampCommand = new AmpCommand(shooter, intake);
