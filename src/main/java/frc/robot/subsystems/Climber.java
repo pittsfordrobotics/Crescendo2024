@@ -1,6 +1,5 @@
 package frc.robot.subsystems;
 
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -65,22 +64,22 @@ public class Climber extends SubsystemBase {
     }
 
     //Use pid to reach a predetermined height (Rotations)
-    public Command extend() {
+    public Command extendCommand() {
         return this.runOnce(() -> climberPID.setReference(ClimberConstants.EXTENSION_SETPOINT, ControlType.kPosition));
     }
 
     //Use pid to retract to a predetermined height (Rotations)
-    public Command retract() {
+    public Command retractCommand() {
         return this.runOnce(() -> climberPID.setReference(ClimberConstants.RETRACTION_SETPOINT, ControlType.kPosition));
     }
 
     //Make the climber motor rotate to zero
-    public Command setToZero() {
+    public Command moveToZeroCommand() {
         return this.runOnce(() -> climberPID.setReference(0, ControlType.kPosition));
     }
 
     //Zeros the climber's relative encoder
-    public Command zeroEncoder() {
+    public Command zeroEncoderCommand() {
         return this.runOnce(() -> rightMotor.getEncoder().setPosition(0));
     }
 }

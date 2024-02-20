@@ -1,13 +1,21 @@
-# Crescendo2024
+# FRC 3181 - 2024 Robot Code
 
-This is FRC Team 3181 (Pittsford Panthers)'s code for the 2024 FIRST® Robotics Competition, CRESCENDO℠.
+This is the robot code for [FRC Team 3181](https://www.thebluealliance.com/team/3181), 
+[the Pittsford Panthers](https://www.pittsfordrobotics.org/), for the 2024 FIRST® Robotics Competition, 
+CRESCENDO℠.
 
-Inside are subsystems for:
-* the swerve drive, implemented using YAGSL, with support for:
-  * teleoperated mode
-  * autonomous commands (not tested yet but it works in sim so OF COURSE it'll work in real life);
-* the shooter (there are still some unresolved issues with SPARK Flexes and Vortices);
-* the end effectors (current code is deprecated).
+## Subsystems
 
-Currently there are several in-development features in branches; these are to be merged soon. There is also some 
-outdated code in the master branch; these are to be removed once said merging occurs.
+* Climber
+* Intake
+* Shooter.
+* Swerve Drive. The swerve drive is implemented using [YAGSL](https://github.com/BroncBotz3481/YAGSL), with support for teleoperated mode and autonomous commands.
+
+Follow our development 
+[here](https://www.chiefdelphi.com/t/frc-3181-pittsford-robotics-2024-build-thread/443678).
+
+## Find us
+
+* [YouTube @PittsfordRobotics3181](https://www.youtube.com/@PittsfordRobotics3181)
+* [X @FRCTeam3181](https://twitter.com/frcteam3181?lang=en)
+* [Instagram @frcteam3181](https://www.instagram.com/frcteam3181/)

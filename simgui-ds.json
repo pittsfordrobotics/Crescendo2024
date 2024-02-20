@@ -17,12 +17,18 @@
           "keyRate": 0.009999999776482582
         }
       ],
+<<<<<<< HEAD
       "axisCount": 6,
       "buttonCount": 15,
+=======
+      "axisCount": 3,
+      "buttonCount": 4,
+>>>>>>> a60fae4d0d3e77683f96fb4eb9f7b4ef87e72c3e
       "buttonKeys": [
         90,
         88,
         67,
+<<<<<<< HEAD
         86,
         -1,
         -1,
@@ -35,6 +41,9 @@
         -1,
         -1,
         -1
+=======
+        86
+>>>>>>> a60fae4d0d3e77683f96fb4eb9f7b4ef87e72c3e
       ],
       "povConfig": [
         {
@@ -61,12 +70,18 @@
           "incKey": 75
         }
       ],
+<<<<<<< HEAD
       "axisCount": 4,
       "buttonCount": 10,
+=======
+      "axisCount": 2,
+      "buttonCount": 4,
+>>>>>>> a60fae4d0d3e77683f96fb4eb9f7b4ef87e72c3e
       "buttonKeys": [
         77,
         44,
         46,
+<<<<<<< HEAD
         47,
         -1,
         -1,
@@ -74,6 +89,9 @@
         -1,
         -1,
         -1
+=======
+        47
+>>>>>>> a60fae4d0d3e77683f96fb4eb9f7b4ef87e72c3e
       ],
       "povCount": 0
     },
@@ -105,6 +123,7 @@
       "buttonCount": 0,
       "povCount": 0
     }
+<<<<<<< HEAD
   ],
   "robotJoysticks": [
     {
@@ -113,5 +132,7 @@
     {
       "guid": "Keyboard1"
     }
+=======
+>>>>>>> a60fae4d0d3e77683f96fb4eb9f7b4ef87e72c3e
   ]
 }
