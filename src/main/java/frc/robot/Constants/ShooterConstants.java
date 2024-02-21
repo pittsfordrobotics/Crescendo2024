@@ -19,9 +19,9 @@ public final class ShooterConstants {
     public static final double SHOOTER_I = 0;
     public static final double SHOOTER_D = 0;
 
-    public static final double SHOOTER_Pivot_P = 0.03;
+    public static final double SHOOTER_Pivot_P = 0.03;//.03
     public static final double SHOOTER_Pivot_I = 0;
-    public static final double SHOOTER_Pivot_D = 0.3;
+    public static final double SHOOTER_Pivot_D = 0.3;//.3
 
     public static final double SHOOTER_L_FFGain = 0.000155;
     public static final double SHOOTER_R_FFGain = 0.000158;
@@ -36,5 +36,5 @@ public final class ShooterConstants {
     public static final double L1_SpivtoWpivperp = 14.631 * 0.0254;
     public static final double L1CM1_SpivtoCM1 = 7.387 * 0.0254;
     public static final double M1_Total_Mass_of_Shooter = 23 * 0.453592;
-    public static final double SHOOTER_Pivot_FF_Multiplier = 0.83;
+    public static final double SHOOTER_Pivot_FF_Multiplier = 0.017;//.83 for the basic ff
 }

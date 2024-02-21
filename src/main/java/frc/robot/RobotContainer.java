@@ -118,12 +118,12 @@ public class RobotContainer {
     m_operatorController.b().onTrue(subwoofCommand);
     m_operatorController.y().onTrue(podiumCommand);
 
-    m_driverController.x().onTrue(new ConditionalCommand(intakeCommand,
-        storedCommand,
-        () -> StructureStates.getCurrentState() != structureState.intake));
+    // m_driverController.x().onTrue(new ConditionalCommand(intakeCommand,
+    //     storedCommand,
+    //     () -> StructureStates.getCurrentState() != structureState.intake));
 
-    // m_driverController.x().onTrue(intakeCommand);
-    // m_driverController.y().onTrue(storedCommand);
+    m_driverController.x().onTrue(intakeCommand);
+    m_driverController.y().onTrue(storedCommand);
 
     // Runs the indexer while the right bumper is held -- essentally a shoot command
     CommandScheduler.getInstance().schedule(idleIndexerCommand); // initial command / default
