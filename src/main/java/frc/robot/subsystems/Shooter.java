@@ -22,6 +22,10 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
+
+import java.util.function.DoubleSupplier;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 
@@ -272,7 +276,9 @@ public class Shooter extends SubsystemBase {
 
   // Drives the pivot to a angle using a double suplier (same as above just using a supplier)
   public Command setPivotAngleSupplierCommand() {
-    return this.runOnce(() -> pivotRPID.setReference(SmartDashboard.getNumber("ShooterPivotAngle_CHANGEME", 20), ControlType.kPosition, 0,
-        FFCalculator.getInstance().calculateShooterFF()));
+    return this.runOnce(() -> {
+    double setpoint = SmartDashboard.getNumber("ShooterPivotAngle_CHANGEME", 20);
+    double setpointDegClamped = MathUtil.clamp(setpoint,0,90);   
+    pivotAngleSetpointDeg = setpointDegClamped;});
   }
 }

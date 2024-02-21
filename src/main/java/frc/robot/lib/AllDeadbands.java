@@ -32,7 +32,6 @@ public class AllDeadbands {
      * @param deadband the radius of the circular deadband
      * @return the array of inputs, zero if within deadband, otherwise unchanged
      */
-    //TODO square the magnitude of the translation vector and remove it from the commands
     public static double[] applyScalingCircularDeadband(double[] inputs, double deadband) {
         double radiusSquared = 0;
         double scaledRadius = 0;
@@ -59,7 +58,6 @@ public class AllDeadbands {
      * @param deadband the radius of the circular deadband
      * @return the array of inputs, zero if within deadband, otherwise unchanged
      */
-    //TODO square the magnitude of the translation vector and remove it from the commands
     public static double[] applyScaledSquaredCircularDeadband(double[] inputs, double deadband) {
         double radiusSquared = 0;
         double scaledRadius = 0;

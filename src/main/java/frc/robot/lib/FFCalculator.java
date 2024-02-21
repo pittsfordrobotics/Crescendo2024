@@ -32,8 +32,6 @@ public class FFCalculator {
         Shuffleboard.getTab("FFcalc").addDouble("IntakeFF", this::calculateIntakeFF);        
         SmartDashboard.putNumber("Shooter FF Mult", ShooterConstants.SHOOTER_Pivot_FF_Multiplier);
         SmartDashboard.putNumber("Intake FF Mult", IntakeConstants.INTAKE_Pivot_FF_Multiplier);
-
-
     }
 
     public void updateShooterAngle(DoubleSupplier shooterAngle) {
@@ -72,10 +70,10 @@ public class FFCalculator {
         double CMX = (CM2X * M2 + CM1X * M1) / MT;
 
         double TotalTorque_ShoulderPiv = CMX * 9.8 * MT;
-        // return TotalTorque_ShoulderPiv * ShooterMultiplier;
+        return TotalTorque_ShoulderPiv * ShooterMultiplier;
 
         // Simple Multiplier
-        return ShooterMultiplier * Math.cos(theta.getRadians());
+        // return ShooterMultiplier * Math.cos(theta.getRadians());
     }
 
     public double calculateIntakeFF() {
@@ -92,7 +90,7 @@ public class FFCalculator {
         Rotation2d Alpha_CM = alpha.plus(Rotation2d.fromDegrees(IntakeConstants.Alpha_Offset));
 
         double TotalTorque_IntakePiv = (Math.cos(theta.plus(Alpha_CM).getRadians()) * 9.8 * (M2)) * L3;
-        // return TotalTorque_IntakePiv * IntakeMultiplier;
-        return IntakeMultiplier * Math.cos(theta.plus(Alpha_CM).getRadians());
+        return TotalTorque_IntakePiv * IntakeMultiplier;
+        // return IntakeMultiplier * Math.cos(theta.plus(Alpha_CM).getRadians());
     }
 }
