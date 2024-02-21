@@ -10,16 +10,11 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.Constants.RobotConstants;
 import frc.robot.commands.DisabledInstantCommand;
-import frc.robot.commands.NewPrettyCommands.AmpCommand;
-import frc.robot.commands.NewPrettyCommands.IntakeCommand;
-import frc.robot.commands.NewPrettyCommands.PODIUMCommand;
-import frc.robot.commands.NewPrettyCommands.SUBWOOFCommand;
-import frc.robot.commands.NewPrettyCommands.StoredCommand;
+import frc.robot.commands.NewPrettyCommands.*;
 import frc.robot.lib.FFCalculator;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Intake;
@@ -95,7 +90,6 @@ public class RobotContainer {
       swerveSubsystem.setDefaultCommand(command);
       System.out.println(swerveSubsystem.getDefaultCommand().getName());
     });
-    m_driverController.start().onTrue(new InstantCommand(() -> {swerveSubsystem.zeroGyro();System.out.println("Resetting gyro");}));
 
     // states
     StoredCommand storedCommand = new StoredCommand(shooter, intake);
@@ -125,6 +119,9 @@ public class RobotContainer {
     // Climber toggle on rightbumper
     m_operatorController.rightBumper().onTrue(climber.extendCommand());
     m_operatorController.rightBumper().onFalse(climber.retractCommand());
+    Command zeroClimberCommand = climber.moveAndZeroEncoderCommand();
+    zeroClimberCommand.setName("Move and Zero Climber");
+    Shuffleboard.getTab("CONFIG").add(zeroClimberCommand);
   }
 
   private void configure_TEST_Bindings() {
