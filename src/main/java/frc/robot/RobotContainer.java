@@ -18,6 +18,7 @@ import frc.robot.Constants.RobotConstants;
 import frc.robot.commands.DisabledInstantCommand;
 import frc.robot.commands.NewPrettyCommands.AmpCommand;
 import frc.robot.commands.NewPrettyCommands.IntakeCommand;
+import frc.robot.commands.NewPrettyCommands.NewAmpCommand;
 import frc.robot.commands.NewPrettyCommands.PODIUMCommand;
 import frc.robot.commands.NewPrettyCommands.SUBWOOFCommand;
 import frc.robot.commands.NewPrettyCommands.StoredCommand;
@@ -90,7 +91,7 @@ public class RobotContainer {
   private void configure_COMP_Bindings() {
     // Swerve
     m_driverController.start().onTrue(new DisabledInstantCommand(swerveSubsystem::zeroGyro));
-    m_driverController.leftBumper().onTrue(swerveSubsystem.setSlowSpeed()).onFalse(swerveSubsystem.setNormalSpeed());
+    // m_driverController.leftBumper().onTrue(swerveSubsystem.setSlowSpeed()).onFalse(swerveSubsystem.setNormalSpeed());
     Command driveCommand = driveModeChooser.getSelected();
     swerveSubsystem.setDefaultCommand(driveCommand);
     driveModeChooser.onChange(command -> {
@@ -114,21 +115,26 @@ public class RobotContainer {
     Command idleIndexerCommand = shooter.spinIndexerCommand(RobotConstants.INDEXER_IDLE_SPEED);
     Command shootIndexerCommand = shooter.spinIndexerCommand(RobotConstants.INDEXER_SHOOT_SPEED);
 
+    NewAmpCommand newAmpCommand = new NewAmpCommand(shooter, intake, m_driverController.rightBumper());
+
+    m_driverController.leftBumper().onTrue(intake.spinIntakeCommand(.7));
+
+    // Runs the indexer while the right bumper is held -- essentally a shoot command
+    CommandScheduler.getInstance().schedule(idleIndexerCommand); // does not seem to be working
+    m_driverController.rightBumper().onTrue(shootIndexerCommand)
+        .onFalse(idleIndexerCommand);
+
+
     m_operatorController.a().onTrue(ampCommand);
     m_operatorController.b().onTrue(subwoofCommand);
     m_operatorController.y().onTrue(podiumCommand);
-
-    // m_driverController.x().onTrue(new ConditionalCommand(intakeCommand,
-    //     storedCommand,
-    //     () -> StructureStates.getCurrentState() != structureState.intake));
+    m_operatorController.x().onTrue(newAmpCommand);
 
     m_driverController.x().onTrue(intakeCommand);
     m_driverController.y().onTrue(storedCommand);
-
-    // Runs the indexer while the right bumper is held -- essentally a shoot command
-    CommandScheduler.getInstance().schedule(idleIndexerCommand); // initial command / default
-    m_driverController.rightBumper().onTrue(shootIndexerCommand)
-        .onFalse(idleIndexerCommand);
+    // m_driverController.x().onTrue(new ConditionalCommand(intakeCommand,
+    //     storedCommand,
+    //     () -> StructureStates.getCurrentState() != structureState.intake));
 
     // Climber toggle on rightbumper
     m_operatorController.rightBumper().onTrue(climber.extendCommand());
@@ -184,8 +190,8 @@ public class RobotContainer {
     m_operatorController.x().whileTrue(shooter.setShooterRPMSupplierCommand());
 
     // B -> Intake RAW command -- Untested
-    m_operatorController.b().onTrue(intake.spinIntakeCommand(-1));
-    m_operatorController.b().onFalse(intake.spinIntakeCommand(0));
+    m_operatorController.b().onTrue(intake.spinIntakeCommand(.7));
+    m_operatorController.b().onFalse(intake.spinIntakeCommand(.01));
 
     // Y -> Indexer test -- Works
     m_operatorController.y().onTrue(shooter.spinIndexerCommand(0.5));
