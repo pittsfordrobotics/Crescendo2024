@@ -175,5 +175,9 @@ public class Intake extends SubsystemBase {
   
   // Sets the intake pivot angle to a certain angle using a supplier
   public Command setPivotAngleSupplierCommand() {
-    return this.runOnce(() -> pivotRPID.setReference(SmartDashboard.getNumber("IntakePivotAngle_CHANGEME", 170), ControlType.kPosition, 0, FFCalculator.getInstance().calculateIntakeFF()));
+    return this.runOnce(() -> {
+    double setpoint = SmartDashboard.getNumber("IntakePivotAngle_CHANGEME", 170);
+    double setpointDegClamped = MathUtil.clamp(setpoint,0,170);   
+    pivotAngleSetpointDeg = setpointDegClamped;});
+    
   }}
