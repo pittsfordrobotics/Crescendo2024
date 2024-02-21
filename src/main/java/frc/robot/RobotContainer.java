@@ -138,8 +138,8 @@ public class RobotContainer {
     //     () -> StructureStates.getCurrentState() != structureState.intake));
 
     // Climber toggle on rightbumper
-    m_operatorController.rightBumper().onTrue(climber.extendCommand());
-    m_operatorController.rightBumper().onFalse(climber.retractCommand());
+    m_operatorController.rightBumper().onTrue(climber.setVoltageCommand(.1));
+    m_operatorController.rightBumper().onFalse(climber.setVoltageCommand(-.1));
     Command zeroClimberCommand = climber.moveAndZeroEncoderCommand();
     zeroClimberCommand.setName("Move and Zero Climber");
     Shuffleboard.getTab("CONFIG").add(zeroClimberCommand);
