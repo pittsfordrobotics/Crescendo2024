@@ -32,8 +32,6 @@ public class FFCalculator {
         Shuffleboard.getTab("FFcalc").addDouble("IntakeFF", this::calculateIntakeFF);        
         SmartDashboard.putNumber("Shooter FF Mult", ShooterConstants.SHOOTER_Pivot_FF_Multiplier);
         SmartDashboard.putNumber("Intake FF Mult", IntakeConstants.INTAKE_Pivot_FF_Multiplier);
-
-
     }
 
     public void updateShooterAngle(DoubleSupplier shooterAngle) {

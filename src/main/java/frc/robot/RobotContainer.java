@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.OperatorConstants;
@@ -21,6 +22,8 @@ import frc.robot.commands.NewPrettyCommands.PODIUMCommand;
 import frc.robot.commands.NewPrettyCommands.SUBWOOFCommand;
 import frc.robot.commands.NewPrettyCommands.StoredCommand;
 import frc.robot.lib.FFCalculator;
+import frc.robot.lib.StructureStates;
+import frc.robot.lib.StructureStates.structureState;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
@@ -52,23 +55,23 @@ public class RobotContainer {
     c.updateShooterAngle(shooter::getPivotAngleDeg);
     driveModeChooser = new SendableChooser<>();
     Command enhancedHeadingSteeringCommand = swerveSubsystem.enhancedHeadingDriveCommand(
-            () -> -m_driverController.getLeftY(),
-            () -> -m_driverController.getLeftX(),
-            () -> -m_driverController.getRightY(),
-            () -> -m_driverController.getRightX(),
-            m_driverController::getLeftTriggerAxis,
-            m_driverController::getRightTriggerAxis);
+        () -> -m_driverController.getLeftY(),
+        () -> -m_driverController.getLeftX(),
+        () -> -m_driverController.getRightY(),
+        () -> -m_driverController.getRightX(),
+        m_driverController::getLeftTriggerAxis,
+        m_driverController::getRightTriggerAxis);
     enhancedHeadingSteeringCommand.setName("Enhanced Heading Steer");
     Command headingSteeringCommand = swerveSubsystem.headingDriveCommand(
-            () -> -m_driverController.getLeftY(),
-            () -> -m_driverController.getLeftX(),
-            () -> -m_driverController.getRightX(),
-            () -> -m_driverController.getRightY());
+        () -> -m_driverController.getLeftY(),
+        () -> -m_driverController.getLeftX(),
+        () -> -m_driverController.getRightX(),
+        () -> -m_driverController.getRightY());
     headingSteeringCommand.setName("Heading Steer");
     Command rotationRateSteeringCommand = swerveSubsystem.rotationRateDriveCommand(
-            () -> -m_driverController.getLeftY(),
-            () -> -m_driverController.getLeftX(),
-            () -> -m_driverController.getRightX());
+        () -> -m_driverController.getLeftY(),
+        () -> -m_driverController.getLeftX(),
+        () -> -m_driverController.getRightX());
     rotationRateSteeringCommand.setName("Rotation Rate Steer");
     driveModeChooser.addOption("Enhanced Steering (BETA)", enhancedHeadingSteeringCommand);
     driveModeChooser.addOption("Heading Steering", headingSteeringCommand);
@@ -77,6 +80,8 @@ public class RobotContainer {
     DisabledInstantCommand zeroOffsetCommand = new DisabledInstantCommand(swerveSubsystem::setSwerveOffsets);
     zeroOffsetCommand.setName("Zero Offsets");
     Shuffleboard.getTab("CONFIG").add("Zero Swerve Module Offsets", zeroOffsetCommand);
+
+    StructureStates.setCurrentState(StructureStates.structureState.startup);
     // Configure the trigger bindings
     configure_COMP_Bindings();
     // configure_TEST_Bindings();
@@ -95,7 +100,10 @@ public class RobotContainer {
       swerveSubsystem.setDefaultCommand(command);
       System.out.println(swerveSubsystem.getDefaultCommand().getName());
     });
-    m_driverController.start().onTrue(new InstantCommand(() -> {swerveSubsystem.zeroGyro();System.out.println("Resetting gyro");}));
+    m_driverController.start().onTrue(new InstantCommand(() -> {
+      swerveSubsystem.zeroGyro();
+      System.out.println("Resetting gyro");
+    }));
 
     // // states
     StoredCommand storedCommand = new StoredCommand(shooter, intake);
@@ -103,21 +111,21 @@ public class RobotContainer {
     AmpCommand ampCommand = new AmpCommand(shooter, intake);
     SUBWOOFCommand subwoofCommand = new SUBWOOFCommand(shooter, intake);
     PODIUMCommand podiumCommand = new PODIUMCommand(shooter, intake);
-
-    m_operatorController.a().onTrue(ampCommand); // Untested
-    m_operatorController.b().onTrue(subwoofCommand); // Untested
-    m_operatorController.y().onTrue(podiumCommand); // Untested
-
-    // m_driverController.x().onTrue(new ConditionalCommand(intakeCommand,
-    // storedCommand,
-    // () -> StructureStates.getCurrentState() !=
-    // StructureStates.structureState.intake));
-    m_driverController.x().onTrue(intakeCommand); // Untested
-    m_driverController.y().onTrue(storedCommand); // Untested
-
-    // Runs the indexer while the right bumper is held -- essentally a shoot command
     Command idleIndexerCommand = shooter.spinIndexerCommand(RobotConstants.INDEXER_IDLE_SPEED);
     Command shootIndexerCommand = shooter.spinIndexerCommand(RobotConstants.INDEXER_SHOOT_SPEED);
+
+    m_operatorController.a().onTrue(ampCommand);
+    m_operatorController.b().onTrue(subwoofCommand);
+    m_operatorController.y().onTrue(podiumCommand);
+
+    m_driverController.x().onTrue(new ConditionalCommand(intakeCommand,
+        storedCommand,
+        () -> StructureStates.getCurrentState() != structureState.intake));
+
+    // m_driverController.x().onTrue(intakeCommand);
+    // m_driverController.y().onTrue(storedCommand);
+
+    // Runs the indexer while the right bumper is held -- essentally a shoot command
     CommandScheduler.getInstance().schedule(idleIndexerCommand); // initial command / default
     m_driverController.rightBumper().onTrue(shootIndexerCommand)
         .onFalse(idleIndexerCommand);
