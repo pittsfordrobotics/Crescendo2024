@@ -131,5 +131,13 @@ public class Climber extends SubsystemBase {
             }
         }).until(() -> leftZeroReached && rightZeroReached).beforeStarting(() -> {rightZeroReached = false;leftZeroReached = false;});
     }
+
+    // set voltage for both motors command
+    public Command setVoltageCommand(double voltage) {
+        return this.runOnce(() -> {
+            rightMotor.setVoltage(voltage);
+            leftMotor.setVoltage(voltage);
+    });
+    }
 }
 

@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.Constants.RobotConstants;
@@ -90,6 +91,7 @@ public class RobotContainer {
       swerveSubsystem.setDefaultCommand(command);
       System.out.println(swerveSubsystem.getDefaultCommand().getName());
     });
+    m_driverController.start().onTrue(new InstantCommand(() -> {swerveSubsystem.zeroGyro();System.out.println("Resetting gyro");}));
 
     // states
     StoredCommand storedCommand = new StoredCommand(shooter, intake);
