@@ -86,5 +86,13 @@ public class Climber extends SubsystemBase {
     public Command zeroEncoderCommand() {
         return this.runOnce(() -> rightMotor.getEncoder().setPosition(0));
     }
+
+    // set voltage for both motors command
+    public Command setVoltageCommand(double voltage) {
+        return this.runOnce(() -> {
+            rightMotor.setVoltage(voltage);
+            leftMotor.setVoltage(voltage);
+    });
+    }
 }
 

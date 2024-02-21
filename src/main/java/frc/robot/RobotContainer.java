@@ -123,8 +123,8 @@ public class RobotContainer {
         .onFalse(idleIndexerCommand);
 
     // Climber toggle on rightbumper
-    m_operatorController.rightBumper().onTrue(climber.extendCommand());
-    m_operatorController.rightBumper().onFalse(climber.retractCommand());
+    m_operatorController.rightBumper().onTrue(climber.setVoltageCommand(.1));
+    m_operatorController.rightBumper().onFalse(climber.setVoltageCommand(-.1));
   }
 
   private void configure_TEST_Bindings() {
