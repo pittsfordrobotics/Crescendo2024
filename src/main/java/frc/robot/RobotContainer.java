@@ -150,6 +150,18 @@ public class RobotContainer {
       System.out.println(swerveSubsystem.getDefaultCommand().getName());
     });
 
+    // y- indexer
+    // b- ontrue intake (onfalse zero)
+    // left bumper - shooter angle 53 on true 0 on false
+    // right bummper - intake angle 35 on trun 0 on false
+    // a - ontrue shooter RPM 5400 (0 on flase)
+
+    // Suppliers //
+    // left trigger - shooter angle supplier
+    // right trigger - intake angle supplier
+    // x - shooter RPM supplier
+
+
     // Remember zeroed at intake pose
     // +RPM means note goes out & +Angle means move up relative to intake pose
     SmartDashboard.putNumber("ShooterPivotAngle_CHANGEME", 0);
@@ -162,7 +174,7 @@ public class RobotContainer {
     m_operatorController.leftTrigger().whileTrue(shooter.setPivotAngleSupplierCommand());
 
     // RIGHT BUMPER & TRIGGER -> intake pivot -- Works (tune pids and FF tho)
-    m_operatorController.rightBumper().onFalse(intake.setPivotAngleCommand(70));
+    m_operatorController.rightBumper().onFalse(intake.setPivotAngleCommand(35));
     m_operatorController.rightBumper().onTrue(intake.setPivotAngleCommand(0));
     m_operatorController.rightTrigger().whileTrue(intake.setPivotAngleSupplierCommand());
 
@@ -172,7 +184,7 @@ public class RobotContainer {
     m_operatorController.x().whileTrue(shooter.setShooterRPMSupplierCommand());
 
     // B -> Intake RAW command -- Untested
-    m_operatorController.b().onTrue(intake.spinIntakeCommand(-0.85));
+    m_operatorController.b().onTrue(intake.spinIntakeCommand(-1));
     m_operatorController.b().onFalse(intake.spinIntakeCommand(0));
 
     // Y -> Indexer test -- Works

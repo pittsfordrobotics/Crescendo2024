@@ -33,13 +33,13 @@ public class RobotConstants {
 
     // Speaker_SUBWOOF "state"
     public static final double SUBWOOF_ShooterPivotAngle = 53;
-    public static final double SUBWOOF_IntakePivotAngle = 70;
+    public static final double SUBWOOF_IntakePivotAngle = 35;
     public static final double SUBWOOF_ShooterRPM = 5400;
     public static final double SUBWOOF_IntakeSpeed = 0;
     
     // Speaker_PODIUM "state"
     public static final double PODIUM_ShooterPivotAngle = 40;
-    public static final double PODIUM_IntakePivotAngle = 70;
-    public static final double PODIUM_ShooterRPM = 6500;
+    public static final double PODIUM_IntakePivotAngle = 35;
+    public static final double PODIUM_ShooterRPM = 6000;
     public static final double PODIUM_IntakeSpeed = 0;
 }
