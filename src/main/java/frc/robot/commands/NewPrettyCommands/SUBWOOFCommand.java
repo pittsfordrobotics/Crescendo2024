@@ -4,6 +4,7 @@
 
 package frc.robot.commands.NewPrettyCommands;
 
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.Constants.RobotConstants;
@@ -15,18 +16,20 @@ import frc.robot.subsystems.Shooter;
 // information, see:
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
 public class SUBWOOFCommand extends SequentialCommandGroup {
-  /** Creates a new SpeakerCommand. */
-  public SUBWOOFCommand(Shooter shooter, Intake intake) {
-    // Add your commands in the addCommands() call, e.g.
-    // addCommands(new FooCommand(), new BarCommand());
-    addCommands(
-        new ParallelCommandGroup(intake.spinIntakeCommand(RobotConstants.SUBWOOF_IntakeSpeed),
-            shooter.setShooterRPMCommand(RobotConstants.SUBWOOF_ShooterRPM)),
-        new SequentialCommandGroup(
-            intake.setPivotAngleCommand(RobotConstants.SUBWOOF_IntakePivotAngle),
-            intake.waitForPivotAngleCommand()),
-            shooter.setPivotAngleCommand(RobotConstants.SUBWOOF_ShooterPivotAngle),
-            shooter.waitForPivotAngleCommand());
-    StructureStates.setCurrentState(StructureStates.structureState.subwoof);
-  }
+    /** Creates a new SpeakerCommand. */
+    public SUBWOOFCommand(Shooter shooter, Intake intake) {
+        // Add your commands in the addCommands() call, e.g.
+        // addCommands(new FooCommand(), new BarCommand());
+        addCommands(
+                new InstantCommand(() -> StructureStates.setCurrentState(StructureStates.structureState.subwoof)),
+                new ParallelCommandGroup(intake.spinIntakeCommand(RobotConstants.SUBWOOF_IntakeSpeed),
+                        shooter.setShooterRPMCommand(RobotConstants.SUBWOOF_ShooterRPM)),
+                new SequentialCommandGroup(
+                        intake.setPivotAngleCommand(RobotConstants.SUBWOOF_IntakePivotAngle),
+                        intake.waitForPivotAngleCommand(),
+                        shooter.setPivotAngleCommand(RobotConstants.SUBWOOF_ShooterPivotAngle),
+                        shooter.waitForPivotAngleCommand())
+                );
+
+    }
 }
