@@ -4,30 +4,25 @@
 
 package frc.robot.subsystems;
 
-import com.revrobotics.CANSparkFlex;
-import com.revrobotics.CANSparkLowLevel.MotorType;
-import com.revrobotics.SparkAbsoluteEncoder.Type;
-import com.revrobotics.CANSparkMax;
-import com.revrobotics.SparkAbsoluteEncoder;
-import com.revrobotics.SparkPIDController;
 import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkBase.IdleMode;
-
+import com.revrobotics.CANSparkFlex;
+import com.revrobotics.CANSparkLowLevel.MotorType;
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.SparkAbsoluteEncoder;
+import com.revrobotics.SparkAbsoluteEncoder.Type;
+import com.revrobotics.SparkPIDController;
 import edu.wpi.first.math.MathUtil;
-import frc.robot.Constants.RobotConstants;
-import frc.robot.Constants.ShooterConstants;
-import frc.robot.commands.DisabledInstantCommand;
-import frc.robot.lib.FFCalculator;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
-
-import java.util.function.DoubleSupplier;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
+import frc.robot.Constants.RobotConstants;
+import frc.robot.Constants.ShooterConstants;
+import frc.robot.commands.DisabledInstantCommand;
+import frc.robot.lib.FFCalculator;
 
 
 public class Shooter extends SubsystemBase {
@@ -183,7 +178,7 @@ public class Shooter extends SubsystemBase {
     return shooterMotorL.getEncoder().getVelocity();
   }
 
-  // returns true if the limit switch is pressed
+  /** returns true if the limit switch is pressed */
   public boolean getLimitSwitch() {
     return backLimitSwitch.get();
   }
@@ -215,6 +210,11 @@ public class Shooter extends SubsystemBase {
   public Command waitForShooterRPMCommand() {
     Command cmd = new WaitUntilCommand(() -> Math.abs(getShooterLRPM() - shooterRPMSetpoint) < 50 &&
       Math.abs(getShooterLRPM() - shooterRPMSetpoint) < 50);
+    cmd.addRequirements(this);
+    return cmd;
+  }
+  public Command waitForLimitSwitchCommand() {
+    Command cmd = new WaitUntilCommand(this::getLimitSwitch);
     cmd.addRequirements(this);
     return cmd;
   }

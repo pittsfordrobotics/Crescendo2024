@@ -4,26 +4,19 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.*;
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.commands.AutoActionCommands.StartIntakeCommand;
 import frc.robot.commands.DisabledInstantCommand;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.Constants.RobotConstants;
-import frc.robot.commands.NewPrettyCommands.AmpCommand;
-import frc.robot.commands.NewPrettyCommands.IntakeCommand;
-import frc.robot.commands.NewPrettyCommands.PODIUMCommand;
-import frc.robot.commands.NewPrettyCommands.SUBWOOFCommand;
-import frc.robot.commands.NewPrettyCommands.StoredCommand;
+import frc.robot.commands.NewPrettyCommands.*;
 import frc.robot.lib.AutoCommandFactory;
 import frc.robot.lib.FFCalculator;
 import frc.robot.subsystems.Climber;
@@ -84,9 +77,9 @@ public class RobotContainer {
             () -> -m_driverController.getLeftX(),
             () -> -m_driverController.getRightX());
     rotationRateSteeringCommand.setName("Rotation Rate Steer");
-    driveModeChooser.addOption("Enhanced Steering (BETA)", enhancedHeadingSteeringCommand);
+    driveModeChooser.setDefaultOption("Enhanced Steering (BETA)", enhancedHeadingSteeringCommand);
     driveModeChooser.addOption("Heading Steering", headingSteeringCommand);
-    driveModeChooser.setDefaultOption("Rotation Rate Steering", rotationRateSteeringCommand);
+    driveModeChooser.addOption("Rotation Rate Steering", rotationRateSteeringCommand);
     Shuffleboard.getTab("CONFIG").add(driveModeChooser);
     DisabledInstantCommand zeroOffsetCommand = new DisabledInstantCommand(swerveSubsystem::setSwerveOffsets);
     zeroOffsetCommand.setName("Zero Offsets");
@@ -205,6 +198,9 @@ public class RobotContainer {
     ChoreoTrajectory twonotemiddletraj2 = Choreo.getTrajectory("twonotemiddle.2");
     ChoreoTrajectory twonotemiddletraj3 = Choreo.getTrajectory("twonotemiddle.3");
     ChoreoTrajectory twonotemiddletraj4 = Choreo.getTrajectory("twonotemiddle.4");
+    Pose2d checkpoint1 = twonotemiddletraj1.getFinalPose();
+    Pose2d checkpoint2 = twonotemiddletraj2.getFinalPose();
+    Pose2d checkpoint3 = twonotemiddletraj3.getFinalPose();
 
     Command twonotemiddle = new SequentialCommandGroup(
       Commands.runOnce(() -> {
@@ -218,16 +214,17 @@ public class RobotContainer {
       Commands.waitSeconds(0.5), // move to position and spin up
       shooter.spinIndexerCommand(RobotConstants.INDEXER_SHOOT_SPEED),
       Commands.waitSeconds(0.25),
-      shooter.spinIndexerCommand(RobotConstants.INDEXER_IDLE_SPEED),
-      autoCommandFactory.generateChoreoCommand(twonotemiddletraj1),
-      new ParallelCommandGroup(
-        autoCommandFactory.generateChoreoCommand(twonotemiddletraj2),
-        new IntakeCommand(shooter, intake)
-        ),
-      autoCommandFactory.generateChoreoCommand(twonotemiddletraj3),
-      new SUBWOOFCommand(shooter, intake),
-      Commands.waitSeconds(0.5), // move to position and spin up
-      shooter.spinIndexerCommand(RobotConstants.INDEXER_SHOOT_SPEED),
+      shooter.spinIndexerCommand(RobotConstants.INDEXER_IDLE_SPEED), // Idle indexer and prepare to intake
+      autoCommandFactory.generateChoreoCommand(twonotemiddletraj1).andThen(swerveSubsystem.driveToPose(checkpoint1)), // Turn around TODO replace drivetoPose with correctHeading?
+      new StartIntakeCommand(shooter, intake), // Start the intake
+      autoCommandFactory.generateChoreoCommand(twonotemiddletraj2).andThen(swerveSubsystem.driveToPose(checkpoint2)), // Drive forward
+      shooter.waitForLimitSwitchCommand().withTimeout(5), // Wait for it to intake
+      new StoredCommand(shooter, intake), // Store the note
+      autoCommandFactory.generateChoreoCommand(twonotemiddletraj3).andThen(swerveSubsystem.driveToPose(checkpoint3)), // Turn towards the speaker
+      new CommonSpeakerCommand(shooter, intake, 48, 35, 5900), // Ready to shoot again (adjust these params)
+      shooter.waitForPivotAngleCommand(),
+      shooter.waitForShooterRPMCommand(),
+      shooter.spinIndexerCommand(RobotConstants.INDEXER_SHOOT_SPEED), // Shoot
       Commands.waitSeconds(0.25),
       shooter.spinIndexerCommand(RobotConstants.INDEXER_IDLE_SPEED),
       autoCommandFactory.generateChoreoCommand(twonotemiddletraj4) // drive out of starting area fully

@@ -143,7 +143,7 @@ public class SwerveSubsystem extends SubsystemBase {
             this::getPose, // Robot pose supplier
             this::resetOdometry, // Method to reset odometry (will be called if your auto has a starting pose)
             this::getRobotVelocity, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
-            this::setChassisSpeeds, // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds
+            this::drive, // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds
             new HolonomicPathFollowerConfig( // HolonomicPathFollowerConfig, this should likely live in your Constants class
                     new PIDConstants(5.0, 0.0, 0.0),
                     // Translation PID constants
@@ -211,6 +211,15 @@ public class SwerveSubsystem extends SubsystemBase {
   }
 
   /**
+   * Corrects heading angle continuously
+   * @return A command to drive to that heading angle
+   */
+  public Command correctHeading(Rotation2d headingAngle) {
+    return this.run(() ->
+            swerveDrive.swerveController.getTargetSpeeds(0, 0, headingAngle.getRadians(), getHeading().getRadians(), swerveDrive.getMaximumVelocity()))
+            .beforeStarting(() -> swerveDrive.setHeadingCorrection(true));
+  }
+  /**
    * Command to drive the robot using translative values and heading as a setpoint.
    *
    * @param translationX Translation in the X direction. Cubed for smoother controls.
@@ -241,12 +250,12 @@ public class SwerveSubsystem extends SubsystemBase {
   /**
    * <h2>More features</h2>
    *
-   * @param translationX      Translation in the X direction. Cubed for smoother controls.
-   * @param translationY      Translation in the Y direction. Cubed for smoother controls.
-   * @param rotationX         Rotation in the X direction.
-   * @param rotationY         Rotation in the Y direction.
-   * @param leftRotationRate  Left rotation rate that overrides heading angle.
-   * @param rightRotationRate Right rotation rate that overrides heading angle.
+   * @param translationX      Translation input in the X direction.
+   * @param translationY      Translation input in the Y direction.
+   * @param rotationX         Rotation input in the X direction.
+   * @param rotationY         Rotation input in the Y direction.
+   * @param leftRotationRate  Left rotation input that overrides heading angle.
+   * @param rightRotationRate Right rotation input that overrides heading angle.
    * @return A better combined drive command.
    */
   public Command enhancedHeadingDriveCommand(DoubleSupplier translationX, DoubleSupplier translationY, DoubleSupplier rotationX, DoubleSupplier rotationY,

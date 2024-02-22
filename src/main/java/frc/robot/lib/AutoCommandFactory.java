@@ -31,8 +31,8 @@ public class AutoCommandFactory {
     public AutoCommandFactory(SwerveSubsystem swerveSubsystem) {
         this.swerveSubsystem = swerveSubsystem;
         // TODO: Replace these values with X and Y translate pid values (should be same) and rotational pid from robot (not necessarily, will test, but should def be nonzero)
-        xPIDController = new PIDController(0.002, 0.0, 0.0); // PIDController for field-relative X translation (input: Y error in meters, output: m/s).
-        yPIDController = new PIDController(0.002, 0, 0); // PIDController for field-relative Y translation (input: Y error in meters, output: m/s).
+        xPIDController = new PIDController(2.0, 0.0, 0.0); // PIDController for field-relative X translation (input: Y error in meters, output: m/s).
+        yPIDController = new PIDController(2.0, 0, 0); // PIDController for field-relative Y translation (input: Y error in meters, output: m/s).
         headinganglePIDController = new PIDController(0.6, 0.0, 0.01); // PID controller to correct for rotation error
         headinganglePIDController.enableContinuousInput(-Math.PI, Math.PI); 
         speedsConsumer = (ChassisSpeeds speeds) -> swerveSubsystem.drive(new Translation2d(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond), speeds.omegaRadiansPerSecond, false); // Consumes target robot-relative chassis speeds and commands them to the robot
