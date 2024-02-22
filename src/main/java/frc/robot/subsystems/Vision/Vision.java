@@ -29,6 +29,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardContainer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Vision extends SubsystemBase {
@@ -48,7 +49,7 @@ public class Vision extends SubsystemBase {
     private final String[] camNames = new String[] { VisionConstants.LIMELIGHT1_NAME, VisionConstants.LIMELIGHT2_NAME };
     
     private Pipelines pipeline = Pipelines.Test; // default pipeline
-
+    
     @Override
     public void periodic() {
         for (int i = 0; i < io.length; i++) {
@@ -78,11 +79,6 @@ public class Vision extends SubsystemBase {
                     )
                 );
                 Pose2d visionCalcPose = robotPose3d.toPose2d();
-                
-                Shuffleboard.getTab("Vision").add("Vision Not exited?", false);
-                Shuffleboard.getTab("Vision").add("Vision/Pose" + i + "/X", visionCalcPose.getX());
-                Shuffleboard.getTab("Vision").add("Vision/Pose" + i + "/Y", visionCalcPose.getY());
-                Shuffleboard.getTab("Vision").add("Vision/Pose" + i + "/Theta", visionCalcPose.getRotation().getDegrees());
 
                 // exit if off the field (might be bad)
                 if (robotPose3d.getX() < -VisionConstants.FIELD_BORDER_MARGIN
@@ -93,6 +89,10 @@ public class Vision extends SubsystemBase {
                         || robotPose3d.getZ() > VisionConstants.Z_MARGIN) {
                     continue;
                 }
+                SmartDashboard.putBoolean("Vision exited?", true);
+                SmartDashboard.putNumber("Vision/Pose" + i + "/X", visionCalcPose.getX());
+                SmartDashboard.putNumber("Vision/Pose" + i + "/Y", visionCalcPose.getY());
+                SmartDashboard.putNumber("Vision/Pose" + i + "/Theta", visionCalcPose.getRotation().getDegrees());
 
                 // Get tag poses and update last detection times
                 // (sketchy code not sure it works pls review - Evan)
@@ -124,8 +124,9 @@ public class Vision extends SubsystemBase {
                 // VisionConstants.THETA_STD_DEV_COEF to trust vision in general less
                 double xyStdDev = VisionConstants.XY_STD_DEV_COEF * Math.pow(avgDistance, 2.0) / tagPoses.size();
                 double thetaStdDev = VisionConstants.THETA_STD_DEV_COEF * Math.pow(avgDistance, 2.0) / tagPoses.size();
-                Shuffleboard.getTab("Vision").add("Vision/XYstd", xyStdDev);
-                Shuffleboard.getTab("Vision").add("Vision/ThetaStd", thetaStdDev);
+
+                SmartDashboard.putNumber("Vision/XYstd", xyStdDev);
+                SmartDashboard.putNumber("Vision/ThetaStd", thetaStdDev);
 
                 // Add vision data to swerve pose estimator -- will depend on swerve 
                 VisionData visionData = new VisionData(visionCalcPose, inputs[i].captureTimestamp, VecBuilder.fill(xyStdDev, xyStdDev, thetaStdDev));
@@ -142,7 +143,7 @@ public class Vision extends SubsystemBase {
                 }
             }
         }
-        Shuffleboard.getTab("Vision").add("Vision/NumPoses", allRobotPoses.size());
-        Shuffleboard.getTab("Vison").add("Vision/NumTags", allRobotPoses.toArray());
+        // Shuffleboard.getTab("Vision").add("Vision/NumPoses", allRobotPoses.size());
+        // Shuffleboard.getTab("Vison").add("Vision/NumTags", allRobotPoses.toArray());
     }
 }

@@ -87,9 +87,9 @@ public class RobotContainer {
             () -> -m_driverController.getLeftX(),
             () -> FieldConstants.Speaker.centerSpeakerOpening);
     rotationRateSteeringCommand.setName("Rotation Rate Steer");
-    driveModeChooser.addOption("Enhanced Steering (BETA)", enhancedHeadingSteeringCommand);
+    driveModeChooser.setDefaultOption("Enhanced Steering (BETA)", enhancedHeadingSteeringCommand);
     driveModeChooser.addOption("Heading Steering", headingSteeringCommand);
-    driveModeChooser.setDefaultOption("Rotation Rate Steering", rotationRateSteeringCommand);
+    driveModeChooser.addOption("Rotation Rate Steering", rotationRateSteeringCommand);
     Shuffleboard.getTab("CONFIG").add(driveModeChooser);
     DisabledInstantCommand zeroOffsetCommand = new DisabledInstantCommand(swerveSubsystem::setSwerveOffsets);
     zeroOffsetCommand.setName("Zero Offsets");
@@ -105,7 +105,7 @@ public class RobotContainer {
     // Swerve
     m_driverController.start().onTrue(new DisabledInstantCommand(swerveSubsystem::zeroGyro));
     m_driverController.leftBumper().onTrue(swerveSubsystem.setSlowSpeed()).onFalse(swerveSubsystem.setNormalSpeed());
-    m_driverController.Y().whileTrue(speakerTargetSteeringCommand);
+    m_driverController.a().whileTrue(speakerTargetSteeringCommand);
     Command driveCommand = driveModeChooser.getSelected();
     swerveSubsystem.setDefaultCommand(driveCommand);
     driveModeChooser.onChange(command -> {

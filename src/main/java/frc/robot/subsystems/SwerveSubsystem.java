@@ -30,6 +30,7 @@ import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.SimpleWidget;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -660,6 +661,13 @@ public class SwerveSubsystem extends SubsystemBase {
       prevHeadingD = headingD.getEntry().getDouble(0);
       configureHeadingPID(headingP.getEntry().getDouble(0), headingD.getEntry().getDouble(0));
     }
+
+    SmartDashboard.putNumber("Vision-Swerve-PoseX", this.getPose().getX());
+    SmartDashboard.putNumber("Vision-Swerve-PoseY", this.getPose().getY());
+    SmartDashboard.putNumber("Vision-Swerve-PoseTheta", this.getPose().getRotation().getDegrees());
+
+    
+
   }
 
   public void setSwerveOffsets () {
