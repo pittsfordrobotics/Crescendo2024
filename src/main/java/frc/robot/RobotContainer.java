@@ -16,8 +16,8 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.Constants.RobotConstants;
 import frc.robot.commands.DisabledInstantCommand;
-import frc.robot.commands.NewPrettyCommands.IntakeCommand;
 import frc.robot.commands.NewPrettyCommands.BetterAMPCommand;
+import frc.robot.commands.NewPrettyCommands.IntakeCommand;
 import frc.robot.commands.NewPrettyCommands.PODIUMCommand;
 import frc.robot.commands.NewPrettyCommands.SUBWOOFCommand;
 import frc.robot.commands.NewPrettyCommands.StoredCommand;
@@ -108,7 +108,7 @@ public class RobotContainer {
         // // states
         StoredCommand storedCommand = new StoredCommand(shooter, intake);
         IntakeCommand intakeCommand = new IntakeCommand(shooter, intake);
-        BetterAMPCommand newAmpCommand = new BetterAMPCommand(shooter, intake);
+        BetterAMPCommand betterAmpCommand = new BetterAMPCommand(shooter, intake);
         SUBWOOFCommand subwoofCommand = new SUBWOOFCommand(shooter, intake);
         PODIUMCommand podiumCommand = new PODIUMCommand(shooter, intake);
         Command idleIndexerCommand = shooter.spinIndexerCommand(RobotConstants.INDEXER_IDLE_SPEED);
@@ -123,12 +123,12 @@ public class RobotContainer {
 
         m_operatorController.b().onTrue(subwoofCommand);
         m_operatorController.y().onTrue(podiumCommand);
-        m_operatorController.x().onTrue(newAmpCommand);
+        m_operatorController.x().onTrue(betterAmpCommand);
 
-        // m_driverController.x().onTrue(intakeCommand);
-        // m_driverController.y().onTrue(storedCommand);
-        m_driverController.x().onTrue(new ConditionalCommand(intakeCommand, storedCommand,
-                () -> StructureStates.getCurrentState() != structureState.intake));
+        m_driverController.x().onTrue(intakeCommand);
+        m_driverController.y().onTrue(storedCommand);
+        // m_driverController.x().onTrue(new ConditionalCommand(intakeCommand, storedCommand,
+        //         () -> StructureStates.getCurrentState() != structureState.intake));
 
         // Climber toggle on rightbumper
         m_operatorController.rightBumper().onTrue(climber.extendCommand());
