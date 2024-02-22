@@ -83,6 +83,10 @@ public class RobotContainer {
     zeroOffsetCommand.setName("Zero Offsets");
     Shuffleboard.getTab("CONFIG").add("Zero Swerve Module Offsets", zeroOffsetCommand);
 
+    Command zeroClimberCommand = climber.moveAndZeroEncoderCommand();
+    zeroClimberCommand.setName("Move and Zero Climber");
+    Shuffleboard.getTab("CONFIG").add(zeroClimberCommand);
+
     StructureStates.setCurrentState(StructureStates.structureState.startup);
     // Configure the trigger bindings
     configure_COMP_Bindings();
@@ -125,7 +129,6 @@ public class RobotContainer {
     m_driverController.rightBumper().onTrue(shootIndexerCommand)
         .onFalse(idleIndexerCommand);
 
-
     m_operatorController.a().onTrue(ampCommand);
     m_operatorController.b().onTrue(subwoofCommand);
     m_operatorController.y().onTrue(podiumCommand);
@@ -134,15 +137,15 @@ public class RobotContainer {
     m_driverController.x().onTrue(intakeCommand);
     m_driverController.y().onTrue(storedCommand);
     // m_driverController.x().onTrue(new ConditionalCommand(intakeCommand,
-    //     storedCommand,
-    //     () -> StructureStates.getCurrentState() != structureState.intake));
+    // storedCommand,
+    // () -> StructureStates.getCurrentState() != structureState.intake));
 
     // Climber toggle on rightbumper
     m_operatorController.rightBumper().onTrue(climber.extendCommand());
     m_operatorController.rightBumper().onFalse(climber.retractCommand());
-    Command zeroClimberCommand = climber.moveAndZeroEncoderCommand();
-    zeroClimberCommand.setName("Move and Zero Climber");
-    Shuffleboard.getTab("CONFIG").add(zeroClimberCommand);
+
+    m_operatorController.leftBumper().onTrue(climber.setSpeedCommand(1));
+    m_operatorController.leftBumper().onFalse(climber.setSpeedCommand(-1));
   }
 
   private void configure_TEST_Bindings() {
@@ -170,7 +173,6 @@ public class RobotContainer {
     // left trigger - shooter angle supplier
     // right trigger - intake angle supplier
     // x - shooter RPM supplier
-
 
     // Remember zeroed at intake pose
     // +RPM means note goes out & +Angle means move up relative to intake pose
