@@ -140,10 +140,7 @@ public class RobotContainer {
     // storedCommand,
     // () -> StructureStates.getCurrentState() != structureState.intake));
 
-    // Climber toggle on rightbumper
-    m_operatorController.rightBumper().onTrue(climber.extendCommand());
-    m_operatorController.rightBumper().onFalse(climber.retractCommand());
-
+    // Climber up/down toggle on operator leftbumper
     m_operatorController.leftBumper().onTrue(climber.setSpeedCommand(1));
     m_operatorController.leftBumper().onFalse(climber.setSpeedCommand(-1));
   }
