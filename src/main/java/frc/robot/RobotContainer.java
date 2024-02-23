@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -126,12 +127,13 @@ public class RobotContainer {
         m_operatorController.y().onTrue(podiumCommand);
         m_operatorController.x().onTrue(betterAmpCommand);
 
-        m_driverController.x().onTrue(intakeCommand);
-        m_driverController.y().onTrue(storedCommand);
-        // m_driverController.x().onTrue(new ConditionalCommand(intakeCommand, storedCommand,
-        //         () -> StructureStates.getCurrentState() != structureState.intake));
-
-        // Climber toggle on rightbumper
+        m_driverController.x().onTrue(Commands.runOnce(() -> {
+            if (StructureStates.getCurrentState() != structureState.intake) {
+                intakeCommand.schedule();
+            } else {
+                storedCommand.schedule();
+            }
+        }));
         m_operatorController.rightBumper().onTrue(climber.extendCommand());
         m_operatorController.rightBumper().onFalse(climber.retractCommand());
     }
