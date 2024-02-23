@@ -662,9 +662,15 @@ public class SwerveSubsystem extends SubsystemBase {
       configureHeadingPID(headingP.getEntry().getDouble(0), headingD.getEntry().getDouble(0));
     }
 
+    swerveDrive.updateOdometry();
+
     SmartDashboard.putNumber("Vision-Swerve-PoseX", this.getPose().getX());
     SmartDashboard.putNumber("Vision-Swerve-PoseY", this.getPose().getY());
     SmartDashboard.putNumber("Vision-Swerve-PoseTheta", this.getPose().getRotation().getDegrees());
+<<<<<<< HEAD
+=======
+
+>>>>>>> 99e1ccf8bc594879e81974b878e98cb78daf9ded
   }
 
   public void setSwerveOffsets () {

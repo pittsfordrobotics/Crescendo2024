@@ -114,8 +114,7 @@ public class Vision extends SubsystemBase {
                 int num = 0;
                 for (Pose3d tagPose : tagPoses) {
                     Alliance alliance = DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue);                    
-                    //tagPose = FieldConstants.allianceFlipper(tagPose, alliance);
-                    tagPose = FieldConstants.poseRelativeToRobot(tagPose, alliance); //modified version of the line above
+                    tagPose = FieldConstants.allianceFlipper(tagPose, alliance);
                     totalDistance += tagPose.getTranslation().getDistance(robotPose3d.getTranslation());
                     tagPoses2d[num] = tagPose.toPose2d();
                     num++;
