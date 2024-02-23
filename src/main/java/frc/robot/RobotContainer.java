@@ -85,7 +85,7 @@ public class RobotContainer {
     speakerTargetSteeringCommand = swerveSubsystem.driveTranslationAndPointAtTarget(
             () -> -m_driverController.getLeftY(),
             () -> -m_driverController.getLeftX(),
-            () -> FieldConstants.Speaker.centerSpeakerOpening);
+            FieldConstants.Speaker.centerSpeakerOpening);
     rotationRateSteeringCommand.setName("Rotation Rate Steer");
     driveModeChooser.setDefaultOption("Enhanced Steering (BETA)", enhancedHeadingSteeringCommand);
     driveModeChooser.addOption("Heading Steering", headingSteeringCommand);

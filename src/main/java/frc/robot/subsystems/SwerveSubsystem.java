@@ -667,10 +667,6 @@ public class SwerveSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("Vision-Swerve-PoseX", this.getPose().getX());
     SmartDashboard.putNumber("Vision-Swerve-PoseY", this.getPose().getY());
     SmartDashboard.putNumber("Vision-Swerve-PoseTheta", this.getPose().getRotation().getDegrees());
-<<<<<<< HEAD
-=======
-
->>>>>>> 99e1ccf8bc594879e81974b878e98cb78daf9ded
   }
 
   public void setSwerveOffsets () {
@@ -712,8 +708,8 @@ public class SwerveSubsystem extends SubsystemBase {
   // Takes a point and returns the desired heading for the swerve to be pointing at the given point using the curent pose
   private double getAngleToPoint(Pose2d targetPoint) {      
     Pose2d currentPose = this.getPose();
-    double desired_heading_deg = Math.toDegrees(Math.atan2(targetPoint.getY() - currentPose.getY(), targetPoint.getX() - currentPose.getX()));
-    return desired_heading_deg;
+    double desired_heading_rad = Math.atan2(targetPoint.getY() - currentPose.getY(), targetPoint.getX() - currentPose.getX());
+    return desired_heading_rad;
   }
 
   // needs tp be called repeadatly
@@ -730,13 +726,13 @@ public class SwerveSubsystem extends SubsystemBase {
    * Drives field oriented with translation X, Y, and points at the given target point
    * @param translationX Supplier of translation in X axis
    * @param translationY Supplier of translation in Y axis
-   * @param targetPointSupplier Supplier of target point
+   * @param targetPoint Supplier of target point
    * @return A RunCommand that drives the swerve drive with given translation and rotation
    */
-  public Command driveTranslationAndPointAtTarget(DoubleSupplier translationX, DoubleSupplier translationY, Supplier<Pose2d> targetPointSupplier){
+  public Command driveTranslationAndPointAtTarget(DoubleSupplier translationX, DoubleSupplier translationY, Pose2d targetPoint){
     return run(() -> {
-      double desiredHeadingDeg = getAngleToPoint(targetPointSupplier.get());
-      Rotation2d desired_heading = Rotation2d.fromDegrees(desiredHeadingDeg);
+      double desiredHeadingrad = getAngleToPoint(targetPoint);
+      Rotation2d desired_heading = Rotation2d.fromDegrees(desiredHeadingrad);
       swerveDrive.setHeadingCorrection(true);
       double rawXInput = translationX.getAsDouble();
       double rawYInput = translationY.getAsDouble();
@@ -747,7 +743,7 @@ public class SwerveSubsystem extends SubsystemBase {
       driveFieldOriented(swerveDrive.swerveController.getTargetSpeeds(
               xInput * speedFactor,
               yInput * speedFactor,
-              desiredHeadingDeg,
+              desiredHeadingrad,
               swerveDrive.getYaw().getRadians(),
               swerveDrive.getMaximumVelocity()));
     });
