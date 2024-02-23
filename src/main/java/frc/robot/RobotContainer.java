@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.Constants.RobotConstants;
 import frc.robot.commands.DisabledInstantCommand;
+import frc.robot.commands.NewPrettyCommands.*;
 import frc.robot.commands.NewPrettyCommands.AmpCommand;
 import frc.robot.commands.NewPrettyCommands.IntakeCommand;
 import frc.robot.commands.NewPrettyCommands.NewAmpCommand;
@@ -106,7 +107,7 @@ public class RobotContainer {
       System.out.println("Resetting gyro");
     }));
 
-    // // states
+    // states
     StoredCommand storedCommand = new StoredCommand(shooter, intake);
     IntakeCommand intakeCommand = new IntakeCommand(shooter, intake);
     AmpCommand ampCommand = new AmpCommand(shooter, intake);
@@ -124,7 +125,6 @@ public class RobotContainer {
     m_driverController.rightBumper().onTrue(shootIndexerCommand)
         .onFalse(idleIndexerCommand);
 
-
     m_operatorController.a().onTrue(ampCommand);
     m_operatorController.b().onTrue(subwoofCommand);
     m_operatorController.y().onTrue(podiumCommand);
@@ -133,12 +133,12 @@ public class RobotContainer {
     m_driverController.x().onTrue(intakeCommand);
     m_driverController.y().onTrue(storedCommand);
     // m_driverController.x().onTrue(new ConditionalCommand(intakeCommand,
-    //     storedCommand,
-    //     () -> StructureStates.getCurrentState() != structureState.intake));
+    // storedCommand,
+    // () -> StructureStates.getCurrentState() != structureState.intake));
 
-    // Climber toggle on rightbumper
-    m_operatorController.rightBumper().onTrue(climber.extendCommand());
-    m_operatorController.rightBumper().onFalse(climber.retractCommand());
+    // Climber up/down toggle on operator leftbumper
+    m_operatorController.leftBumper().onTrue(climber.setSpeedCommand(1));
+    m_operatorController.leftBumper().onFalse(climber.setSpeedCommand(-1));
   }
 
   private void configure_TEST_Bindings() {
@@ -166,7 +166,6 @@ public class RobotContainer {
     // left trigger - shooter angle supplier
     // right trigger - intake angle supplier
     // x - shooter RPM supplier
-
 
     // Remember zeroed at intake pose
     // +RPM means note goes out & +Angle means move up relative to intake pose
