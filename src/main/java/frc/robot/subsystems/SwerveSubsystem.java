@@ -665,9 +665,6 @@ public class SwerveSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("Vision-Swerve-PoseX", this.getPose().getX());
     SmartDashboard.putNumber("Vision-Swerve-PoseY", this.getPose().getY());
     SmartDashboard.putNumber("Vision-Swerve-PoseTheta", this.getPose().getRotation().getDegrees());
-
-    
-
   }
 
   public void setSwerveOffsets () {

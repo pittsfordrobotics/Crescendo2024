@@ -71,6 +71,7 @@ public class Vision extends SubsystemBase {
                 }
 
                 // Gets robot pose from the current camera
+                // Pose is centered differently depending on the alliance of the robot
                 Pose3d robotPose3d = new Pose3d(inputs[i].botXYZ[0], inputs[i].botXYZ[1], inputs[i].botXYZ[2],
                     new Rotation3d(
                         Math.toRadians(inputs[i].botRPY[0]),
@@ -89,7 +90,10 @@ public class Vision extends SubsystemBase {
                         || robotPose3d.getZ() > VisionConstants.Z_MARGIN) {
                     continue;
                 }
+
+                //Vision should not be exited at this point?
                 SmartDashboard.putBoolean("Vision exited?", true);
+
                 SmartDashboard.putNumber("Vision/Pose" + i + "/X", visionCalcPose.getX());
                 SmartDashboard.putNumber("Vision/Pose" + i + "/Y", visionCalcPose.getY());
                 SmartDashboard.putNumber("Vision/Pose" + i + "/Theta", visionCalcPose.getRotation().getDegrees());
@@ -110,18 +114,21 @@ public class Vision extends SubsystemBase {
                 int num = 0;
                 for (Pose3d tagPose : tagPoses) {
                     Alliance alliance = DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue);                    
-                    tagPose = FieldConstants.allianceFlipper(tagPose, alliance);
+                    //tagPose = FieldConstants.allianceFlipper(tagPose, alliance);
+                    tagPose = FieldConstants.poseRelativeToRobot(tagPose, alliance); //modified version of the line above
                     totalDistance += tagPose.getTranslation().getDistance(robotPose3d.getTranslation());
                     tagPoses2d[num] = tagPose.toPose2d();
                     num++;
                 }
                 double avgDistance = totalDistance / tagPoses.size();
+                SmartDashboard.putNumber("Vision/AvgDist", avgDistance);
 
                 // Calculate standard deviation to give to the .addVisionData() swerve method
                 // The larger the STD the less the data is trusted, here the STD is proportional
                 // to the distance to the tag
                 // Increase VisionConstants.XY_STD_DEV_COEF and
                 // VisionConstants.THETA_STD_DEV_COEF to trust vision in general less
+                
                 double xyStdDev = VisionConstants.XY_STD_DEV_COEF * Math.pow(avgDistance, 2.0) / tagPoses.size();
                 double thetaStdDev = VisionConstants.THETA_STD_DEV_COEF * Math.pow(avgDistance, 2.0) / tagPoses.size();
 

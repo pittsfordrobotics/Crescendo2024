@@ -96,14 +96,35 @@ public class FieldConstants {
       throw new RuntimeException(e);
     }
   }
+
   // Evan added probaly wrong
   public static Pose3d allianceFlipper(Pose3d pose, Alliance alliance) {
     if (alliance == Alliance.Blue) {
         return pose;
     }
+    //Keep the x-component, change the magnitude of y component.
+    //Height remains the same.
     Translation3d transformedTranslation =
             new Translation3d(pose.getTranslation().getX(), FieldConstants.fieldWidth - pose.getTranslation().getY(), pose.getTranslation().getZ());
+    
+    //Rotate by 180 degrees
     Rotation3d transformedHolonomicRotation = pose.getRotation().times(-1);
     return new Pose3d(transformedTranslation, transformedHolonomicRotation);
-}
+  }
+
+  //Modified version of the method above
+  //The robot's origin (from vision) change depending on its alliance
+  public static Pose3d poseRelativeToRobot(Pose3d pose, Alliance alliance) {
+    if(alliance.equals(Alliance.Blue)) return pose;
+    //If robot is on red, then its origin will be the opposite across from the blue alliance
+    //Change pose relative to the robot: Translate by length-x, width-y, Rotate by 180
+    Translation3d newTranslation = new Translation3d(
+      fieldLength - pose.getTranslation().getX(),
+      fieldWidth - pose.getTranslation().getY(),
+      pose.getTranslation().getZ());
+
+    Rotation3d newRotation = pose.getRotation().times(-1);
+    return new Pose3d(newTranslation, newRotation);
+  }
+
 }
