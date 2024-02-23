@@ -83,10 +83,6 @@ public class RobotContainer {
     zeroOffsetCommand.setName("Zero Offsets");
     Shuffleboard.getTab("CONFIG").add("Zero Swerve Module Offsets", zeroOffsetCommand);
 
-    Command zeroClimberCommand = climber.moveAndZeroEncoderCommand();
-    zeroClimberCommand.setName("Move and Zero Climber");
-    Shuffleboard.getTab("CONFIG").add(zeroClimberCommand);
-
     StructureStates.setCurrentState(StructureStates.structureState.startup);
     // Configure the trigger bindings
     configure_COMP_Bindings();
