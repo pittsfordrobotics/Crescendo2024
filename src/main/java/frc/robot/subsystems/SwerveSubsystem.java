@@ -35,6 +35,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.lib.VisionData;
+import frc.robot.lib.util.AllianceFlipUtil;
 import frc.robot.lib.AllDeadbands;
 
 import java.io.File;
@@ -731,8 +732,9 @@ public class SwerveSubsystem extends SubsystemBase {
    */
   public Command driveTranslationAndPointAtTarget(DoubleSupplier translationX, DoubleSupplier translationY, Pose2d targetPoint){
     return run(() -> {
-      double desiredHeadingrad = getAngleToPoint(targetPoint);
-      Rotation2d desired_heading = Rotation2d.fromDegrees(desiredHeadingrad);
+      Pose2d flippedTargetPoint = AllianceFlipUtil.apply(targetPoint);
+      double desiredHeadingRad = getAngleToPoint(flippedTargetPoint);
+      Rotation2d desired_heading = Rotation2d.fromDegrees(desiredHeadingRad);
       swerveDrive.setHeadingCorrection(true);
       double rawXInput = translationX.getAsDouble();
       double rawYInput = translationY.getAsDouble();
@@ -743,7 +745,7 @@ public class SwerveSubsystem extends SubsystemBase {
       driveFieldOriented(swerveDrive.swerveController.getTargetSpeeds(
               xInput * speedFactor,
               yInput * speedFactor,
-              desiredHeadingrad,
+              desiredHeadingRad,
               swerveDrive.getYaw().getRadians(),
               swerveDrive.getMaximumVelocity()));
     });
