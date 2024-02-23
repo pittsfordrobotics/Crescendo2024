@@ -134,6 +134,7 @@ public class RobotContainer {
                 storedCommand.schedule();
             }
         }));
+        m_driverController.y().onTrue(storedCommand);
         m_operatorController.rightBumper().onTrue(climber.extendCommand());
         m_operatorController.rightBumper().onFalse(climber.retractCommand());
     }
