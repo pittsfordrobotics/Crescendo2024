@@ -4,6 +4,7 @@
 
 package frc.robot.commands.AutoActionCommands;
 
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.Constants.RobotConstants;
@@ -33,10 +34,11 @@ public class StartIntakeCommand extends SequentialCommandGroup {
 				new ParallelCommandGroup(shooter.setShooterRPMCommand(RobotConstants.INTAKE_ShooterRPM),
 						intake.spinIntakeCommand(RobotConstants.INTAKE_IntakeSpeed)),
 				// Lower shooter and intake and wait for them to drop.
-				intake.setPivotAngleCommand(RobotConstants.INTAKE_IntakePivotAngle),
-				intake.waitForPivotAngleCommand(),
 				shooter.setPivotAngleCommand(RobotConstants.INTAKE_ShooterPivotAngle),
-				shooter.waitForPivotAngleCommand());
+				shooter.waitForPivotAngleCommand(),
+				intake.setPivotAngleCommand(RobotConstants.INTAKE_IntakePivotAngle),
+				intake.waitForPivotAngleCommand());
+
 		StructureStates.setCurrentState(StructureStates.structureState.intake);
 	}
 }

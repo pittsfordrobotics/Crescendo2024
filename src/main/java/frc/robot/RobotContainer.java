@@ -215,19 +215,22 @@ public class RobotContainer {
       shooter.spinIndexerCommand(RobotConstants.INDEXER_SHOOT_SPEED),
       Commands.waitSeconds(0.25),
       shooter.spinIndexerCommand(RobotConstants.INDEXER_IDLE_SPEED), // Idle indexer and prepare to intake
-      autoCommandFactory.generateChoreoCommand(twonotemiddletraj1).andThen(swerveSubsystem.driveToPose(checkpoint1)), // Turn around TODO replace drivetoPose with correctHeading?
+      autoCommandFactory.generateChoreoCommand(twonotemiddletraj1),
+      Commands.waitSeconds(2),
+      swerveSubsystem.correctHeading(checkpoint1.getRotation()).withTimeout(2),
       new StartIntakeCommand(shooter, intake), // Start the intake
-      autoCommandFactory.generateChoreoCommand(twonotemiddletraj2).andThen(swerveSubsystem.driveToPose(checkpoint2)), // Drive forward
+      autoCommandFactory.generateChoreoCommand(twonotemiddletraj2), // Drive forward
       shooter.waitForLimitSwitchCommand().withTimeout(5), // Wait for it to intake
       new StoredCommand(shooter, intake), // Store the note
-      autoCommandFactory.generateChoreoCommand(twonotemiddletraj3).andThen(swerveSubsystem.driveToPose(checkpoint3)), // Turn towards the speaker
-      new CommonSpeakerCommand(shooter, intake, 48, 35, 5900), // Ready to shoot again (adjust these params)
+      autoCommandFactory.generateChoreoCommand(twonotemiddletraj3), // Turn towards the speaker
+      new CommonSpeakerCommand(shooter, intake, 40, 35, 5900), // Ready to shoot again (adjust these params)
       shooter.waitForPivotAngleCommand(),
       shooter.waitForShooterRPMCommand(),
       shooter.spinIndexerCommand(RobotConstants.INDEXER_SHOOT_SPEED), // Shoot
       Commands.waitSeconds(0.25),
       shooter.spinIndexerCommand(RobotConstants.INDEXER_IDLE_SPEED),
-      autoCommandFactory.generateChoreoCommand(twonotemiddletraj4) // drive out of starting area fully
+      autoCommandFactory.generateChoreoCommand(twonotemiddletraj4), // drive out of starting area fully
+      new StoredCommand(shooter, intake)
     );
 
     autoChooser.setDefaultOption("Two Note Middle", twonotemiddle);
