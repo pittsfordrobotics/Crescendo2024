@@ -17,6 +17,7 @@ import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.CANSparkMax;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -34,6 +35,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.FieldConstants;
 import frc.robot.lib.VisionData;
 import frc.robot.lib.util.AllianceFlipUtil;
 import frc.robot.lib.AllDeadbands;
@@ -839,7 +841,8 @@ public class SwerveSubsystem extends SubsystemBase {
   public Command driveTranslationAndPointAtTarget(DoubleSupplier translationX, DoubleSupplier translationY, Pose2d targetPoint){
     return run(() -> {
       // Pose2d flippedTargetPoint = AllianceFlipUtil.apply(targetPoint);
-      double desiredHeadingRad = getAngleToPoint(targetPoint);
+        DriverStation.Alliance alliance = DriverStation.getAlliance().isPresent() ? DriverStation.getAlliance().get() : DriverStation.Alliance.Blue;
+      double desiredHeadingRad = getAngleToPoint(FieldConstants.allianceFlipper(new Pose3d(targetPoint), alliance).toPose2d());
       Rotation2d desired_heading = Rotation2d.fromRadians(desiredHeadingRad);
       swerveDrive.setHeadingCorrection(true);
       double rawXInput = translationX.getAsDouble();
