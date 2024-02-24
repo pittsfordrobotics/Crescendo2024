@@ -154,16 +154,16 @@ public class Shooter extends SubsystemBase {
     pivotRPID.setReference(pivotAngleSetpointDeg, ControlType.kPosition, 0, FFCalculator.getInstance().calculateShooterFF());
 
     // For PidTuningOnly
-    if (SmartDashboard.getNumber("Shooter Pivot P",
-        ShooterConstants.SHOOTER_Pivot_P) != pivotRPID.getP()) {
-      pivotRPID.setP(SmartDashboard.getNumber("Shooter Pivot P",
-          ShooterConstants.SHOOTER_Pivot_P));
-    }
-    if (SmartDashboard.getNumber("Shooter Pivot D",
-        ShooterConstants.SHOOTER_Pivot_D) != pivotRPID.getD()) {
-      pivotRPID.setD(SmartDashboard.getNumber("Shooter Pivot D",
-          ShooterConstants.SHOOTER_Pivot_D));
-    }
+    // if (SmartDashboard.getNumber("Shooter Pivot P",
+    //     ShooterConstants.SHOOTER_Pivot_P) != pivotRPID.getP()) {
+    //   pivotRPID.setP(SmartDashboard.getNumber("Shooter Pivot P",
+    //       ShooterConstants.SHOOTER_Pivot_P));
+    // }
+    // if (SmartDashboard.getNumber("Shooter Pivot D",
+    //     ShooterConstants.SHOOTER_Pivot_D) != pivotRPID.getD()) {
+    //   pivotRPID.setD(SmartDashboard.getNumber("Shooter Pivot D",
+    //       ShooterConstants.SHOOTER_Pivot_D));
+    // }
     // //
 
   }

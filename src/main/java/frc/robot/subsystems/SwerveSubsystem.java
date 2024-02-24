@@ -21,19 +21,26 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.SimpleWidget;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.lib.VisionData;
+import frc.robot.lib.util.AllianceFlipUtil;
 import frc.robot.lib.AllDeadbands;
 
 import java.io.File;
 import java.util.function.DoubleSupplier;
+import java.util.function.Supplier;
 
 import swervelib.SwerveController;
 import swervelib.SwerveDrive;
@@ -55,6 +62,8 @@ public class SwerveSubsystem extends SubsystemBase {
      * Maximum speed of the robot in meters per second, used to limit acceleration.
      */
     public double maximumSpeed = Units.feetToMeters(14.5);
+
+  private boolean hadbadreading = false;
 
     private SimpleWidget velocityP;
     private SimpleWidget angleP;
@@ -128,6 +137,8 @@ public class SwerveSubsystem extends SubsystemBase {
         Shuffleboard.getTab("PID Config").addString("PIDs", this::getPIDVals);
 
         Shuffleboard.getTab("CONFIG").add(this); // for debug
+
+    Shuffleboard.getTab("Vision").addBoolean("Vision Ok", this::isvisionOk);
     }
 
     /**
@@ -268,6 +279,23 @@ public class SwerveSubsystem extends SubsystemBase {
                     swerveDrive.getMaximumVelocity()));
         });
     }
+  public Command headingDriveCommand(DoubleSupplier translationX, DoubleSupplier translationY, Supplier<Rotation2d> headingAngle) {
+    return run(() -> {
+      swerveDrive.setHeadingCorrection(true);
+      double rawXInput = translationX.getAsDouble();
+      double rawYInput = translationY.getAsDouble();
+      double[] scaledDeadbandTranslationInputs = AllDeadbands.applyScaledSquaredCircularDeadband(new double[]{rawXInput, rawYInput}, 0.1);
+      double xInput = scaledDeadbandTranslationInputs[0];
+      double yInput = scaledDeadbandTranslationInputs[1];
+      // Make the robot move
+      driveFieldOriented(swerveDrive.swerveController.getTargetSpeeds(
+              xInput * speedFactor,
+              yInput * speedFactor,
+              headingAngle.get().getDegrees(),
+              swerveDrive.getYaw().getRadians(),
+              swerveDrive.getMaximumVelocity()));
+    });
+  }
 
     /**
      * <h2>More features</h2>
@@ -326,8 +354,8 @@ public class SwerveSubsystem extends SubsystemBase {
             // If no triggers are pressed or both are pressed, use the right stick for
             // heading angle steering
             else {
-                // If there is no current target angle (last action was spin), then don't
-                // command the angle
+        // If there is no current target angle (last action was spin), then don't command the angle
+
                 swerveDrive.setHeadingCorrection(currentTargetAngle != null);
                 if (currentTargetAngle != null) {
                     // Make the robot move
@@ -640,6 +668,43 @@ public class SwerveSubsystem extends SubsystemBase {
         return swerveDrive.getPitch();
     }
 
+  //  * Adds vision measurement from vision object to swerve
+  public void addVisionData(VisionData visionData) {
+    Pose2d swervePose = this.getPose();
+    double previousx = swervePose.getX();
+    double previousy = swervePose.getY();
+    Rotation2d previousTheta = swervePose.getRotation();
+    if (Double.isNaN(previousy) || Double.isNaN(previousx)) {
+      hadbadreading = true;
+      previousx = 0;
+      previousy = 0;
+      System.out.println("Swerve Pose is NaN comeing in ");
+    }
+
+    if (Double.isNaN(visionData.getVisionPose().getX()) || Double.isNaN(visionData.getVisionPose().getY())) {
+      System.out.println("Recived a bad vision pose");
+      return;
+    }
+
+    if (hadbadreading) {
+      resetOdometry(new Pose2d(0.0,0.0,new Rotation2d()));
+      return;
+    }
+
+    swerveDrive.addVisionMeasurement(visionData.getVisionPose(), visionData.getTime(), visionData.getVisionReliability());
+    Pose2d newPose = this.getPose();
+    if (Double.isNaN(newPose.getX()) || Double.isNaN(newPose.getY())) {
+      // hadbadreading = true;
+      Pose2d pose = new Pose2d(previousx, previousy, previousTheta);
+      swerveDrive.resetOdometry(pose);
+      System.out.println("SwerveDrive is nan after vision");
+    }
+  }
+
+  public boolean isvisionOk() {
+    return !hadbadreading;
+  }
+
     /**
      * Add a fake vision reading for testing purposes.
      */
@@ -701,6 +766,12 @@ public class SwerveSubsystem extends SubsystemBase {
             prevHeadingD = headingD.getEntry().getDouble(0);
             configureHeadingPID(headingP.getEntry().getDouble(0), headingD.getEntry().getDouble(0));
         }
+
+    swerveDrive.updateOdometry();
+
+    SmartDashboard.putNumber("Vision-Swerve-PoseX", this.getPose().getX());
+    SmartDashboard.putNumber("Vision-Swerve-PoseY", this.getPose().getY());
+    SmartDashboard.putNumber("Vision-Swerve-PoseTheta", this.getPose().getRotation().getDegrees());
     }
 
     public void setSwerveOffsets() {
@@ -738,4 +809,52 @@ public class SwerveSubsystem extends SubsystemBase {
         }
         return temp.strip();
     }
+
+  // Vision Stuff
+
+  // Takes a point and returns the desired heading for the swerve to be pointing at the given point using the curent pose
+  private double getAngleToPoint(Pose2d targetPoint) {      
+    Pose2d currentPose = this.getPose();
+    double desired_heading_rad = Math.atan2(targetPoint.getY() - currentPose.getY(), targetPoint.getX() - currentPose.getX());
+    return desired_heading_rad;
+  }
+
+  // needs tp be called repeadatly
+  public Command pointAtVisionTarget(Pose2d targetPoint) {
+    return new InstantCommand(() -> {
+      double desired_heading_deg = getAngleToPoint(targetPoint);
+      Rotation2d desired_heading = Rotation2d.fromDegrees(desired_heading_deg);
+      swerveDrive.setHeadingCorrection(true);
+      setTargetAngle(desired_heading);
+    });
+  }
+
+  /**<h2>Vision Targeting</h2>
+   * Drives field oriented with translation X, Y, and points at the given target point
+   * @param translationX Supplier of translation in X axis
+   * @param translationY Supplier of translation in Y axis
+   * @param targetPoint Supplier of target point
+   * @return A RunCommand that drives the swerve drive with given translation and rotation
+   */
+  public Command driveTranslationAndPointAtTarget(DoubleSupplier translationX, DoubleSupplier translationY, Pose2d targetPoint){
+    return run(() -> {
+      // Pose2d flippedTargetPoint = AllianceFlipUtil.apply(targetPoint);
+      double desiredHeadingRad = getAngleToPoint(targetPoint);
+      Rotation2d desired_heading = Rotation2d.fromRadians(desiredHeadingRad);
+      swerveDrive.setHeadingCorrection(true);
+      double rawXInput = translationX.getAsDouble();
+      double rawYInput = translationY.getAsDouble();
+      double[] scaledDeadbandTranslationInputs = AllDeadbands.applyScaledSquaredCircularDeadband(new double[]{rawXInput, rawYInput}, 0.1);
+      double xInput = scaledDeadbandTranslationInputs[0];
+      double yInput = scaledDeadbandTranslationInputs[1];
+      // Make the robot move
+      setTargetAngle(desired_heading);
+      driveFieldOriented(swerveDrive.swerveController.getTargetSpeeds(
+              xInput * speedFactor,
+              yInput * speedFactor,
+              desiredHeadingRad,
+              swerveDrive.getYaw().getRadians(),
+              swerveDrive.getMaximumVelocity()));
+    });
+  }
 }

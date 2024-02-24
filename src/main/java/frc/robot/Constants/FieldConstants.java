@@ -66,7 +66,7 @@ public class FieldConstants {
 
     /** Center of the speaker opening (blue alliance) */
     public static Pose2d centerSpeakerOpening =
-        new Pose2d(0.0, fieldWidth - Units.inchesToMeters(104.0), new Rotation2d());
+        new Pose2d(bottomLeftSpeaker.interpolate(topRightSpeaker, 0.5).toTranslation2d(), new Rotation2d());
   }
 
   // corners (blue alliance origin)
@@ -87,6 +87,10 @@ public class FieldConstants {
   public static Translation3d bottomLeftSpeaker =
       new Translation3d(0.0, Units.inchesToMeters(197.765), Units.inchesToMeters(78.324));
 
+  /** Center of the speaker opening (blue alliance) */
+  public static Translation3d centerSpeakerOpening =
+    bottomLeftSpeaker.interpolate(topRightSpeaker, 0.5);
+
   public static double aprilTagWidth = Units.inchesToMeters(6.50);
   public static AprilTagFieldLayout aprilTags;
 
@@ -96,5 +100,20 @@ public class FieldConstants {
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
+  }
+
+  // Evan added probaly wrong
+  public static Pose3d allianceFlipper(Pose3d pose, Alliance alliance) {
+    if (alliance == Alliance.Blue) {
+        return pose;
+    }
+    //Keep the x-component, change the magnitude of y component.
+    //Height remains the same.
+    Translation3d transformedTranslation =
+            new Translation3d(pose.getTranslation().getX(), FieldConstants.fieldWidth - pose.getTranslation().getY(), pose.getTranslation().getZ());
+    
+    //Rotate by 180 degrees
+    Rotation3d transformedHolonomicRotation = pose.getRotation().times(-1);
+    return new Pose3d(transformedTranslation, transformedHolonomicRotation);
   }
 }

@@ -35,7 +35,7 @@ public class Robot extends LoggedRobot {
     // Instantiate our RobotContainer. This will perform all our button bindings,
     // and put our
     // autonomous chooser on the dashboard.
-    CameraServer.startAutomaticCapture();
+    // CameraServer.startAutomaticCapture();
     m_robotContainer = new RobotContainer();
   }
 
@@ -71,7 +71,8 @@ public class Robot extends LoggedRobot {
   @Override
   public void disabledPeriodic() {
   }
-  /*
+
+  /**
    * This autonomous runs the autonomous command selected by your
    * {@link RobotContainer} class.
    */

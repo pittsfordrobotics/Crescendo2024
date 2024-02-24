@@ -11,10 +11,6 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.*;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.AutoActionCommands.StartIntakeCommand;
@@ -22,10 +18,6 @@ import frc.robot.commands.DisabledInstantCommand;
 import frc.robot.Constants.RobotConstants;
 import frc.robot.commands.NewPrettyCommands.*;
 import frc.robot.lib.AutoCommandFactory;
-import frc.robot.commands.NewPrettyCommands.IntakeCommand;
-import frc.robot.commands.NewPrettyCommands.PODIUMCommand;
-import frc.robot.commands.NewPrettyCommands.SUBWOOFCommand;
-import frc.robot.commands.NewPrettyCommands.StoredCommand;
 import frc.robot.lib.FFCalculator;
 import frc.robot.lib.StructureStates;
 import frc.robot.lib.StructureStates.structureState;
@@ -37,6 +29,11 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import java.io.File;
 import com.choreo.lib.Choreo;
 import com.choreo.lib.ChoreoTrajectory;
+import edu.wpi.first.math.geometry.Pose3d;
+import frc.robot.Constants.FieldConstants;
+import frc.robot.Constants.VisionConstants;
+import frc.robot.subsystems.Vision.Vision;
+
 
 
 public class RobotContainer {
@@ -46,14 +43,16 @@ public class RobotContainer {
     private final Climber climber;
     private final Shooter shooter;
     private final Intake intake;
+    private final Vision vision;
 
     private final AutoCommandFactory autoCommandFactory;
 
- private final SendableChooser<Command> autoChooser = new SendableChooser<>();
+    private final SendableChooser<Command> autoChooser = new SendableChooser<>();
     private final CommandXboxController m_driverController = new CommandXboxController(
             OperatorConstants.kDriverControllerPort);
     private final CommandXboxController m_operatorController = new CommandXboxController(
             OperatorConstants.kOperatorControllerPort);
+    Command speakerTargetSteeringCommand;
 
     // The container for the robot. Contains subsystems, OI devices, and commands.
     public RobotContainer() {
@@ -61,6 +60,8 @@ public class RobotContainer {
         shooter = new Shooter();
         intake = new Intake();
         swerveSubsystem = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve/maxSwerve"));
+    vision = new Vision(VisionConstants.LIMELIGHT1,  VisionConstants.LIMELIGHT2, swerveSubsystem::addVisionData);
+
         FFCalculator c = FFCalculator.getInstance();
         c.updateIntakePivotAngle(intake::getPivotAngleDeg);
         c.updateShooterAngle(shooter::getPivotAngleDeg);
@@ -81,9 +82,19 @@ public class RobotContainer {
                 () -> -m_driverController.getRightY());
         headingSteeringCommand.setName("Heading Steer");
         Command rotationRateSteeringCommand = swerveSubsystem.rotationRateDriveCommand(
-                () -> -m_driverController.getLeftY(),
-                () -> -m_driverController.getLeftX(),
-                () -> -m_driverController.getRightX());
+        () -> -m_driverController.getLeftY(),
+        () -> -m_driverController.getLeftX(),
+        () -> -m_driverController.getRightX());
+
+    Alliance alliance = DriverStation.getAlliance().isPresent() ? DriverStation.getAlliance().get() : Alliance.Blue;
+    System.out.println(alliance.toString());
+    Pose2d speaker = FieldConstants.allianceFlipper(new Pose3d(FieldConstants.Speaker.centerSpeakerOpening), alliance).toPose2d();
+    // Pose2d speaker = new Pose2d(0.0, 0.0, new Rotation2d());
+    // Pose2d speaker = FieldConstants.Speaker.centerSpeakerOpening;
+    speakerTargetSteeringCommand = swerveSubsystem.driveTranslationAndPointAtTarget(
+            () -> -m_driverController.getLeftY(),
+            () -> -m_driverController.getLeftX(),
+            speaker);
         rotationRateSteeringCommand.setName("Rotation Rate Steer");
         driveModeChooser.setDefaultOption("Enhanced Steering (BETA)", enhancedHeadingSteeringCommand);
         driveModeChooser.addOption("Heading Steering", headingSteeringCommand);
@@ -103,7 +114,8 @@ public class RobotContainer {
     private void configure_COMP_Bindings() {
         // Swerve
         m_driverController.start().onTrue(new DisabledInstantCommand(swerveSubsystem::zeroGyro));
-        // m_driverController.leftBumper().onTrue(swerveSubsystem.setSlowSpeed()).onFalse(swerveSubsystem.setNormalSpeed());
+
+        m_driverController.a().whileTrue(speakerTargetSteeringCommand);
         Command driveCommand = driveModeChooser.getSelected();
         swerveSubsystem.setDefaultCommand(driveCommand);
         driveModeChooser.onChange(command -> {
@@ -145,9 +157,10 @@ public class RobotContainer {
                 storedCommand.schedule();
             }
         }));
+        
         m_driverController.y().onTrue(storedCommand);
-        m_operatorController.rightBumper().onTrue(climber.extendCommand());
-        m_operatorController.rightBumper().onFalse(climber.retractCommand());
+        m_operatorController.rightBumper().onTrue(climber.setSpeedCommand(1));
+        m_operatorController.rightBumper().onFalse(climber.setSpeedCommand(-1));
     }
 
     private void configure_TEST_Bindings() {
@@ -208,9 +221,9 @@ public class RobotContainer {
     }
 
   /**
-   * Use this to pass the autonomous command to the main {@link Robot} class.
+  // Use this to pass the autonomous command to the main {@link Robot} class.
    *
-   * @return the command to run in autonomous
+  // @return the command to run in autonomous
    */
   public void autoConfig() {
     ChoreoTrajectory twonotemiddletraj1 = Choreo.getTrajectory("twonotemiddle.1");
@@ -259,5 +272,5 @@ public class RobotContainer {
   public Command getAutonomousCommand() {
     // return new RunCommand(() -> swerveSubsystem.drive(new Translation2d(.1, .2), .3, false), swerveSubsystem); // test drive command, for debugging
     return autoChooser.getSelected();
-  }
+    }
 }
