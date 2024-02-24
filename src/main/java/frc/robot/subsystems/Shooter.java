@@ -230,7 +230,7 @@ public class Shooter extends SubsystemBase {
     return this.runOnce(() -> pivotAngleSetpointDeg = setpoint_deg_clamped);
   }
   public Command waitForPivotAngleCommand() {
-    Command cmd = new WaitUntilCommand(() -> Math.abs(getPivotAngleDeg() - getPivotAngleSetpointDeg()) < 2.5);
+    Command cmd = new WaitUntilCommand(() -> Math.abs(getPivotAngleDeg() - getPivotAngleSetpointDeg()) < 7.5);
     cmd.addRequirements(this);
     return cmd;
   }
@@ -276,7 +276,9 @@ public class Shooter extends SubsystemBase {
 
   // Drives the pivot to a angle using a double suplier (same as above just using a supplier)
   public Command setPivotAngleSupplierCommand() {
-    return this.runOnce(() -> pivotRPID.setReference(SmartDashboard.getNumber("ShooterPivotAngle_CHANGEME", 20), ControlType.kPosition, 0,
-        FFCalculator.getInstance().calculateShooterFF()));
+    return this.runOnce(() -> {
+    double setpoint = SmartDashboard.getNumber("ShooterPivotAngle_CHANGEME", 20);
+    double setpointDegClamped = MathUtil.clamp(setpoint,0,90);   
+    pivotAngleSetpointDeg = setpointDegClamped;});
   }
 }

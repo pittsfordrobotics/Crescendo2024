@@ -4,21 +4,26 @@
 
 package frc.robot.lib;
 
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
 /** Add your docs here. */
 public class StructureStates {
 
-public enum structureState{
-    stored, intake, amp, subwoof, podium, commonSpeaker
-}
-public static structureState currentState;
+    public enum structureState {
+        stored, intake, amp, subwoof, podium, commonSpeaker, startup
+    }
 
-// sets curentstate to stored
-public static void setCurrentState (structureState currentstate){
-    currentState = currentstate;
-}
+    public static structureState currentState;
 
-// returns currentstate
-public static structureState getCurrentState(){
-    return currentState;
-}
+    // sets curentstate to stored
+    public static void setCurrentState(structureState newstate) {
+        currentState = newstate;
+        SmartDashboard.putString("Current State", currentState.toString());
+    }
+
+    // returns currentstate
+    public static structureState getCurrentState() {
+        return currentState;
+    }
 }

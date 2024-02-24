@@ -4,6 +4,7 @@
 
 package frc.robot.commands.NewPrettyCommands;
 
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
@@ -21,8 +22,8 @@ public class IntakeCommand extends SequentialCommandGroup {
 	public IntakeCommand(Shooter shooter, Intake intake) {
 		// Add your commands in the addCommands() call, e.g.
 		// addCommands(new FooCommand(), new BarCommand());
-
 		addCommands(
+				new InstantCommand(() -> StructureStates.setCurrentState(StructureStates.structureState.intake)),
 				new ParallelCommandGroup(shooter.setShooterRPMCommand(RobotConstants.INTAKE_ShooterRPM),
 						intake.spinIntakeCommand(RobotConstants.INTAKE_IntakeSpeed)),
 				new SequentialCommandGroup(
@@ -32,6 +33,6 @@ public class IntakeCommand extends SequentialCommandGroup {
 						shooter.waitForPivotAngleCommand()),
 				new WaitUntilCommand(() -> shooter.getLimitSwitch()),
 				new StoredCommand(shooter, intake));
-		StructureStates.setCurrentState(StructureStates.structureState.intake);
+
 	}
 }

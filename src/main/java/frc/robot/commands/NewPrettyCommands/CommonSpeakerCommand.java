@@ -4,6 +4,7 @@
 
 package frc.robot.commands.NewPrettyCommands;
 
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.Constants.RobotConstants;
@@ -15,18 +16,19 @@ import frc.robot.subsystems.Shooter;
 // information, see:
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
 public class CommonSpeakerCommand extends SequentialCommandGroup {
-  /** Creates a new SpeakerCommand. */
-  public CommonSpeakerCommand(Shooter shooter, Intake intake, double ShooterAngle, double IntakeAngle, double ShooterRPM) {
-    // Add your commands in the addCommands() call, e.g.
-    // addCommands(new FooCommand(), new BarCommand());
-    addCommands(
-        new ParallelCommandGroup(intake.spinIntakeCommand(RobotConstants.SUBWOOF_IntakeSpeed),
-            shooter.setShooterRPMCommand(ShooterRPM)),
-        new SequentialCommandGroup(
-            intake.setPivotAngleCommand(IntakeAngle),
-            intake.waitForPivotAngleCommand()),
-            shooter.setPivotAngleCommand(ShooterAngle),
-            shooter.waitForPivotAngleCommand());
-    StructureStates.setCurrentState(StructureStates.structureState.commonSpeaker);
-  }
+    /** Creates a new SpeakerCommand. */
+    public CommonSpeakerCommand(Shooter shooter, Intake intake, double ShooterAngle, double ShooterRPM) {
+        // Add your commands in the addCommands() call, e.g.
+        // addCommands(new FooCommand(), new BarCommand());
+        addCommands(
+                new InstantCommand(() -> StructureStates.setCurrentState(StructureStates.structureState.commonSpeaker)),
+                new ParallelCommandGroup(intake.spinIntakeCommand(RobotConstants.SUBWOOF_IntakeSpeed),
+                        shooter.setShooterRPMCommand(ShooterRPM)),
+                new SequentialCommandGroup(
+                        intake.setPivotAngleCommand(35),
+                        intake.waitForPivotAngleCommand(),
+                        shooter.setPivotAngleCommand(ShooterAngle),
+                        shooter.waitForPivotAngleCommand())
+        );
+    }
 }
