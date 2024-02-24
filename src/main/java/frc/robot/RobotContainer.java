@@ -40,6 +40,34 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import java.io.File;
 import com.choreo.lib.Choreo;
 import com.choreo.lib.ChoreoTrajectory;
+
+import edu.wpi.first.wpilibj.Filesystem;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.Constants.OperatorConstants;
+import frc.robot.Constants.RobotConstants;
+import frc.robot.commands.DisabledInstantCommand;
+import frc.robot.commands.NewPrettyCommands.*;
+import frc.robot.commands.NewPrettyCommands.IntakeCommand;
+import frc.robot.commands.NewPrettyCommands.PODIUMCommand;
+import frc.robot.commands.NewPrettyCommands.SUBWOOFCommand;
+import frc.robot.commands.NewPrettyCommands.StoredCommand;
+import frc.robot.lib.FFCalculator;
+import frc.robot.lib.StructureStates;
+import frc.robot.lib.StructureStates.structureState;
+import frc.robot.subsystems.Climber;
+import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.Shooter;
+import frc.robot.subsystems.SwerveSubsystem;
+
+
 public class RobotContainer {
     // The robot's subsystems and commands are defined here...
     private final SwerveSubsystem swerveSubsystem;
@@ -48,62 +76,59 @@ public class RobotContainer {
     private final Shooter shooter;
     private final Intake intake;
 
-  private final AutoCommandFactory autoCommandFactory;
-
-  // TODO: Move subsystem commands here
+    private final AutoCommandFactory autoCommandFactory;
 
  private final SendableChooser<Command> autoChooser = new SendableChooser<>();
-  private final CommandXboxController m_driverController = new CommandXboxController(
-      OperatorConstants.kDriverControllerPort);
-  private final CommandXboxController m_operatorController = new CommandXboxController(
-      OperatorConstants.kOperatorControllerPort);
+    private final CommandXboxController m_driverController = new CommandXboxController(
+            OperatorConstants.kDriverControllerPort);
+    private final CommandXboxController m_operatorController = new CommandXboxController(
+            OperatorConstants.kOperatorControllerPort);
 
-  // The container for the robot. Contains subsystems, OI devices, and commands.
-  public RobotContainer() {
-    climber = new Climber();
-    shooter = new Shooter();
-    intake = new Intake();
-
-    swerveSubsystem = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve/maxSwerve"));
-    FFCalculator c = FFCalculator.getInstance();
-    c.updateIntakePivotAngle(intake::getPivotAngleDeg);
-    c.updateShooterAngle(shooter::getPivotAngleDeg);
-    driveModeChooser = new SendableChooser<>();
-
+    // The container for the robot. Contains subsystems, OI devices, and commands.
+    public RobotContainer() {
+        climber = new Climber();
+        shooter = new Shooter();
+        intake = new Intake();
+        swerveSubsystem = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve/maxSwerve"));
+        FFCalculator c = FFCalculator.getInstance();
+        c.updateIntakePivotAngle(intake::getPivotAngleDeg);
+        c.updateShooterAngle(shooter::getPivotAngleDeg);
+        driveModeChooser = new SendableChooser<>();
     autoCommandFactory = new AutoCommandFactory(swerveSubsystem);
-    Command enhancedHeadingSteeringCommand = swerveSubsystem.enhancedHeadingDriveCommand(
-            () -> -m_driverController.getLeftY(),
-            () -> -m_driverController.getLeftX(),
-            () -> -m_driverController.getRightY(),
-            () -> -m_driverController.getRightX(),
-            m_driverController::getLeftTriggerAxis,
-            m_driverController::getRightTriggerAxis);
-    enhancedHeadingSteeringCommand.setName("Enhanced Heading Steer");
-    Command headingSteeringCommand = swerveSubsystem.headingDriveCommand(
-            () -> -m_driverController.getLeftY(),
-            () -> -m_driverController.getLeftX(),
-            () -> -m_driverController.getRightX(),
-            () -> -m_driverController.getRightY());
-    headingSteeringCommand.setName("Heading Steer");
-    Command rotationRateSteeringCommand = swerveSubsystem.rotationRateDriveCommand(
-            () -> -m_driverController.getLeftY(),
-            () -> -m_driverController.getLeftX(),
-            () -> -m_driverController.getRightX());
-    rotationRateSteeringCommand.setName("Rotation Rate Steer");
-    driveModeChooser.setDefaultOption("Enhanced Steering (BETA)", enhancedHeadingSteeringCommand);
-    driveModeChooser.addOption("Heading Steering", headingSteeringCommand);
-    driveModeChooser.addOption("Rotation Rate Steering", rotationRateSteeringCommand);
-    Shuffleboard.getTab("CONFIG").add(driveModeChooser);
-    DisabledInstantCommand zeroOffsetCommand = new DisabledInstantCommand(swerveSubsystem::setSwerveOffsets);
-    zeroOffsetCommand.setName("Zero Offsets");
-    Shuffleboard.getTab("CONFIG").add("Zero Swerve Module Offsets", zeroOffsetCommand);
-    // Configure the trigger bindings
-    configure_COMP_Bindings();
-    // configure_TEST_Bindings();
-    autoConfig();
+        Command enhancedHeadingSteeringCommand = swerveSubsystem.enhancedHeadingDriveCommand(
+                () -> -m_driverController.getLeftY(),
+                () -> -m_driverController.getLeftX(),
+                () -> -m_driverController.getRightY(),
+                () -> -m_driverController.getRightX(),
+                m_driverController::getLeftTriggerAxis,
+                m_driverController::getRightTriggerAxis);
+        enhancedHeadingSteeringCommand.setName("Enhanced Heading Steer");
+        Command headingSteeringCommand = swerveSubsystem.headingDriveCommand(
+                () -> -m_driverController.getLeftY(),
+                () -> -m_driverController.getLeftX(),
+                () -> -m_driverController.getRightX(),
+                () -> -m_driverController.getRightY());
+        headingSteeringCommand.setName("Heading Steer");
+        Command rotationRateSteeringCommand = swerveSubsystem.rotationRateDriveCommand(
+                () -> -m_driverController.getLeftY(),
+                () -> -m_driverController.getLeftX(),
+                () -> -m_driverController.getRightX());
+        rotationRateSteeringCommand.setName("Rotation Rate Steer");
+        driveModeChooser.setDefaultOption("Enhanced Steering (BETA)", enhancedHeadingSteeringCommand);
+        driveModeChooser.addOption("Heading Steering", headingSteeringCommand);
+        driveModeChooser.addOption("Rotation Rate Steering", rotationRateSteeringCommand);
+        Shuffleboard.getTab("CONFIG").add(driveModeChooser);
+        DisabledInstantCommand zeroOffsetCommand = new DisabledInstantCommand(swerveSubsystem::setSwerveOffsets);
+        zeroOffsetCommand.setName("Zero Offsets");
+        Shuffleboard.getTab("CONFIG").add("Zero Swerve Module Offsets", zeroOffsetCommand);
 
-    StructureStates.setCurrentState(StructureStates.structureState.startup);
-  }
+        StructureStates.setCurrentState(StructureStates.structureState.startup);
+        // Configure the trigger bindings
+        configure_COMP_Bindings();
+        // configure_TEST_Bindings();
+    autoConfig();
+    }
+
     private void configure_COMP_Bindings() {
         // Swerve
         m_driverController.start().onTrue(new DisabledInstantCommand(swerveSubsystem::zeroGyro));
@@ -201,6 +226,7 @@ public class RobotContainer {
         m_operatorController.a().onTrue(shooter.setShooterRPMCommand(5400));
         m_operatorController.a().onFalse(shooter.setShooterRPMCommand(-2500));
         m_operatorController.x().whileTrue(shooter.setShooterRPMSupplierCommand());
+
         // B -> Intake RAW command -- Untested
         m_operatorController.b().onTrue(intake.spinIntakeCommand(.7));
         m_operatorController.b().onFalse(intake.spinIntakeCommand(.01));

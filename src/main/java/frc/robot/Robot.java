@@ -77,7 +77,6 @@ public class Robot extends LoggedRobot {
    */
   @Override
   public void autonomousInit() {
-    //System.out.println(DriverStation.getAlliance().get());
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
     // schedule the autonomous command (example)
