@@ -4,6 +4,7 @@
 
 package frc.robot.commands.NewPrettyCommands;
 
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.Constants.RobotConstants;
@@ -15,15 +16,15 @@ import frc.robot.subsystems.Shooter;
 // information, see:
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
 public class StoredCommand extends SequentialCommandGroup {
-  /** Creates a new StoredCommand. */
-  public StoredCommand(Shooter shooter, Intake intake) {
-    // Add your commands in the addCommands() call, e.g.
-    // addCommands(new FooCommand(), new BarCommand());
-    addCommands(
-        new ParallelCommandGroup(intake.spinIntakeCommand(RobotConstants.STORED_IntakeSpeed),
-            shooter.setShooterRPMCommand(RobotConstants.STORED_ShooterRPM)),
-        new SequentialCommandGroup(shooter.setPivotAngleCommand(RobotConstants.STORED_ShooterPivotAngle),
-            intake.setPivotAngleCommand(RobotConstants.STORED_IntakePivotAngle)));
-    StructureStates.setCurrentState(StructureStates.structureState.stored);
-  }
+    /** Creates a new StoredCommand. */
+    public StoredCommand(Shooter shooter, Intake intake) {
+        // Add your commands in the addCommands() call, e.g.
+        // addCommands(new FooCommand(), new BarCommand());
+        addCommands(
+                new InstantCommand(() -> StructureStates.setCurrentState(StructureStates.structureState.stored)),
+                new ParallelCommandGroup(intake.spinIntakeCommand(RobotConstants.STORED_IntakeSpeed),
+                        shooter.setShooterRPMCommand(RobotConstants.STORED_ShooterRPM)),
+                new SequentialCommandGroup(shooter.setPivotAngleCommand(RobotConstants.STORED_ShooterPivotAngle),
+                        intake.setPivotAngleCommand(RobotConstants.STORED_IntakePivotAngle)));
+    }
 }

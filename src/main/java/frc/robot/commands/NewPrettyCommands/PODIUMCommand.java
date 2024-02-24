@@ -4,6 +4,7 @@
 
 package frc.robot.commands.NewPrettyCommands;
 
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.Constants.RobotConstants;
@@ -15,18 +16,19 @@ import frc.robot.subsystems.Shooter;
 // information, see:
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
 public class PODIUMCommand extends SequentialCommandGroup {
-  /** Creates a new SpeakerCommand. */
+    /** Creates a new SpeakerCommand. */
     public PODIUMCommand(Shooter shooter, Intake intake) {
-    // Add your commands in the addCommands() call, e.g.
-    // addCommands(new FooCommand(), new BarCommand());
+        // Add your commands in the addCommands() call, e.g.
+        // addCommands(new FooCommand(), new BarCommand());
         addCommands(
-            new ParallelCommandGroup(intake.spinIntakeCommand(RobotConstants.PODIUM_IntakeSpeed),
-                shooter.setShooterRPMCommand(RobotConstants.PODIUM_ShooterRPM)),
-            new SequentialCommandGroup(
-                intake.setPivotAngleCommand(RobotConstants.PODIUM_IntakePivotAngle),
-                intake.waitForPivotAngleCommand()),
-                shooter.setPivotAngleCommand(RobotConstants.PODIUM_ShooterPivotAngle),
-                shooter.waitForPivotAngleCommand());
-        StructureStates.setCurrentState(StructureStates.structureState.podium);
-  }
+                new InstantCommand(() -> StructureStates.setCurrentState(StructureStates.structureState.podium)),
+                new ParallelCommandGroup(intake.spinIntakeCommand(RobotConstants.PODIUM_IntakeSpeed),
+                        shooter.setShooterRPMCommand(RobotConstants.PODIUM_ShooterRPM)),
+                new SequentialCommandGroup(
+                        intake.setPivotAngleCommand(RobotConstants.PODIUM_IntakePivotAngle),
+                        intake.waitForPivotAngleCommand(),
+                        shooter.setPivotAngleCommand(RobotConstants.PODIUM_ShooterPivotAngle),
+                        shooter.waitForPivotAngleCommand())
+                );
+    }
 }

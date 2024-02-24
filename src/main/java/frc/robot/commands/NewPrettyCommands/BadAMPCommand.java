@@ -4,6 +4,7 @@
 
 package frc.robot.commands.NewPrettyCommands;
 
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.Constants.RobotConstants;
@@ -14,12 +15,13 @@ import frc.robot.subsystems.Shooter;
 // NOTE:  Consider using this command inline, rather than writing a subclass.  For more
 // information, see:
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
-public class AmpCommand extends SequentialCommandGroup {
+public class BadAMPCommand extends SequentialCommandGroup {
     /** Creates a new AmpCommand. */
-    public AmpCommand(Shooter shooter, Intake intake) {
+    public BadAMPCommand(Shooter shooter, Intake intake) {
         // Add your commands in the addCommands() call, e.g.
         // addCommands(new FooCommand(), new BarCommand());
         addCommands(
+                new InstantCommand(() -> StructureStates.setCurrentState(StructureStates.structureState.amp)),
                 new ParallelCommandGroup(
                         intake.spinIntakeCommand(RobotConstants.AMP_IntakeSpeed),
                         shooter.setShooterRPMCommand(RobotConstants.AMP_ShooterRPM)),
@@ -27,7 +29,7 @@ public class AmpCommand extends SequentialCommandGroup {
                         shooter.setPivotAngleCommand(RobotConstants.AMP_ShooterPivotAngle),
                         shooter.waitForPivotAngleCommand(),
                         intake.setPivotAngleCommand(RobotConstants.AMP_IntakePivotAngle),
-                        intake.waitForPivotAngleCommand()));
-        StructureStates.setCurrentState(StructureStates.structureState.amp);
+                        intake.waitForPivotAngleCommand())
+                );
     }
 }

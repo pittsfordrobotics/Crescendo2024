@@ -5,6 +5,7 @@
 package frc.robot.lib;
 
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /** Add your docs here. */
 public class StructureStates {
@@ -18,6 +19,7 @@ public class StructureStates {
     // sets curentstate to stored
     public static void setCurrentState(structureState newstate) {
         currentState = newstate;
+        SmartDashboard.putString("Current State", currentState.toString());
     }
 
     // returns currentstate
