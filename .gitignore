@@ -176,3 +176,8 @@ logs/
 
 # Folder that has CTRE Phoenix Sim device config storage
 ctre_sim/
+
+# Custom from 3181
+simgui-ds.json
+simgui-window.json
+simgui.json
