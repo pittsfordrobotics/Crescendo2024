@@ -97,25 +97,4 @@ public class FieldConstants {
       throw new RuntimeException(e);
     }
   }
-  // Evan added probaly wrong
-  public static Pose3d allianceFlipper(Pose3d pose, Alliance alliance) {
-    if (alliance == Alliance.Blue) {
-        return pose;
-    }
-    Translation3d transformedTranslation =
-            new Translation3d(pose.getTranslation().getX(), FieldConstants.fieldWidth - pose.getTranslation().getY(), pose.getTranslation().getZ());
-    Rotation3d transformedHolonomicRotation = pose.getRotation().times(-1);
-    return new Pose3d(transformedTranslation, transformedHolonomicRotation);
-}
-
-// UNTESTED
-  public static Pose2d allianceFlipper(Pose2d pose, Supplier<Alliance> allianceSupplier) {
-    if (allianceSupplier.get() == Alliance.Blue) {
-        return pose;
-    }
-    Translation2d transformedTranslation =
-        new Translation2d(pose.getTranslation().getX(), FieldConstants.fieldWidth - pose.getTranslation().getY());
-    Rotation2d transformedHolonomicRotation = pose.getRotation().times(-1);
-    return new Pose2d(transformedTranslation, transformedHolonomicRotation);
-}
 }
