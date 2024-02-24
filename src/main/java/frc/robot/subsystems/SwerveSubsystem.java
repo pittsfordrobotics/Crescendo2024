@@ -606,19 +606,26 @@ public class SwerveSubsystem extends SubsystemBase {
     double previousx = swervePose.getX();
     double previousy = swervePose.getY();
     Rotation2d previousTheta = swervePose.getRotation();
-    if (previousx == Double.NaN || previousy == Double.NaN) {
+    if (Double.isNaN(previousy) || Double.isNaN(previousx)) {
       hadbadreading = true;
       previousx = 0;
       previousy = 0;
       System.out.println("Swerve Pose is NaN comeing in ");
     }
+
+    if (Double.isNaN(visionData.getVisionPose().getX()) || Double.isNaN(visionData.getVisionPose().getY())) {
+      System.out.println("Recived a bad vision pose");
+      return;
+    }
+
     if (hadbadreading) {
       resetOdometry(new Pose2d(0.0,0.0,new Rotation2d()));
       return;
     }
+
     swerveDrive.addVisionMeasurement(visionData.getVisionPose(), visionData.getTime(), visionData.getVisionReliability());
     Pose2d newPose = this.getPose();
-    if (newPose.getX() == Double.NaN || newPose.getY() == Double.NaN) {
+    if (Double.isNaN(newPose.getX()) || Double.isNaN(newPose.getY())) {
       hadbadreading = true;
       Pose2d pose = new Pose2d(previousx, previousy, previousTheta);
       swerveDrive.resetOdometry(pose);

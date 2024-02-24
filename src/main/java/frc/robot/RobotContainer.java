@@ -89,9 +89,9 @@ public class RobotContainer {
 
     Alliance alliance = DriverStation.getAlliance().isPresent() ? DriverStation.getAlliance().get() : Alliance.Blue;
     System.out.println(alliance.toString());
-    // Pose2d speaker = FieldConstants.allianceFlipper(new Pose3d(FieldConstants.Speaker.centerSpeakerOpening), alliance).toPose2d();
+    Pose2d speaker = FieldConstants.allianceFlipper(new Pose3d(FieldConstants.Speaker.centerSpeakerOpening), alliance).toPose2d();
     // Pose2d speaker = new Pose2d(0.0, 0.0, new Rotation2d());
-    Pose2d speaker = FieldConstants.Speaker.centerSpeakerOpening;
+    // Pose2d speaker = FieldConstants.Speaker.centerSpeakerOpening;
     speakerTargetSteeringCommand = swerveSubsystem.driveTranslationAndPointAtTarget(
             () -> -m_driverController.getLeftY(),
             () -> -m_driverController.getLeftX(),
