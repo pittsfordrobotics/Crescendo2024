@@ -230,7 +230,7 @@ public class Shooter extends SubsystemBase {
     return this.runOnce(() -> pivotAngleSetpointDeg = setpoint_deg_clamped);
   }
   public Command waitForPivotAngleCommand() {
-    Command cmd = new WaitUntilCommand(() -> Math.abs(getPivotAngleDeg() - getPivotAngleSetpointDeg()) < 2.5);
+    Command cmd = new WaitUntilCommand(() -> Math.abs(getPivotAngleDeg() - getPivotAngleSetpointDeg()) < 7.5);
     cmd.addRequirements(this);
     return cmd;
   }
