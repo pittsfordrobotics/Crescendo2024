@@ -42,7 +42,7 @@ public class AutoCommandFactory {
         };
     }
     public Command generateChoreoCommand(ChoreoTrajectory traj) {
-        return generateChoreoCommand(traj, 2.0);
+        return generateChoreoCommand(traj, 0.5);
     }
 
     public Command generateChoreoCommand(ChoreoTrajectory traj, double waitSeconds) {

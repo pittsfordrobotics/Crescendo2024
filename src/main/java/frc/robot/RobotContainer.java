@@ -221,7 +221,7 @@ public class RobotContainer {
     ChoreoTrajectory twonotemiddletraj3 = Choreo.getTrajectory("twonotemiddle.3");
     ChoreoTrajectory twonotemiddletraj4 = Choreo.getTrajectory("twonotemiddle.4");
     Pose2d checkpoint1 = twonotemiddletraj1.getFinalPose();
-    Pose2d checkpoint2 = twonotemiddletraj2.getFinalPose();
+//    Pose2d checkpoint2 = twonotemiddletraj2.getFinalPose();
     Pose2d checkpoint3 = twonotemiddletraj3.getFinalPose();
 
     Command twonotemiddle = new SequentialCommandGroup(
@@ -237,24 +237,22 @@ public class RobotContainer {
       shooter.spinIndexerCommand(RobotConstants.INDEXER_SHOOT_SPEED),
       Commands.waitSeconds(0.25),
       shooter.spinIndexerCommand(RobotConstants.INDEXER_IDLE_SPEED), // Idle indexer and prepare to intake
+      new StoredCommand(shooter, intake),
       autoCommandFactory.generateChoreoCommand(twonotemiddletraj1),
       swerveSubsystem.correctHeading(checkpoint1.getRotation()).withTimeout(2),
-      Commands.waitSeconds(2),
       new StartIntakeCommand(shooter, intake), // Start the intake
       autoCommandFactory.generateChoreoCommand(twonotemiddletraj2), // Drive forward
-      swerveSubsystem.correctHeading(checkpoint2.getRotation()).withTimeout(2),
       shooter.waitForLimitSwitchCommand().withTimeout(5), // Wait for it to intake
       new StoredCommand(shooter, intake), // Store the note
       autoCommandFactory.generateChoreoCommand(twonotemiddletraj3), // Turn towards the speaker
       swerveSubsystem.correctHeading(checkpoint3.getRotation()).withTimeout(2),
       new CommonSpeakerCommand(shooter, intake, 40, 5900), // Ready to shoot again (adjust these params)
-      shooter.waitForPivotAngleCommand(),
-      shooter.waitForShooterRPMCommand(),
+      shooter.waitForShooterRPMCommand().withTimeout(1),
       shooter.spinIndexerCommand(RobotConstants.INDEXER_SHOOT_SPEED), // Shoot
       Commands.waitSeconds(0.25),
       shooter.spinIndexerCommand(RobotConstants.INDEXER_IDLE_SPEED),
-      autoCommandFactory.generateChoreoCommand(twonotemiddletraj4), // drive out of starting area fully
-      new StoredCommand(shooter, intake)
+      new StoredCommand(shooter, intake),
+      autoCommandFactory.generateChoreoCommand(twonotemiddletraj4)// drive out of starting area fully
     );
 
     autoChooser.setDefaultOption("Two Note Middle", twonotemiddle);

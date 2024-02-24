@@ -229,11 +229,10 @@ public class SwerveSubsystem extends SubsystemBase {
      * @return A command to drive to that heading angle between path segments
      */
     public Command correctHeading(Rotation2d headingAngle) {
-        return this.run(() -> swerveDrive.swerveController.getTargetSpeeds(0, 0, headingAngle.getRadians(),
-                getHeading().getRadians(), swerveDrive.getMaximumVelocity()))
+        return this.run(() -> swerveDrive.drive(swerveDrive.swerveController.getTargetSpeeds(0, 0, headingAngle.getRadians(),
+                getHeading().getRadians(), swerveDrive.getMaximumVelocity())))
                 .beforeStarting(() -> swerveDrive.setHeadingCorrection(true))
-                .until(() -> Math.abs(headingAngle.getDegrees() - getHeading().getDegrees()) < 1.5
-                        && Math.abs(swerveDrive.getRobotVelocity().omegaRadiansPerSecond) < 0.25);
+                .until(() -> Math.abs(headingAngle.getDegrees() - getHeading().getDegrees()) < 1.5);
     }
 
     /**
