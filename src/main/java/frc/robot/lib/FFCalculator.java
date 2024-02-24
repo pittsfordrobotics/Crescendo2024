@@ -44,9 +44,9 @@ public class FFCalculator {
 
     public double calculateShooterFF() {
 
-        // double ShooterMultiplier = ShooterConstants.SHOOTER_Pivot_FF_Multiplier;
-        double ShooterMultiplier = SmartDashboard.getNumber("Shooter FF Mult",
-                ShooterConstants.SHOOTER_Pivot_FF_Multiplier);
+        double ShooterMultiplier = ShooterConstants.SHOOTER_Pivot_FF_Multiplier;
+        // double ShooterMultiplier = SmartDashboard.getNumber("Shooter FF Mult",
+        //         ShooterConstants.SHOOTER_Pivot_FF_Multiplier);
 
         Rotation2d theta = Rotation2d.fromDegrees(this.shooterAngle.getAsDouble());
         Rotation2d alpha = Rotation2d.fromDegrees(this.intakePivotAngle.getAsDouble());
@@ -78,9 +78,9 @@ public class FFCalculator {
 
     public double calculateIntakeFF() {
 
-        // double IntakeMultiplier = IntakeConstants.INTAKE_Pivot_FF_Multiplier;
-        double IntakeMultiplier = SmartDashboard.getNumber("Intake FF Mult",
-                IntakeConstants.INTAKE_Pivot_FF_Multiplier);
+        double IntakeMultiplier = IntakeConstants.INTAKE_Pivot_FF_Multiplier;
+        // double IntakeMultiplier = SmartDashboard.getNumber("Intake FF Mult",
+        //         IntakeConstants.INTAKE_Pivot_FF_Multiplier);
 
         Rotation2d theta = Rotation2d.fromDegrees(this.shooterAngle.getAsDouble());
         Rotation2d alpha = Rotation2d.fromDegrees(this.intakePivotAngle.getAsDouble());
