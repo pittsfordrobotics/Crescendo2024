@@ -5,8 +5,11 @@
 package frc.robot;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -36,6 +39,7 @@ import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.subsystems.Vision.Vision;
 
 import java.io.File;
+import java.sql.Driver;
 
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
@@ -82,10 +86,16 @@ public class RobotContainer {
             () -> -m_driverController.getLeftY(),
             () -> -m_driverController.getLeftX(),
             () -> -m_driverController.getRightX());
+
+    Alliance alliance = DriverStation.getAlliance().isPresent() ? DriverStation.getAlliance().get() : Alliance.Blue;
+    System.out.println(alliance.toString());
+    // Pose2d speaker = FieldConstants.allianceFlipper(new Pose3d(FieldConstants.Speaker.centerSpeakerOpening), alliance).toPose2d();
+    // Pose2d speaker = new Pose2d(0.0, 0.0, new Rotation2d());
+    Pose2d speaker = FieldConstants.Speaker.centerSpeakerOpening;
     speakerTargetSteeringCommand = swerveSubsystem.driveTranslationAndPointAtTarget(
             () -> -m_driverController.getLeftY(),
             () -> -m_driverController.getLeftX(),
-            FieldConstants.Speaker.centerSpeakerOpening);
+            speaker);
     rotationRateSteeringCommand.setName("Rotation Rate Steer");
     driveModeChooser.setDefaultOption("Enhanced Steering (BETA)", enhancedHeadingSteeringCommand);
     driveModeChooser.addOption("Heading Steering", headingSteeringCommand);

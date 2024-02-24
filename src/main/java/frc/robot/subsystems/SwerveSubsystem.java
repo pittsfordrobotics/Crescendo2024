@@ -63,6 +63,8 @@ public class SwerveSubsystem extends SubsystemBase {
    */
   public double maximumSpeed = Units.feetToMeters(14.5);
 
+  private boolean hadbadreading = false;
+
   private SimpleWidget velocityP;
   private SimpleWidget angleP;
   private SimpleWidget angleD;
@@ -129,6 +131,8 @@ public class SwerveSubsystem extends SubsystemBase {
     Shuffleboard.getTab("PID Config").addString("PIDs", this::getPIDVals);
 
     Shuffleboard.getTab("CONFIG").add(this); //for debug
+
+    Shuffleboard.getTab("Vision").addBoolean("Vision Ok", this::isvisionOk);
   }
 
   /**
@@ -598,7 +602,32 @@ public class SwerveSubsystem extends SubsystemBase {
 
   //  * Adds vision measurement from vision object to swerve
   public void addVisionData(VisionData visionData) {
+    Pose2d swervePose = this.getPose();
+    double previousx = swervePose.getX();
+    double previousy = swervePose.getY();
+    Rotation2d previousTheta = swervePose.getRotation();
+    if (previousx == Double.NaN || previousy == Double.NaN) {
+      hadbadreading = true;
+      previousx = 0;
+      previousy = 0;
+      System.out.println("Swerve Pose is NaN comeing in ");
+    }
+    if (hadbadreading) {
+      resetOdometry(new Pose2d(0.0,0.0,new Rotation2d()));
+      return;
+    }
     swerveDrive.addVisionMeasurement(visionData.getVisionPose(), visionData.getTime(), visionData.getVisionReliability());
+    Pose2d newPose = this.getPose();
+    if (newPose.getX() == Double.NaN || newPose.getY() == Double.NaN) {
+      hadbadreading = true;
+      Pose2d pose = new Pose2d(previousx, previousy, previousTheta);
+      swerveDrive.resetOdometry(pose);
+      System.out.println("SwerveDrive is nan after vision");
+    }
+  }
+
+  public boolean isvisionOk() {
+    return !hadbadreading;
   }
 
   /**
@@ -732,9 +761,9 @@ public class SwerveSubsystem extends SubsystemBase {
    */
   public Command driveTranslationAndPointAtTarget(DoubleSupplier translationX, DoubleSupplier translationY, Pose2d targetPoint){
     return run(() -> {
-      Pose2d flippedTargetPoint = AllianceFlipUtil.apply(targetPoint);
-      double desiredHeadingRad = getAngleToPoint(flippedTargetPoint);
-      Rotation2d desired_heading = Rotation2d.fromDegrees(desiredHeadingRad);
+      // Pose2d flippedTargetPoint = AllianceFlipUtil.apply(targetPoint);
+      double desiredHeadingRad = getAngleToPoint(targetPoint);
+      Rotation2d desired_heading = Rotation2d.fromRadians(desiredHeadingRad);
       swerveDrive.setHeadingCorrection(true);
       double rawXInput = translationX.getAsDouble();
       double rawYInput = translationY.getAsDouble();
@@ -742,6 +771,7 @@ public class SwerveSubsystem extends SubsystemBase {
       double xInput = scaledDeadbandTranslationInputs[0];
       double yInput = scaledDeadbandTranslationInputs[1];
       // Make the robot move
+      setTargetAngle(desired_heading);
       driveFieldOriented(swerveDrive.swerveController.getTargetSpeeds(
               xInput * speedFactor,
               yInput * speedFactor,
