@@ -19,7 +19,6 @@ import frc.robot.Constants.RobotConstants;
 import frc.robot.commands.DisabledInstantCommand;
 import frc.robot.commands.NewPrettyCommands.*;
 import frc.robot.commands.NewPrettyCommands.IntakeCommand;
-import frc.robot.commands.NewPrettyCommands.NewAmpCommand;
 import frc.robot.commands.NewPrettyCommands.PODIUMCommand;
 import frc.robot.commands.NewPrettyCommands.SUBWOOFCommand;
 import frc.robot.commands.NewPrettyCommands.StoredCommand;
