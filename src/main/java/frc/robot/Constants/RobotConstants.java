@@ -10,7 +10,7 @@ public class RobotConstants {
     // Positive angle movement moves the shooter or intake up
 
     // Indexer speeds
-    public static final double INDEXER_SHOOT_SPEED = .5;
+    public static final double INDEXER_SHOOT_SPEED = 1;
     public static final double INDEXER_IDLE_SPEED = -.1;
 
     // Intake "state"

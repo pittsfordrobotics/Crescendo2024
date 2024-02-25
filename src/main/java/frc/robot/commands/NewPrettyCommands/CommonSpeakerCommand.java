@@ -21,14 +21,14 @@ public class CommonSpeakerCommand extends SequentialCommandGroup {
         // Add your commands in the addCommands() call, e.g.
         // addCommands(new FooCommand(), new BarCommand());
         addCommands(
-                new InstantCommand(() -> StructureStates.setCurrentState(StructureStates.structureState.commonSpeaker)),
                 new ParallelCommandGroup(intake.spinIntakeCommand(RobotConstants.SUBWOOF_IntakeSpeed),
                         shooter.setShooterRPMCommand(ShooterRPM)),
                 new SequentialCommandGroup(
                         intake.setPivotAngleCommand(35),
                         intake.waitForPivotAngleCommand(),
                         shooter.setPivotAngleCommand(ShooterAngle),
-                        shooter.waitForPivotAngleCommand())
-        );
+                        shooter.waitForPivotAngleCommand()),
+                new InstantCommand(
+                        () -> StructureStates.setCurrentState(StructureStates.structureState.commonSpeaker)));
     }
 }

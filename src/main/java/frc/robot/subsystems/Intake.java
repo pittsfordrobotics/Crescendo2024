@@ -162,10 +162,14 @@ public class Intake extends SubsystemBase {
     double setpointDegClamped = MathUtil.clamp(setpointDeg,0,170);
     return this.runOnce(() -> pivotAngleSetpointDeg = setpointDegClamped);
   }
-  public Command waitForPivotAngleCommand() {
-    Command cmd = new WaitUntilCommand(() -> Math.abs(getPivotAngleDeg() - getPivotAngleSetpointDeg()) < 15);
+  public Command waitForPivotAngleCommand(double degTolerance) {
+    Command cmd = new WaitUntilCommand(() -> Math.abs(getPivotAngleDeg() - getPivotAngleSetpointDeg()) < degTolerance);
     cmd.addRequirements(this);
     return cmd;
+  }
+
+  public Command waitForPivotAngleCommand() {
+    return waitForPivotAngleCommand(15);
   }
 
 //  // For Testing
