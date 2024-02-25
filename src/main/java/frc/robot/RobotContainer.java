@@ -143,27 +143,11 @@ public class RobotContainer {
         Command AmpShootIntake = intake.spinIntakeCommand(RobotConstants.NEWAMP_IntakeSpeed_ShootOut);
 
         // Runs the indexer while the right bumper is held -- essentally a shoot command
-
-        // m_driverController.rightBumper().onTrue(shootIndexerCommand);
-        // m_driverController.rightBumper().onFalse(idleIndexerCommand);
-
         m_driverController.rightBumper().onTrue(shootIndexerCommand);
         m_driverController.rightBumper().onFalse(Commands.runOnce(() -> {
             idleIndexerCommand.schedule();
             storedCommand.schedule();
         }));
-
-        // m_driverController.rightBumper().onTrue(Commands.runOnce(() -> {
-        //     if (StructureStates.getCurrentState() == structureState.intake) {
-        //         shootIndexerCommand.schedule();
-        //         return;
-        //     }
-        //     shootIndexerCommand.schedule();
-        //     new WaitCommand(.5);
-        //     storedCommand.schedule();
-        // }));
-        // m_driverController.rightBumper().onFalse(idleIndexerCommand);
-
 
         // Runs the intake on left bummper true
         m_driverController.leftBumper().onTrue(AmpShootIntake);
