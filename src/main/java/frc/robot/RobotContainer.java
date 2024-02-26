@@ -244,6 +244,7 @@ public class RobotContainer {
           swerveSubsystem.resetOdometry(twonotemiddletraj1.flipped().getInitialPose());
         }
       }),
+      new InstantCommand(() -> swerveSubsystem.setGyroAngle(twonotemiddletraj1.getInitialPose().getRotation())), // Sets the gyro heading, NEVER FLIPPED since robot should always point away from DS when gyro reports 0
       new AutoShootSubwoof(shooter, intake),
       autoCommandFactory.generateChoreoCommand(twonotemiddletraj1),
       swerveSubsystem.correctHeading(twonotemiddletraj1).withTimeout(2),
