@@ -6,6 +6,7 @@
 
 package frc.robot.subsystems;
 
+import com.choreo.lib.ChoreoTrajectory;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
@@ -28,6 +29,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.SimpleWidget;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -233,17 +235,25 @@ public class SwerveSubsystem extends SubsystemBase {
         );
     }
 
+
     /**
      * Corrects heading angle continuously until it is reached and angular velocity
      * is low (Autonomous only)
      * 
      * @return A command to drive to that heading angle between path segments
      */
-    public Command correctHeading(Rotation2d headingAngle) {
-        return this.run(() -> swerveDrive.drive(swerveDrive.swerveController.getTargetSpeeds(0, 0, headingAngle.getRadians(),
-                getHeading().getRadians(), swerveDrive.getMaximumVelocity())))
-                .beforeStarting(() -> swerveDrive.setHeadingCorrection(true))
-                .until(() -> Math.abs(headingAngle.getDegrees() - getHeading().getDegrees()) < 1.5);
+    public Command correctHeading(ChoreoTrajectory traj) {
+        return this.run(() -> 
+        {
+        swerveDrive.drive(swerveDrive.swerveController.getTargetSpeeds(0, 0, currentTargetAngle.getRadians(),
+                getHeading().getRadians(), swerveDrive.getMaximumVelocity()));
+        })
+                .beforeStarting(() -> 
+                {
+                swerveDrive.setHeadingCorrection(true);
+                currentTargetAngle = (DriverStation.getAlliance().get() == Alliance.Blue) ? traj.getFinalPose().getRotation() : traj.flipped().getFinalPose().getRotation();
+                })
+                .until(() -> Math.abs(currentTargetAngle.getDegrees() - getHeading().getDegrees()) < 1.5);
     }
 
     /**
