@@ -235,6 +235,25 @@ public class SwerveSubsystem extends SubsystemBase {
         );
     }
 
+    public Command pathToPath (PathPlannerPath path) {
+        // Load the path we want to pathfind to and follow
+        // PathPlannerPath path = PathPlannerPath.fromPathFile("Example Human Player Pickup");
+
+        // Create the constraints to use while pathfinding. The constraints defined in
+        // the path will only be used for the path.
+        PathConstraints constraints = new PathConstraints(
+                swerveDrive.getMaximumVelocity() * 0.5, 2.0,
+                swerveDrive.getMaximumAngularVelocity() * 0.5, Units.degreesToRadians(360));
+
+        // Since AutoBuilder is configured, we can use it to build pathfinding commands
+        return AutoBuilder.pathfindThenFollowPath(
+                path,
+                constraints,
+                1.0 // Rotation delay distance in meters. This is how far the robot should travel
+                    // before attempting to rotate.
+        );
+    }
+
     /**
      * Corrects heading angle continuously until it is reached and angular velocity
      * is low (Autonomous only)
