@@ -252,7 +252,8 @@ public class SwerveSubsystem extends SubsystemBase {
                 .beforeStarting(() -> 
                 {
                 swerveDrive.setHeadingCorrection(true);
-                currentTargetAngle = (DriverStation.getAlliance().get() == Alliance.Blue) ? traj.getFinalPose().getRotation() : traj.flipped().getFinalPose().getRotation();
+                //currentTargetAngle = (DriverStation.getAlliance().get() == Alliance.Blue) ? traj.getFinalPose().getRotation() : traj.flipped().getFinalPose().getRotation();
+                currentTargetAngle = AllianceFlipUtil.apply(traj.getFinalPose()).getRotation();
                 })
                 .until(() -> Math.abs(currentTargetAngle.getDegrees() - getHeading().getDegrees()) < 1.5);
     }

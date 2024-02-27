@@ -221,13 +221,6 @@ public class RobotContainer {
         m_operatorController.y().onFalse(shooter.spinIndexerCommand(-0.1));
     }
 
-  private ChoreoTrajectory finalAutoTrajectory;
-  public void setGyroBasedOnAutoFinalTrajectory(){
-    swerveSubsystem.setGyroAngle(finalAutoTrajectory.getFinalPose().getRotation()); // Sets the gyro heading, NEVER FLIPPED since robot should always point away from DS when gyro reports 0
-  }
-  public void setGyroBasedOnChoreoTrajectory(ChoreoTrajectory traj){
-    swerveSubsystem.setGyroAngle(traj.getInitialPose().getRotation()); // Sets the gyro heading, NEVER FLIPPED since robot should always point away from DS when gyro reports 0
-  }
   /**
   // Use this to pass the autonomous command to the main {@link Robot} class.
    *
@@ -239,6 +232,9 @@ public class RobotContainer {
     ChoreoTrajectory twonotemiddletraj2 = Choreo.getTrajectory("twonotemiddle.2");
     ChoreoTrajectory twonotemiddletraj3 = Choreo.getTrajectory("twonotemiddle.3");
     ChoreoTrajectory twonotemiddletraj4 = Choreo.getTrajectory("twonotemiddle.4");
+    Pose2d twonotemiddlecheckpoint1 = twonotemiddletraj1.getFinalPose();
+    Pose2d twonotemiddlecheckpoint2 = twonotemiddletraj2.getFinalPose();
+    Pose2d twonotemiddlecheckpoint3 = twonotemiddletraj3.getFinalPose();
 
     Command twonotemiddle = new SequentialCommandGroup(
       Commands.runOnce(() -> {
@@ -247,15 +243,23 @@ public class RobotContainer {
         } else {
           swerveSubsystem.resetOdometry(twonotemiddletraj1.flipped().getInitialPose());
         }
-        //setGyroBasedOnChoreoTrajectory(twonotemiddletraj1);
-        //finalAutoTrajectory = twonotemiddletraj4;
       }),
+<<<<<<< HEAD
       new AutoShootSubwoof(shooter, intake),
+=======
+      new InstantCommand(() -> swerveSubsystem.setGyroAngle(twonotemiddletraj1.getInitialPose().getRotation())), // Sets the gyro heading, NEVER FLIPPED since robot should always point away from DS when gyro reports 0
+      new SUBWOOFCommand(shooter, intake),
+      Commands.waitSeconds(0.5), // move to position and spin up
+      shooter.spinIndexerCommand(RobotConstants.INDEXER_SHOOT_SPEED),
+      Commands.waitSeconds(0.25),
+      shooter.spinIndexerCommand(RobotConstants.INDEXER_IDLE_SPEED), // Idle indexer and prepare to intake
+      new StoredCommand(shooter, intake),
+>>>>>>> c3d6a44335a677a0facc0b6201174ecc422fc8ba
       autoCommandFactory.generateChoreoCommand(twonotemiddletraj1),
       swerveSubsystem.correctHeading(twonotemiddletraj1).withTimeout(2),
       new StartIntakeCommand(shooter, intake), // Start the intake
       autoCommandFactory.generateChoreoCommand(twonotemiddletraj2), // Drive forward
-      shooter.waitForLimitSwitchCommand().withTimeout(3), // Wait for it to intake
+      shooter.waitForLimitSwitchCommand().withTimeout(5), // Wait for it to intake
       new StoredCommand(shooter, intake), // Store the note
       autoCommandFactory.generateChoreoCommand(twonotemiddletraj3), // Turn towards the speaker
       swerveSubsystem.correctHeading(twonotemiddletraj3).withTimeout(2),
@@ -265,7 +269,7 @@ public class RobotContainer {
       Commands.waitSeconds(0.25),
       shooter.spinIndexerCommand(RobotConstants.INDEXER_IDLE_SPEED),
       new StoredCommand(shooter, intake),
-      autoCommandFactory.generateChoreoCommand(twonotemiddletraj4) // drive out of starting area fully
+      autoCommandFactory.generateChoreoCommand(twonotemiddletraj4)// drive out of starting area fully
     );
     autoChooser.addOption("Two Note Middle", twonotemiddle);
     /* TWONOTEMIDDLE END */
@@ -274,6 +278,9 @@ public class RobotContainer {
     ChoreoTrajectory twonotebottomtraj1 = Choreo.getTrajectory("twonotebottom.1");
     ChoreoTrajectory twonotebottomtraj2 = Choreo.getTrajectory("twonotebottom.2");
     ChoreoTrajectory twonotebottomtraj3 = Choreo.getTrajectory("twonotebottom.3");
+    Pose2d twonotebottomcheckpoint1 = twonotebottomtraj1.getFinalPose();
+    Pose2d twonotebottomcheckpoint2 = twonotebottomtraj2.getFinalPose();
+    Pose2d twonotebottomcheckpoint3 = twonotebottomtraj3.getFinalPose();
 
     Command twonotebottom = new SequentialCommandGroup(
       Commands.runOnce(() -> {
@@ -282,15 +289,13 @@ public class RobotContainer {
         } else {
           swerveSubsystem.resetOdometry(twonotebottomtraj1.flipped().getInitialPose());
         }
-        //finalAutoTrajectory = twonotebottomtraj3;
-        //setGyroBasedOnChoreoTrajectory(twonotebottomtraj1);
       }),
       new AutoShootSubwoof(shooter, intake),
       autoCommandFactory.generateChoreoCommand(twonotebottomtraj1),
       swerveSubsystem.correctHeading(twonotemiddletraj1).withTimeout(2),
       new StartIntakeCommand(shooter, intake),
       autoCommandFactory.generateChoreoCommand(twonotebottomtraj2),
-      shooter.waitForLimitSwitchCommand().withTimeout(3), // Wait for it to intake
+      shooter.waitForLimitSwitchCommand().withTimeout(5), // Wait for it to intake
       new StoredCommand(shooter, intake),
       autoCommandFactory.generateChoreoCommand(twonotebottomtraj3),
       swerveSubsystem.correctHeading(twonotebottomtraj3).withTimeout(2),
@@ -301,42 +306,7 @@ public class RobotContainer {
       shooter.spinIndexerCommand(RobotConstants.INDEXER_IDLE_SPEED),
       new StoredCommand(shooter, intake)
     );
-    autoChooser.addOption("Two Note Podiumside", twonotebottom);
-    /* TWONOTEBOTTOM START */
-
-    /* TWONOTETOP START */
-    ChoreoTrajectory twonotetoptraj1 = Choreo.getTrajectory("twonotetop.1");
-    ChoreoTrajectory twonotetoptraj2 = Choreo.getTrajectory("twonotetop.2");
-    ChoreoTrajectory twonotetoptraj3 = Choreo.getTrajectory("twonotetop.3");
-
-    Command twonotetop = new SequentialCommandGroup(
-      Commands.runOnce(() -> {
-        if(DriverStation.getAlliance().get() == Alliance.Blue) {
-          swerveSubsystem.resetOdometry(twonotetoptraj1.getInitialPose());
-        } else {
-          swerveSubsystem.resetOdometry(twonotetoptraj1.flipped().getInitialPose());
-        }
-        //finalAutoTrajectory = twonotetoptraj3;
-        //setGyroBasedOnChoreoTrajectory(twonotetoptraj1);
-      }),
-      new AutoShootSubwoof(shooter, intake),
-      autoCommandFactory.generateChoreoCommand(twonotetoptraj1),
-      swerveSubsystem.correctHeading(twonotemiddletraj1).withTimeout(2),
-      new StartIntakeCommand(shooter, intake),
-      autoCommandFactory.generateChoreoCommand(twonotetoptraj2),
-      shooter.waitForLimitSwitchCommand().withTimeout(3), // Wait for it to intake
-      new StoredCommand(shooter, intake),
-      autoCommandFactory.generateChoreoCommand(twonotetoptraj3),
-      swerveSubsystem.correctHeading(twonotetoptraj3).withTimeout(2),
-      new CommonSpeakerCommand(shooter, intake, 41.5, 6000), // Ready to shoot again (adjust these params)
-      shooter.waitForShooterRPMCommand().withTimeout(1),
-      shooter.spinIndexerCommand(RobotConstants.INDEXER_SHOOT_SPEED), // Shoot
-      Commands.waitSeconds(0.25),
-      shooter.spinIndexerCommand(RobotConstants.INDEXER_IDLE_SPEED),
-      new StoredCommand(shooter, intake)
-    );
-    autoChooser.addOption("Two Note Ampside", twonotetop);
-    /* TWONOTETOP STOP */
+    autoChooser.addOption("Two Note Bottom", twonotebottom);
 
     autoChooser.setDefaultOption("Do nothing", new InstantCommand());
     SmartDashboard.putData(autoChooser);
