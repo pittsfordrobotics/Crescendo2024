@@ -229,10 +229,14 @@ public class Shooter extends SubsystemBase {
     double setpoint_deg_clamped = MathUtil.clamp(setpoint_deg, 0, 90);
     return this.runOnce(() -> pivotAngleSetpointDeg = setpoint_deg_clamped);
   }
-  public Command waitForPivotAngleCommand() {
-    Command cmd = new WaitUntilCommand(() -> Math.abs(getPivotAngleDeg() - getPivotAngleSetpointDeg()) < 7.5);
+  
+  public Command waitForPivotAngleCommand(double degTolerance) {
+    Command cmd = new WaitUntilCommand(() -> Math.abs(getPivotAngleDeg() - getPivotAngleSetpointDeg()) < degTolerance);
     cmd.addRequirements(this);
     return cmd;
+  }
+  public Command waitForPivotAngleCommand() {
+    return waitForPivotAngleCommand(7.5);
   }
 
   // Zeros the pivot -- call when laying flat
