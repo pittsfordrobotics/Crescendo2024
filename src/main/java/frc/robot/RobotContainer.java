@@ -5,6 +5,7 @@
 package frc.robot;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -141,10 +142,10 @@ public class RobotContainer {
         Command shootIndexerCommand = shooter.spinIndexerCommand(RobotConstants.INDEXER_SHOOT_SPEED);
         Command AmpShootIntake = intake.spinIntakeCommand(RobotConstants.NEWAMP_IntakeSpeed_ShootOut);
 
-        // Runs the indexer while the right bumper is held -- essentally a shoot command
+        // Runs the indexer while the right bumper is held -- essentially a shoot command
         m_driverController.rightBumper().onTrue(shootIndexerCommand)
                 .onFalse(idleIndexerCommand);
-        // Runs the intake on left bummper true
+        // Runs the intake on left bumper true
         m_driverController.leftBumper().onTrue(AmpShootIntake);
 
         m_operatorController.b().onTrue(subwoofCommand);
@@ -225,8 +226,16 @@ public class RobotContainer {
   public void setGyroBasedOnAutoFinalTrajectory(){
     swerveSubsystem.setGyroAngle(finalAutoTrajectory.getFinalPose().getRotation()); // Sets the gyro heading, NEVER FLIPPED since robot should always point away from DS when gyro reports 0
   }
-  public void setGyroBasedOnChoreoTrajectory(ChoreoTrajectory traj){
-    swerveSubsystem.setGyroAngle(traj.getInitialPose().getRotation()); // Sets the gyro heading, NEVER FLIPPED since robot should always point away from DS when gyro reports 0
+
+    /** <p>Sets the gyro heading, flipped in relation to the ALLIANCE's origin, NOT the origin of the FIELD.</p>
+     * <p>Uses alliance-relative flipping, so only used for teleop.</p>
+     * <p>Auto will simply ignore it if odometry is reset after.</p>
+     * @param traj The choreo trajectory whose initial angle is used to set the gyro angle.
+     */
+  public void setGyroBasedOnInitialChoreoTrajectory(ChoreoTrajectory traj){
+      System.out.println("Is alliance present when setting initial gyro? " + DriverStation.getAlliance().isPresent());
+      Rotation2d actualAllianceRelativeAngle = DriverStation.getAlliance().get() == Alliance.Blue ? traj.getInitialPose().getRotation() : new Rotation2d().minus(traj.getInitialPose().getRotation());
+      swerveSubsystem.setGyroAngle(actualAllianceRelativeAngle);
   }
   /**
   // Use this to pass the autonomous command to the main {@link Robot} class.
@@ -242,13 +251,12 @@ public class RobotContainer {
 
     Command twonotemiddle = new SequentialCommandGroup(
       Commands.runOnce(() -> {
+          setGyroBasedOnInitialChoreoTrajectory(twonotemiddletraj1);
         if(DriverStation.getAlliance().get() == Alliance.Blue) {
           swerveSubsystem.resetOdometry(twonotemiddletraj1.getInitialPose());
         } else {
           swerveSubsystem.resetOdometry(twonotemiddletraj1.flipped().getInitialPose());
         }
-        //setGyroBasedOnChoreoTrajectory(twonotemiddletraj1);
-        //finalAutoTrajectory = twonotemiddletraj4;
       }),
       new AutoShootSubwoof(shooter, intake),
       autoCommandFactory.generateChoreoCommand(twonotemiddletraj1),
@@ -277,13 +285,12 @@ public class RobotContainer {
 
     Command twonotebottom = new SequentialCommandGroup(
       Commands.runOnce(() -> {
+          setGyroBasedOnInitialChoreoTrajectory(twonotebottomtraj1);
         if(DriverStation.getAlliance().get() == Alliance.Blue) {
           swerveSubsystem.resetOdometry(twonotebottomtraj1.getInitialPose());
         } else {
           swerveSubsystem.resetOdometry(twonotebottomtraj1.flipped().getInitialPose());
         }
-        //finalAutoTrajectory = twonotebottomtraj3;
-        //setGyroBasedOnChoreoTrajectory(twonotebottomtraj1);
       }),
       new AutoShootSubwoof(shooter, intake),
       autoCommandFactory.generateChoreoCommand(twonotebottomtraj1),
@@ -311,13 +318,12 @@ public class RobotContainer {
 
     Command twonotetop = new SequentialCommandGroup(
       Commands.runOnce(() -> {
+          setGyroBasedOnInitialChoreoTrajectory(twonotetoptraj1);
         if(DriverStation.getAlliance().get() == Alliance.Blue) {
           swerveSubsystem.resetOdometry(twonotetoptraj1.getInitialPose());
         } else {
           swerveSubsystem.resetOdometry(twonotetoptraj1.flipped().getInitialPose());
         }
-        //finalAutoTrajectory = twonotetoptraj3;
-        //setGyroBasedOnChoreoTrajectory(twonotetoptraj1);
       }),
       new AutoShootSubwoof(shooter, intake),
       autoCommandFactory.generateChoreoCommand(twonotetoptraj1),
