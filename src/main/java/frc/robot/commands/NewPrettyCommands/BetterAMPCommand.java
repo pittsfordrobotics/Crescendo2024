@@ -25,8 +25,6 @@ public class BetterAMPCommand extends SequentialCommandGroup {
         // Add your commands in the addCommands() call, e.g.
         // addCommands(new FooCommand(), new BarCommand());
         addCommands(
-                new InstantCommand(() -> StructureStates
-                        .setCurrentState(StructureStates.structureState.amp)),
                 new ParallelCommandGroup(
                         intake.spinIntakeCommand(RobotConstants.NEWAMP_IntakeSpeed_STAGE1),
                         shooter.setShooterRPMCommand(RobotConstants.NEWAMP_ShooterRPM_STAGE1)),
@@ -42,12 +40,13 @@ public class BetterAMPCommand extends SequentialCommandGroup {
                 intake.spinIntakeCommand(RobotConstants.NEWAMP_IntakeSpeed_STAGE2),
                 shooter.spinIndexerCommand(RobotConstants.INDEXER_IDLE_SPEED),
                 new SequentialCommandGroup(
-                        shooter.setPivotAngleCommand(
-                                RobotConstants.NEWAMP_ShooterPivotAngle_STAGE2),
-                        shooter.waitForPivotAngleCommand(),
                         intake.setPivotAngleCommand(
                                 RobotConstants.NEWAMP_IntakePivotAngle_STAGE2),
-                        intake.waitForPivotAngleCommand())
-                );
+                        intake.waitForPivotAngleCommand(5),
+                        shooter.setPivotAngleCommand(
+                                RobotConstants.NEWAMP_ShooterPivotAngle_STAGE2),
+                        shooter.waitForPivotAngleCommand(2.5)),
+                new InstantCommand(() -> StructureStates
+                        .setCurrentState(StructureStates.structureState.amp)));
     }
 }
