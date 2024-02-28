@@ -111,6 +111,9 @@ public class RobotContainer {
     }
 
     private void configure_COMP_Bindings() {
+        // ToDo:
+        // Test if stored command should be set in the begining or end of the command
+
         // Swerve
         m_driverController.start().onTrue(new DisabledInstantCommand(swerveSubsystem::zeroGyro));
 
@@ -140,36 +143,29 @@ public class RobotContainer {
         Command AmpShootIntake = intake.spinIntakeCommand(RobotConstants.NEWAMP_IntakeSpeed_ShootOut);
 
         // Runs the indexer while the right bumper is held -- essentally a shoot command
-        m_driverController.rightBumper().onTrue(shootIndexerCommand)
-                .onFalse(idleIndexerCommand);
-        // Runs the intake on left bummper true
-        // m_driverController.leftBumper().onTrue(AmpShootIntake);
+        m_driverController.rightBumper().onTrue(shootIndexerCommand);
+        m_driverController.rightBumper().onFalse(Commands.runOnce(() -> {
+            idleIndexerCommand.schedule();
+            storedCommand.schedule();
+        }));
 
-        // new
-        PathPlannerPath ampPath = PathPlannerPath.fromPathFile("AmpPath");
-        m_driverController.leftBumper().onTrue(
-                new ParallelCommandGroup(
-                        betterAmpCommand,
-                        swerveSubsystem.pathToPath(ampPath)));
-        m_driverController.leftBumper().onFalse(
-                new SequentialCommandGroup(
-                        AmpShootIntake,
-                        new WaitCommand(1),
-                        storedCommand));
+        // Runs the intake on left bummper true
+        m_driverController.leftBumper().onTrue(AmpShootIntake);
+        m_driverController.leftBumper().onFalse(storedCommand);
 
         m_operatorController.b().onTrue(subwoofCommand);
         m_operatorController.y().onTrue(podiumCommand);
         // m_operatorController.x().onTrue(betterAmpCommand);
 
         m_driverController.x().onTrue(Commands.runOnce(() -> {
-            if (StructureStates.getCurrentState() != structureState.intake) {
+            if (StructureStates.getCurrentState() == structureState.stored) {
                 intakeCommand.schedule();
-            } else {
+            } else{
                 storedCommand.schedule();
             }
         }));
+        // m_driverController.y().onTrue(storedCommand);
 
-        m_driverController.y().onTrue(storedCommand);
         m_operatorController.rightBumper().onTrue(climber.setSpeedCommand(1));
         m_operatorController.rightBumper().onFalse(climber.setSpeedCommand(-1));
     }
