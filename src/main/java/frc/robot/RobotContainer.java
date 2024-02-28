@@ -4,20 +4,25 @@
 
 package frc.robot;
 
+import com.choreo.lib.Choreo;
+import com.choreo.lib.ChoreoTrajectory;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.Filesystem;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.*;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.Constants.RobotConstants;
+import frc.robot.Constants.VisionConstants;
 import frc.robot.commands.AutoActionCommands.AutoShootSubwoof;
 import frc.robot.commands.AutoActionCommands.StartIntakeCommand;
 import frc.robot.commands.DisabledInstantCommand;
-import frc.robot.Constants.RobotConstants;
 import frc.robot.commands.NewPrettyCommands.*;
 import frc.robot.lib.AutoCommandFactory;
 import frc.robot.lib.FFCalculator;
@@ -27,14 +32,9 @@ import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.SwerveSubsystem;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import java.io.File;
-import com.choreo.lib.Choreo;
-import com.choreo.lib.ChoreoTrajectory;
-import edu.wpi.first.math.geometry.Pose3d;
-import frc.robot.Constants.FieldConstants;
-import frc.robot.Constants.VisionConstants;
 import frc.robot.subsystems.Vision.Vision;
+
+import java.io.File;
 
 
 
@@ -228,11 +228,11 @@ public class RobotContainer {
         m_operatorController.y().onTrue(shooter.spinIndexerCommand(0.5));
         m_operatorController.y().onFalse(shooter.spinIndexerCommand(-0.1));
     }
-
-  private ChoreoTrajectory finalAutoTrajectory;
-  public void setGyroBasedOnAutoFinalTrajectory(){
-    swerveSubsystem.setGyroAngle(finalAutoTrajectory.getFinalPose().getRotation()); // Sets the gyro heading, NEVER FLIPPED since robot should always point away from DS when gyro reports 0
-  }
+//
+//  private ChoreoTrajectory finalAutoTrajectory;
+//  public void setGyroBasedOnAutoFinalTrajectory(){
+//    swerveSubsystem.setGyroAngle(finalAutoTrajectory.getFinalPose().getRotation()); // Sets the gyro heading, NEVER FLIPPED since robot should always point away from DS when gyro reports 0
+//  } // Unnecessary since it can be done initially
 
     /** <p>Sets the gyro heading, flipped in relation to the ALLIANCE's origin, NOT the origin of the FIELD.</p>
      * <p>Uses alliance-relative flipping, so only used for teleop.</p>
@@ -245,9 +245,7 @@ public class RobotContainer {
       swerveSubsystem.setGyroAngle(actualAllianceRelativeAngle);
   }
   /**
-  // Use this to pass the autonomous command to the main {@link Robot} class.
-   *
-  // @return the command to run in autonomous
+   * Use this to pass the autonomous command to the main {@link Robot} class.
    */
   public void autoConfig() {
     /* TWONOTEMIDDLE START */
