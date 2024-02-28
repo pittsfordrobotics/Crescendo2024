@@ -32,6 +32,7 @@ import com.choreo.lib.ChoreoTrajectory;
 import com.pathplanner.lib.path.PathPlannerPath;
 
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.subsystems.Vision.Vision;
@@ -149,18 +150,35 @@ public class RobotContainer {
             storedCommand.schedule();
         }));
 
+        // HELP HELP HELP IDK IF THIS WORKS AND NO ROBOT TIME
+        // new amp scoring approach
+        // Goal functionality : 
+        // driver presses button --> note handoff & path to amp
+        // driver releases button --> note shot out & go to stored
+        PathPlannerPath ampPath = PathPlannerPath.fromPathFile("AmpPath");
+        m_driverController.b().onTrue(
+                new ParallelCommandGroup(
+                        betterAmpCommand,
+                        swerveSubsystem.pathToPath(ampPath)));
+        m_driverController.b().onFalse(
+                new SequentialCommandGroup(
+                        AmpShootIntake,
+                        new WaitCommand(1),
+                        storedCommand));
+
+        // Old amp scoring approach -- still in just in bc above is untested
         // Runs the intake on left bummper true
         m_driverController.leftBumper().onTrue(AmpShootIntake);
         m_driverController.leftBumper().onFalse(storedCommand);
+        m_operatorController.x().onTrue(betterAmpCommand);
 
         m_operatorController.b().onTrue(subwoofCommand);
         m_operatorController.y().onTrue(podiumCommand);
-        // m_operatorController.x().onTrue(betterAmpCommand);
 
         m_driverController.x().onTrue(Commands.runOnce(() -> {
             if (StructureStates.getCurrentState() == structureState.stored) {
                 intakeCommand.schedule();
-            } else{
+            } else {
                 storedCommand.schedule();
             }
         }));
