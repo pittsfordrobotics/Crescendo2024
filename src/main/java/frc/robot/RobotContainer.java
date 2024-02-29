@@ -369,7 +369,7 @@ public class RobotContainer {
               new AutoShootSubwoof(shooter, intake),
               autoCommandFactory.generateChoreoCommand(onenotebottomberserktraj1)
       );
-      autoChooser.addOption("oneNotePodiumsideBerserk", oneNoteBottomBerserk);
+      autoChooser.addOption("One Note Podium Side Berserk", oneNoteBottomBerserk);
 
     autoChooser.setDefaultOption("Do nothing", new InstantCommand());
     SmartDashboard.putData(autoChooser);
