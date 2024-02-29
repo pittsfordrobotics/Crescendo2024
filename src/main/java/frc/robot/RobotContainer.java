@@ -20,6 +20,7 @@ import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.Constants.RobotConstants;
 import frc.robot.Constants.VisionConstants;
+import frc.robot.commands.AutoActionCommands.AutoShoot;
 import frc.robot.commands.AutoActionCommands.AutoShootSubwoof;
 import frc.robot.commands.AutoActionCommands.StartIntakeCommand;
 import frc.robot.commands.DisabledInstantCommand;
@@ -263,7 +264,7 @@ public class RobotContainer {
           swerveSubsystem.resetOdometry(twonotemiddletraj1.flipped().getInitialPose());
         }
       }),
-      new AutoShootSubwoof(shooter, intake),
+      new AutoShoot(shooter, intake, 56, 5400),
       autoCommandFactory.generateChoreoCommand(twonotemiddletraj1),
       swerveSubsystem.correctHeading(twonotemiddletraj1).withTimeout(1.5),
       new StartIntakeCommand(shooter, intake), // Start the intake
@@ -272,12 +273,7 @@ public class RobotContainer {
       new StoredCommand(shooter, intake), // Store the note
       autoCommandFactory.generateChoreoCommand(twonotemiddletraj3), // Turn towards the speaker
       swerveSubsystem.correctHeading(twonotemiddletraj3).withTimeout(1.5),
-      new CommonSpeakerCommand(shooter, intake, 45, 6000), // Ready to shoot again (adjust these params)
-    shooter.waitForShooterRPMCommand().withTimeout(1),
-      shooter.spinIndexerCommand(RobotConstants.INDEXER_SHOOT_SPEED), // Shoot
-      Commands.waitSeconds(0.25),
-      shooter.spinIndexerCommand(RobotConstants.INDEXER_IDLE_SPEED),
-      new StoredCommand(shooter, intake),
+      new AutoShoot(shooter, intake, 45, 6000), // Ready to shoot again (adjust these params)
       autoCommandFactory.generateChoreoCommand(twonotemiddletraj4) // drive out of starting area fully
     );
     autoChooser.addOption("Two Note Middle", twonotemiddle);
