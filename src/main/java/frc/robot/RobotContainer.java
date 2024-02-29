@@ -117,7 +117,7 @@ public class RobotContainer {
         // Swerve
         m_driverController.start().onTrue(new DisabledInstantCommand(swerveSubsystem::zeroGyro));
 
-        m_driverController.a().whileTrue(speakerTargetSteeringCommand);
+        m_driverController.a().whileTrue(speakerTargetSteeringCommand.alongWith());
         Command driveCommand = driveModeChooser.getSelected();
         swerveSubsystem.setDefaultCommand(driveCommand);
         driveModeChooser.onChange(command -> {

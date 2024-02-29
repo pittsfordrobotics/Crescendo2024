@@ -4,6 +4,9 @@
 
 package frc.robot.Constants;
 
+import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
+import edu.wpi.first.math.util.Units;
+
 /** Shooter Constants */
 public final class ShooterConstants {
     public static final int CAN_SHOOTER_L = 11;
@@ -37,4 +40,15 @@ public final class ShooterConstants {
     public static final double L1CM1_SpivtoCM1 = 7.387 * 0.0254;
     public static final double M1_Total_Mass_of_Shooter = 23 * 0.453592;
     public static final double SHOOTER_Pivot_FF_Multiplier = 0.014;//.83 for the basic ff
+
+    // key: distance from center of robot to middle pose of subwoof projected down (inches); value: shooter angle (degrees)
+    public static final InterpolatingDoubleTreeMap DISTANCE_ANGLE_MAP = new InterpolatingDoubleTreeMap();
+    static {
+        DISTANCE_ANGLE_MAP.put(Units.inchesToMeters(53.6), 56.0); // Speaker
+        DISTANCE_ANGLE_MAP.put(Units.inchesToMeters(87.0), 45.0); // Middle auto second shoot
+        DISTANCE_ANGLE_MAP.put(Units.inchesToMeters(104.0), 41.5); // Podium auto second shoot
+        DISTANCE_ANGLE_MAP.put(Units.inchesToMeters(115.0), 40.25); // Podium
+        DISTANCE_ANGLE_MAP.put(3.26497, 39.0); // Amp auto second shoot
+        DISTANCE_ANGLE_MAP.put(Units.inchesToMeters(154.0), 37.8); // Tested distance
+    }
 }
