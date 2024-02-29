@@ -287,6 +287,7 @@ public class RobotContainer {
     ChoreoTrajectory twonotebottomtraj1 = Choreo.getTrajectory("twonotebottom.1");
     ChoreoTrajectory twonotebottomtraj2 = Choreo.getTrajectory("twonotebottom.2");
     ChoreoTrajectory twonotebottomtraj3 = Choreo.getTrajectory("twonotebottom.3");
+    ChoreoTrajectory twonotebottomtraj4 = Choreo.getTrajectory("twonotebottom.4");
 
     Command twonotebottom = new SequentialCommandGroup(
       Commands.runOnce(() -> {
@@ -311,7 +312,8 @@ public class RobotContainer {
       shooter.spinIndexerCommand(RobotConstants.INDEXER_SHOOT_SPEED), // Shoot
       Commands.waitSeconds(0.25),
       shooter.spinIndexerCommand(RobotConstants.INDEXER_IDLE_SPEED),
-      new StoredCommand(shooter, intake)
+      new StoredCommand(shooter, intake),
+      autoCommandFactory.generateChoreoCommand(twonotebottomtraj4)
     );
     autoChooser.addOption("Two Note Podiumside", twonotebottom);
     /* TWONOTEBOTTOM START */
