@@ -172,18 +172,19 @@ public class RobotContainer {
         m_driverController.b().onTrue(
                 new ParallelCommandGroup(
                         betterAmpCommand,
+//                        new BetterAMPCommand(shooter, intake),
                         swerveSubsystem.pathToPath(ampPath)));
         m_driverController.b().onFalse(
                 new SequentialCommandGroup(
                         AmpShootIntake,
                         new WaitCommand(2),
-                        storedCommand));
+                        new StoredCommand(shooter, intake)));
 
         // Old amp scoring approach -- still in just in bc above is untested
         // Runs the intake on left bummper true
-        m_driverController.leftBumper().onTrue(AmpShootIntake);
-        m_driverController.leftBumper().onFalse(storedCommand);
-        m_operatorController.x().onTrue(betterAmpCommand);
+//        m_driverController.leftBumper().onTrue(AmpShootIntake);
+//        m_driverController.leftBumper().onFalse(storedCommand);
+//        m_operatorController.x().onTrue(betterAmpCommand);
 
         m_operatorController.b().onTrue(subwoofCommand);
         m_operatorController.y().onTrue(podiumCommand);
