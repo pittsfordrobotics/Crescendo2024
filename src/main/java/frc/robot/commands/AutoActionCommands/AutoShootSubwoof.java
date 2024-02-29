@@ -23,7 +23,7 @@ public class AutoShootSubwoof extends SequentialCommandGroup {
     // addCommands(new FooCommand(), new BarCommand());
     addCommands(
       new SUBWOOFCommand(shooter, intake), // Also waits for shooter to reach position with 2 deg tolerance
-      shooter.waitForShooterRPMCommand(),
+      shooter.waitForShooterRPMCommand().withTimeout(0.5),
       shooter.spinIndexerCommand(RobotConstants.INDEXER_SHOOT_SPEED),
       Commands.waitSeconds(0.25),
       shooter.spinIndexerCommand(RobotConstants.INDEXER_IDLE_SPEED), // Idle indexer and prepare to intake
