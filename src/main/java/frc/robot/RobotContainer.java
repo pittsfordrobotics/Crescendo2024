@@ -273,7 +273,9 @@ public class RobotContainer {
       autoCommandFactory.generateChoreoCommand(twonotemiddletraj3), // Turn towards the speaker
       swerveSubsystem.correctHeading(twonotemiddletraj3).withTimeout(2),
       new CommonSpeakerCommand(shooter, intake, 47, 6000), // Ready to shoot again (adjust these params)
-      shooter.waitForShooterRPMCommand().withTimeout(1),
+//    shooter.waitForPivotAngleCommand(2),
+//    shooter.waitForShooterRPMCommand().withTimeout(1),
+      new WaitCommand(2),
       shooter.spinIndexerCommand(RobotConstants.INDEXER_SHOOT_SPEED), // Shoot
       Commands.waitSeconds(0.25),
       shooter.spinIndexerCommand(RobotConstants.INDEXER_IDLE_SPEED),
@@ -308,7 +310,8 @@ public class RobotContainer {
       autoCommandFactory.generateChoreoCommand(twonotebottomtraj3),
       swerveSubsystem.correctHeading(twonotebottomtraj3).withTimeout(2),
       new CommonSpeakerCommand(shooter, intake, 41.5, 6000), // Ready to shoot again (adjust these params)
-      shooter.waitForShooterRPMCommand().withTimeout(1),
+//    shooter.waitForShooterRPMCommand().withTimeout(1),
+      new WaitCommand(2),
       shooter.spinIndexerCommand(RobotConstants.INDEXER_SHOOT_SPEED), // Shoot
       Commands.waitSeconds(0.25),
       shooter.spinIndexerCommand(RobotConstants.INDEXER_IDLE_SPEED),
@@ -342,7 +345,8 @@ public class RobotContainer {
       autoCommandFactory.generateChoreoCommand(twonotetoptraj3),
       swerveSubsystem.correctHeading(twonotetoptraj3).withTimeout(2),
       new CommonSpeakerCommand(shooter, intake, 41.5, 6000), // Ready to shoot again (adjust these params)
-      shooter.waitForShooterRPMCommand().withTimeout(1),
+//    shooter.waitForShooterRPMCommand().withTimeout(1),
+      new WaitCommand(2),
       shooter.spinIndexerCommand(RobotConstants.INDEXER_SHOOT_SPEED), // Shoot
       Commands.waitSeconds(0.25),
       shooter.spinIndexerCommand(RobotConstants.INDEXER_IDLE_SPEED),
