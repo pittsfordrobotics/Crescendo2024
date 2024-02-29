@@ -355,6 +355,21 @@ public class RobotContainer {
     autoChooser.addOption("Two Note Ampside", twonotetop);
     /* TWONOTETOP STOP */
 
+      /* START ONENOTEBOTTOMBERSERK */
+      ChoreoTrajectory onenotebottomberserktraj1 = Choreo.getTrajectory("onenotebottomandmiddlerow.1");
+      Command oneNoteBottomBerserk = new SequentialCommandGroup(
+              Commands.runOnce(() -> {
+                  setGyroBasedOnInitialChoreoTrajectory(onenotebottomberserktraj1);
+                  if(DriverStation.getAlliance().get() == Alliance.Blue) {
+                      swerveSubsystem.resetOdometry(onenotebottomberserktraj1.getInitialPose());
+                  } else {
+                      swerveSubsystem.resetOdometry(onenotebottomberserktraj1.flipped().getInitialPose());
+                  }
+              }),
+              new AutoShootSubwoof(shooter, intake),
+              autoCommandFactory.generateChoreoCommand(onenotebottomberserktraj1)
+      );
+
     autoChooser.setDefaultOption("Do nothing", new InstantCommand());
     SmartDashboard.putData(autoChooser);
   }
