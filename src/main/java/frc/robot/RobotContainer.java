@@ -272,7 +272,7 @@ public class RobotContainer {
       new StoredCommand(shooter, intake), // Store the note
       autoCommandFactory.generateChoreoCommand(twonotemiddletraj3), // Turn towards the speaker
       swerveSubsystem.correctHeading(twonotemiddletraj3).withTimeout(2),
-      new CommonSpeakerCommand(shooter, intake, 47, 6000), // Ready to shoot again (adjust these params)
+      new CommonSpeakerCommand(shooter, intake, 45, 6000), // Ready to shoot again (adjust these params)
 //    shooter.waitForPivotAngleCommand(2),
 //    shooter.waitForShooterRPMCommand().withTimeout(1),
       new WaitCommand(2),
@@ -344,7 +344,7 @@ public class RobotContainer {
       new StoredCommand(shooter, intake),
       autoCommandFactory.generateChoreoCommand(twonotetoptraj3),
       swerveSubsystem.correctHeading(twonotetoptraj3).withTimeout(2),
-      new CommonSpeakerCommand(shooter, intake, 41.5, 6000), // Ready to shoot again (adjust these params)
+      new CommonSpeakerCommand(shooter, intake, 39, 6000), // Ready to shoot again (adjust these params)
 //    shooter.waitForShooterRPMCommand().withTimeout(1),
       new WaitCommand(2),
       shooter.spinIndexerCommand(RobotConstants.INDEXER_SHOOT_SPEED), // Shoot
