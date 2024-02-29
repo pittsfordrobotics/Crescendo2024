@@ -163,7 +163,7 @@ public class RobotContainer {
         m_driverController.b().onFalse(
                 new SequentialCommandGroup(
                         AmpShootIntake,
-                        new WaitCommand(1),
+                        new WaitCommand(2),
                         storedCommand));
 
         // Old amp scoring approach -- still in just in bc above is untested
