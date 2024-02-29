@@ -6,6 +6,7 @@
 
 package frc.robot.subsystems;
 
+import com.choreo.lib.ChoreoTrajectory;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
@@ -19,6 +20,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -29,6 +31,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.SimpleWidget;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -260,11 +263,19 @@ public class SwerveSubsystem extends SubsystemBase {
      * 
      * @return A command to drive to that heading angle between path segments
      */
-    public Command correctHeading(Rotation2d headingAngle) {
-        return this.run(() -> swerveDrive.drive(swerveDrive.swerveController.getTargetSpeeds(0, 0, headingAngle.getRadians(),
-                getHeading().getRadians(), swerveDrive.getMaximumVelocity())))
-                .beforeStarting(() -> swerveDrive.setHeadingCorrection(true))
-                .until(() -> Math.abs(headingAngle.getDegrees() - getHeading().getDegrees()) < 1.5);
+    public Command correctHeading(ChoreoTrajectory traj) {
+        return this.run(() -> 
+        {
+        swerveDrive.drive(swerveDrive.swerveController.getTargetSpeeds(0, 0, currentTargetAngle.getRadians(),
+                getHeading().getRadians(), swerveDrive.getMaximumVelocity()));
+        })
+                .beforeStarting(() -> 
+                {
+                swerveDrive.setHeadingCorrection(true);
+                //currentTargetAngle = (DriverStation.getAlliance().get() == Alliance.Blue) ? traj.getFinalPose().getRotation() : traj.flipped().getFinalPose().getRotation();
+                currentTargetAngle = AllianceFlipUtil.apply(traj.getFinalPose()).getRotation();
+                })
+                .until(() -> Math.abs(currentTargetAngle.getDegrees() - getHeading().getDegrees()) < 1.5);
     }
 
     /**
@@ -559,6 +570,14 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     /**
+     * Sets the current angle of the gyro. If the robot reaches the same angle, the gyro will report this angle.
+     * @param currentAngle The angle that the gyro should read in its current state.
+     */
+    public void setGyroAngle(Rotation2d currentAngle) {
+        swerveDrive.setGyro(new Rotation3d(0, 0, currentAngle.getRadians()));
+    }
+
+    /**
      * Sets the drive motors to brake/coast mode.
      *
      * @param brake True to set motors to brake mode, false for coast.
@@ -593,48 +612,6 @@ public class SwerveSubsystem extends SubsystemBase {
 
     public Command setNormalSpeed() {
         return new InstantCommand(() -> speedFactor = 1);
-    }
-
-    /**
-     * Get the chassis speeds based on controller input of 2 joysticks. One for
-     * speeds in which direction. The other for
-     * the angle of the robot.
-     *
-     * @param xInput   X joystick input for the robot to move in the X direction.
-     * @param yInput   Y joystick input for the robot to move in the Y direction.
-     * @param headingX X joystick which controls the angle of the robot.
-     * @param headingY Y joystick which controls the angle of the robot.
-     * @return {@link ChassisSpeeds} which can be sent to the Swerve Drive.
-     */
-    public ChassisSpeeds getTargetSpeeds(double xInput, double yInput, double headingX, double headingY) {
-        xInput = Math.pow(xInput, 3);
-        yInput = Math.pow(yInput, 3);
-        return swerveDrive.swerveController.getTargetSpeeds(xInput,
-                yInput,
-                headingX,
-                headingY,
-                getHeading().getRadians(),
-                maximumSpeed);
-    }
-
-    /**
-     * Get the chassis speeds based on controller input of 1 joystick and one angle.
-     * Control the robot at an offset of
-     * 90deg.
-     *
-     * @param xInput X joystick input for the robot to move in the X direction.
-     * @param yInput Y joystick input for the robot to move in the Y direction.
-     * @param angle  The angle in as a {@link Rotation2d}.
-     * @return {@link ChassisSpeeds} which can be sent to th Swerve Drive.
-     */
-    public ChassisSpeeds getTargetSpeeds(double xInput, double yInput, Rotation2d angle) {
-        xInput = Math.pow(xInput, 3);
-        yInput = Math.pow(yInput, 3);
-        return swerveDrive.swerveController.getTargetSpeeds(xInput,
-                yInput,
-                angle.getRadians(),
-                getHeading().getRadians(),
-                maximumSpeed);
     }
 
     /**

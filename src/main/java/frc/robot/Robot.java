@@ -105,6 +105,7 @@ public class Robot extends LoggedRobot {
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
+    //m_robotContainer.setGyroBasedOnAutoFinalTrajectory();
   }
 
   /** This function is called periodically during operator control. */
