@@ -16,7 +16,7 @@ public class ShooterInterpolationHelper {
         if(Units.metersToInches(distance) < 87.0) {
             return 53.0; // TODO: change to distanceanglemap when the subwoofangle and the subwoofangle in the distance map are the same
         }
-        if(Units.metersToInches(distance) > 154) {
+        if(Units.metersToInches(distance) > 154.0) {
             return ShooterConstants.DISTANCE_ANGLE_MAP.get(Units.inchesToMeters(154));
         }
         return ShooterConstants.DISTANCE_ANGLE_MAP.get(distance);

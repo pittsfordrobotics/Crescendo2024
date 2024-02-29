@@ -6,6 +6,10 @@ package frc.robot.subsystems;
 
 import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkBase.IdleMode;
+
+import java.util.function.DoubleSupplier;
+import java.util.function.Supplier;
+
 import com.revrobotics.CANSparkFlex;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.CANSparkMax;
@@ -17,12 +21,15 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.Constants.RobotConstants;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.commands.DisabledInstantCommand;
 import frc.robot.lib.FFCalculator;
+import frc.robot.lib.util.ShooterInterpolationHelper;
 
 
 public class Shooter extends SubsystemBase {
@@ -228,6 +235,17 @@ public class Shooter extends SubsystemBase {
   public Command setPivotAngleCommand(double setpoint_deg) {
     double setpoint_deg_clamped = MathUtil.clamp(setpoint_deg, 0, 90);
     return this.runOnce(() -> pivotAngleSetpointDeg = setpoint_deg_clamped);
+  }
+
+  public Command autoAimSpeaker(DoubleSupplier distanceSupplier, Intake intake) {
+    return new ParallelCommandGroup(
+      this.setPivotAngleCommand(ShooterInterpolationHelper.getShooterAngle(distanceSupplier.getAsDouble())),
+      this.setShooterRPMCommand(ShooterInterpolationHelper.getShooterRPM(distanceSupplier.getAsDouble())))
+    .beforeStarting(
+      new SequentialCommandGroup(
+        intake.setPivotAngleCommand(RobotConstants.SUBWOOF_IntakePivotAngle),
+        intake.waitForPivotAngleCommand()
+      ));
   }
   
   public Command waitForPivotAngleCommand(double degTolerance) {
