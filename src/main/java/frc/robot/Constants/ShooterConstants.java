@@ -44,7 +44,6 @@ public final class ShooterConstants {
     // key: distance from center of robot to middle pose of subwoof projected down (inches); value: shooter angle (degrees)
     public static final InterpolatingDoubleTreeMap DISTANCE_ANGLE_MAP = new InterpolatingDoubleTreeMap();
     static {
-        DISTANCE_ANGLE_MAP.put(Units.inchesToMeters(53.6), 56.0); // Speaker
         DISTANCE_ANGLE_MAP.put(Units.inchesToMeters(87.0), 45.0); // Middle auto second shoot
         DISTANCE_ANGLE_MAP.put(Units.inchesToMeters(104.0), 41.5); // Podium auto second shoot
         DISTANCE_ANGLE_MAP.put(Units.inchesToMeters(115.0), 40.25); // Podium
