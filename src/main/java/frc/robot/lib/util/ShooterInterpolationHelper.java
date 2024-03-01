@@ -5,6 +5,7 @@
 package frc.robot.lib.util;
 
 import edu.wpi.first.math.util.Units;
+import frc.robot.Constants.RobotConstants;
 import frc.robot.Constants.ShooterConstants;
 
 
@@ -14,7 +15,7 @@ public class ShooterInterpolationHelper {
     */
     public static double getShooterAngle(double distance) {
         if(Units.metersToInches(distance) < 87.0) {
-            return 53.0; // TODO: change to distanceanglemap when the subwoofangle and the subwoofangle in the distance map are the same
+            return RobotConstants.SUBWOOF_ShooterPivotAngle; // TODO: change to distanceanglemap when the subwoofangle and the subwoofangle in the distance map are the same
         }
         if(Units.metersToInches(distance) > 154.0) {
             return ShooterConstants.DISTANCE_ANGLE_MAP.get(Units.inchesToMeters(154));
@@ -28,7 +29,7 @@ public class ShooterInterpolationHelper {
     public static double getShooterRPM(double distance) {
         // decreases RPM from usual 6000 if close to the speaker
         if(Units.metersToInches(distance) < 87.0) {
-            return 5400;
+            return RobotConstants.SUBWOOF_ShooterRPM;
         }
         return 6000;
     }

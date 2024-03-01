@@ -120,7 +120,8 @@ public class RobotContainer {
         m_driverController.start().onTrue(new DisabledInstantCommand(swerveSubsystem::zeroGyro));
 
         DoubleSupplier distanceSupplier = (() -> swerveSubsystem.getPose().getTranslation().getDistance(FieldConstants.Speaker.centerSpeakerOpeningZeroY.getTranslation()));
-        m_driverController.a().whileTrue(speakerTargetSteeringCommand.alongWith(shooter.autoAimSpeaker(distanceSupplier, intake)));
+        m_driverController.b().whileTrue(speakerTargetSteeringCommand.alongWith(shooter.autoAimSpeaker(distanceSupplier, intake)));
+        m_driverController.a().whileTrue(speakerTargetSteeringCommand);
         Command driveCommand = driveModeChooser.getSelected();
         swerveSubsystem.setDefaultCommand(driveCommand);
         driveModeChooser.onChange(command -> {
