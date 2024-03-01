@@ -385,6 +385,23 @@ public class RobotContainer {
       autoChooser.addOption("One Note Podium Side Berserk", oneNoteBottom);
       /* END ONENOTEBOTTOM */
 
+      /* START ONENOTETOP */
+      ChoreoTrajectory onenotetoptraj1 = Choreo.getTrajectory("onenotetop.1");
+      Command oneNoteTop = new SequentialCommandGroup(
+              Commands.runOnce(() -> {
+                  setGyroBasedOnInitialChoreoTrajectory(onenotetoptraj1);
+                  if(DriverStation.getAlliance().get() == Alliance.Blue) {
+                      swerveSubsystem.resetOdometry(onenotetoptraj1.getInitialPose());
+                  } else {
+                      swerveSubsystem.resetOdometry(onenotetoptraj1.flipped().getInitialPose());
+                  }
+              }),
+              new AutoShootSubwoof(shooter, intake),
+              autoCommandFactory.generateChoreoCommand(onenotetoptraj1)
+      );
+      autoChooser.addOption("One Note Ampside", oneNoteTop);
+      /* END ONENOTETOP */
+
     autoChooser.setDefaultOption("Do nothing", new InstantCommand());
     SmartDashboard.putData(autoChooser);
   }
