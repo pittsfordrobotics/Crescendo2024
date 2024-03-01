@@ -27,6 +27,8 @@ import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.SwerveSubsystem;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import java.io.File;
+import java.util.function.DoubleSupplier;
+
 import com.choreo.lib.Choreo;
 import com.choreo.lib.ChoreoTrajectory;
 import edu.wpi.first.math.geometry.Pose3d;
@@ -117,7 +119,8 @@ public class RobotContainer {
         // Swerve
         m_driverController.start().onTrue(new DisabledInstantCommand(swerveSubsystem::zeroGyro));
 
-        m_driverController.a().whileTrue(speakerTargetSteeringCommand.alongWith(shooter.autoAimSpeaker(null, intake)));
+        DoubleSupplier distanceSupplier = (() -> swerveSubsystem.getPose().getTranslation().getDistance(FieldConstants.Speaker.centerSpeakerOpeningZeroY.getTranslation()));
+        m_driverController.a().whileTrue(speakerTargetSteeringCommand.alongWith(shooter.autoAimSpeaker(distanceSupplier, intake)));
         Command driveCommand = driveModeChooser.getSelected();
         swerveSubsystem.setDefaultCommand(driveCommand);
         driveModeChooser.onChange(command -> {
