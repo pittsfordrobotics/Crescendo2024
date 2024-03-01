@@ -215,8 +215,8 @@ public class Shooter extends SubsystemBase {
     return this.run(() -> {shooterMotorL.set(output);shooterMotorR.set(output);});
   }
   public Command waitForShooterRPMCommand() {
-    Command cmd = new WaitUntilCommand(() -> Math.abs(getShooterLRPM() - shooterRPMSetpoint) < 50 &&
-      Math.abs(getShooterLRPM() - shooterRPMSetpoint) < 50);
+    Command cmd = new WaitUntilCommand(() -> getShooterRRPM() > shooterRPMSetpoint - 50 &&
+      getShooterLRPM() > shooterRPMSetpoint - 50);
     cmd.addRequirements(this);
     return cmd;
   }
