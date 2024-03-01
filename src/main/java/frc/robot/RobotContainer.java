@@ -362,7 +362,7 @@ public class RobotContainer {
       new StoredCommand(shooter, intake),
       autoCommandFactory.generateChoreoCommand(twonotetoptraj3),
       swerveSubsystem.correctHeading(twonotetoptraj3).withTimeout(1.5),
-      new CommonSpeakerCommand(shooter, intake, 39, 6000), // Ready to shoot again (adjust these params)
+      new CommonSpeakerCommand(shooter, intake, 38.7, 6000), // Ready to shoot again (adjust these params)
     shooter.waitForShooterRPMCommand().withTimeout(1),
       shooter.spinIndexerCommand(RobotConstants.INDEXER_SHOOT_SPEED), // Shoot
       Commands.waitSeconds(0.25),

@@ -27,7 +27,7 @@ public class CommonSpeakerCommand extends SequentialCommandGroup {
                         intake.setPivotAngleCommand(35),
                         intake.waitForPivotAngleCommand(),
                         shooter.setPivotAngleCommand(ShooterAngle),
-                        shooter.waitForPivotAngleCommand(2).withTimeout(1.0)),
+                        shooter.waitForPivotAngleCommand(2).withTimeout(1.5)),
                 new InstantCommand(
                         () -> StructureStates.setCurrentState(StructureStates.structureState.commonSpeaker)));
     }
