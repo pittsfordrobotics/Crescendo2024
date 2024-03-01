@@ -245,6 +245,18 @@ public class RobotContainer {
       Rotation2d actualAllianceRelativeAngle = DriverStation.getAlliance().get() == Alliance.Blue ? traj.getInitialPose().getRotation() : new Rotation2d().minus(traj.getInitialPose().getRotation());
       swerveSubsystem.setGyroAngle(actualAllianceRelativeAngle);
   }
+
+    /**
+     * Requires the swerve subsystem, w/ tolerance of 1 degree and timeout of 2 secs.
+     * @return Command to drive to zero heading with no translation rate and zeros the gyro.
+     */
+  public Command driveToZeroHeadingAndZeroGyro() {
+      return swerveSubsystem.headingDriveCommand(() -> 0, () -> 0, Rotation2d::new).until(() -> Math.abs(swerveSubsystem.getGyroYaw().getDegrees()) < 1).withTimeout(2)
+              .andThen(swerveSubsystem::zeroGyro);
+  }
+  public Command zeroOdometryAngleOffset() {
+      return swerveSubsystem.zeroOdometryAngleOffset();
+  }
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
    */
@@ -403,6 +415,6 @@ public class RobotContainer {
   }
   public Command getAutonomousCommand() {
     // return new RunCommand(() -> swerveSubsystem.drive(new Translation2d(.1, .2), .3, false), swerveSubsystem); // test drive command, for debugging
-    return autoChooser.getSelected();
+    return autoChooser.getSelected().andThen(zeroOdometryAngleOffset());
     }
 }
