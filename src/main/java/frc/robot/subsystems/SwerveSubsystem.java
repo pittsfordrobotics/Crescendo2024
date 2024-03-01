@@ -518,7 +518,7 @@ public class SwerveSubsystem extends SubsystemBase {
      * @return A command to reset the angle offset of the odometry to zero.
      */
     public Command zeroOdometryAngleOffset() {
-        return run(() -> resetOdometry(new Pose2d(getPose().getTranslation(), getGyroYaw())));
+        return runOnce(() -> resetOdometry(new Pose2d(getPose().getTranslation(), getGyroYaw())));
     }
     /**
      * Gets the current pose (position and rotation) of the robot, as reported by

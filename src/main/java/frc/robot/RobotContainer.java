@@ -171,6 +171,8 @@ public class RobotContainer {
 
         m_operatorController.rightBumper().onTrue(climber.setSpeedCommand(1));
         m_operatorController.rightBumper().onFalse(climber.setSpeedCommand(-1));
+
+        m_driverController.povRight().onTrue(Commands.runOnce(() -> swerveSubsystem.setTargetAngle(new Rotation2d(-90))));
     }
 
     private void configure_TEST_Bindings() {
