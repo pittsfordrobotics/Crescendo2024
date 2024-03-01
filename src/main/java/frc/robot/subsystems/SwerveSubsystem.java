@@ -513,6 +513,9 @@ public class SwerveSubsystem extends SubsystemBase {
     public void resetOdometry(Pose2d initialHolonomicPose) {
         swerveDrive.resetOdometry(initialHolonomicPose);
     }
+    public Command zeroOdometryAngleOffset() {
+        return run(() -> resetOdometry(new Pose2d(getPose().getTranslation(), getGyroYaw())));
+    }
 
     /**
      * Sets the odometry angle to the current gyro angle.
