@@ -47,7 +47,7 @@ public final class ShooterConstants {
         DISTANCE_ANGLE_MAP.put(Units.inchesToMeters(87.0), 45.0); // Middle auto second shoot
         DISTANCE_ANGLE_MAP.put(Units.inchesToMeters(104.0), 41.5); // Podium auto second shoot
         DISTANCE_ANGLE_MAP.put(Units.inchesToMeters(115.0), 40.25); // Podium
-        DISTANCE_ANGLE_MAP.put(3.26497, 39.0); // Amp auto second shoot
+        DISTANCE_ANGLE_MAP.put(Units.inchesToMeters(127.0), 39.0); // Amp auto second shoot
         DISTANCE_ANGLE_MAP.put(Units.inchesToMeters(154.0), 37.8); // Tested distance
     }
 }
