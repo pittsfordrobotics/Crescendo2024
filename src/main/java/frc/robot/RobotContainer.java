@@ -171,8 +171,9 @@ public class RobotContainer {
 
         m_operatorController.rightBumper().onTrue(climber.setSpeedCommand(1));
         m_operatorController.rightBumper().onFalse(climber.setSpeedCommand(-1));
-
-        m_driverController.povRight().onTrue(Commands.runOnce(() -> swerveSubsystem.setTargetAngle(new Rotation2d(-90))));
+        m_driverController.b().onTrue(Commands.runOnce(() ->
+                swerveSubsystem.setTargetAngle(getAllianceDefaultBlue().equals(Alliance.Red) ?
+                        Rotation2d.fromDegrees(90) : Rotation2d.fromDegrees(-90))));
     }
 
     private void configure_TEST_Bindings() {
@@ -258,6 +259,16 @@ public class RobotContainer {
   }
   public Command zeroOdometryAngleOffset() {
       return swerveSubsystem.zeroOdometryAngleOffset();
+  }
+  public Alliance getAllianceDefaultBlue() {
+      Alliance currentAlliance;
+      if(DriverStation.getAlliance().isPresent()) {
+          currentAlliance = DriverStation.getAlliance().get();
+      } else {
+          currentAlliance = Alliance.Blue;
+          System.out.println("No alliance, setting to blue");
+      }
+      return currentAlliance;
   }
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
