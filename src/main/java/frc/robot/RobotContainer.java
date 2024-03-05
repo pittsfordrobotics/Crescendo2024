@@ -20,6 +20,7 @@ import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.Constants.RobotConstants;
 import frc.robot.Constants.VisionConstants;
+import frc.robot.commands.AutoActionCommands.AutoShoot;
 import frc.robot.commands.AutoActionCommands.AutoShootSubwoof;
 import frc.robot.commands.AutoActionCommands.StartIntakeCommand;
 import frc.robot.commands.DisabledInstantCommand;
@@ -200,6 +201,9 @@ public class RobotContainer {
 
         m_operatorController.rightBumper().onTrue(climber.setSpeedCommand(1));
         m_operatorController.rightBumper().onFalse(climber.setSpeedCommand(-1));
+        m_driverController.b().onTrue(Commands.runOnce(() ->
+                swerveSubsystem.setTargetAngle(getAllianceDefaultBlue().equals(Alliance.Red) ?
+                        Rotation2d.fromDegrees(90) : Rotation2d.fromDegrees(-90))));
     }
 
     private void configure_TEST_Bindings() {
@@ -274,6 +278,28 @@ public class RobotContainer {
       Rotation2d actualAllianceRelativeAngle = DriverStation.getAlliance().get() == Alliance.Blue ? traj.getInitialPose().getRotation() : new Rotation2d().minus(traj.getInitialPose().getRotation());
       swerveSubsystem.setGyroAngle(actualAllianceRelativeAngle);
   }
+
+    /**
+     * Requires the swerve subsystem, w/ tolerance of 1 degree and timeout of 2 secs.
+     * @return Command to drive to zero heading with no translation rate and zeros the gyro.
+     */
+  public Command driveToZeroHeadingAndZeroGyro() {
+      return swerveSubsystem.headingDriveCommand(() -> 0, () -> 0, Rotation2d::new).until(() -> Math.abs(swerveSubsystem.getGyroYaw().getDegrees()) < 1).withTimeout(2)
+              .andThen(swerveSubsystem::zeroGyro);
+  }
+  public Command zeroOdometryAngleOffset() {
+      return swerveSubsystem.zeroOdometryAngleOffset();
+  }
+  public Alliance getAllianceDefaultBlue() {
+      Alliance currentAlliance;
+      if(DriverStation.getAlliance().isPresent()) {
+          currentAlliance = DriverStation.getAlliance().get();
+      } else {
+          currentAlliance = Alliance.Blue;
+          System.out.println("No alliance, setting to blue");
+      }
+      return currentAlliance;
+  }
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
    */
@@ -293,23 +319,16 @@ public class RobotContainer {
           swerveSubsystem.resetOdometry(twonotemiddletraj1.flipped().getInitialPose());
         }
       }),
-      new AutoShootSubwoof(shooter, intake),
+      new AutoShoot(shooter, intake, 56, 5400),
       autoCommandFactory.generateChoreoCommand(twonotemiddletraj1),
-      swerveSubsystem.correctHeading(twonotemiddletraj1).withTimeout(2),
+      swerveSubsystem.correctHeading(twonotemiddletraj1).withTimeout(1.5),
       new StartIntakeCommand(shooter, intake), // Start the intake
       autoCommandFactory.generateChoreoCommand(twonotemiddletraj2), // Drive forward
       shooter.waitForLimitSwitchCommand().withTimeout(3), // Wait for it to intake
       new StoredCommand(shooter, intake), // Store the note
       autoCommandFactory.generateChoreoCommand(twonotemiddletraj3), // Turn towards the speaker
-      swerveSubsystem.correctHeading(twonotemiddletraj3).withTimeout(2),
-      new CommonSpeakerCommand(shooter, intake, 45, 6000), // Ready to shoot again (adjust these params)
-//    shooter.waitForPivotAngleCommand(2),
-//    shooter.waitForShooterRPMCommand().withTimeout(1),
-      new WaitCommand(2),
-      shooter.spinIndexerCommand(RobotConstants.INDEXER_SHOOT_SPEED), // Shoot
-      Commands.waitSeconds(0.25),
-      shooter.spinIndexerCommand(RobotConstants.INDEXER_IDLE_SPEED),
-      new StoredCommand(shooter, intake),
+      swerveSubsystem.correctHeading(twonotemiddletraj3).withTimeout(1.5),
+      new AutoShoot(shooter, intake, 45, 6000), // Ready to shoot again (adjust these params)
       autoCommandFactory.generateChoreoCommand(twonotemiddletraj4) // drive out of starting area fully
     );
     autoChooser.addOption("Two Note Middle", twonotemiddle);
@@ -332,16 +351,15 @@ public class RobotContainer {
       }),
       new AutoShootSubwoof(shooter, intake),
       autoCommandFactory.generateChoreoCommand(twonotebottomtraj1),
-      swerveSubsystem.correctHeading(twonotemiddletraj1).withTimeout(2),
+      swerveSubsystem.correctHeading(twonotemiddletraj1).withTimeout(1.5),
       new StartIntakeCommand(shooter, intake),
       autoCommandFactory.generateChoreoCommand(twonotebottomtraj2),
       shooter.waitForLimitSwitchCommand().withTimeout(3), // Wait for it to intake
       new StoredCommand(shooter, intake),
       autoCommandFactory.generateChoreoCommand(twonotebottomtraj3),
-      swerveSubsystem.correctHeading(twonotebottomtraj3).withTimeout(2),
+      swerveSubsystem.correctHeading(twonotebottomtraj3).withTimeout(1.5),
       new CommonSpeakerCommand(shooter, intake, 41.5, 6000), // Ready to shoot again (adjust these params)
-//    shooter.waitForShooterRPMCommand().withTimeout(1),
-      new WaitCommand(2),
+    shooter.waitForShooterRPMCommand().withTimeout(1),
       shooter.spinIndexerCommand(RobotConstants.INDEXER_SHOOT_SPEED), // Shoot
       Commands.waitSeconds(0.25),
       shooter.spinIndexerCommand(RobotConstants.INDEXER_IDLE_SPEED),
@@ -367,16 +385,15 @@ public class RobotContainer {
       }),
       new AutoShootSubwoof(shooter, intake),
       autoCommandFactory.generateChoreoCommand(twonotetoptraj1),
-      swerveSubsystem.correctHeading(twonotemiddletraj1).withTimeout(2),
+      swerveSubsystem.correctHeading(twonotemiddletraj1).withTimeout(1.5),
       new StartIntakeCommand(shooter, intake),
       autoCommandFactory.generateChoreoCommand(twonotetoptraj2),
       shooter.waitForLimitSwitchCommand().withTimeout(3), // Wait for it to intake
       new StoredCommand(shooter, intake),
       autoCommandFactory.generateChoreoCommand(twonotetoptraj3),
-      swerveSubsystem.correctHeading(twonotetoptraj3).withTimeout(2),
-      new CommonSpeakerCommand(shooter, intake, 39, 6000), // Ready to shoot again (adjust these params)
-//    shooter.waitForShooterRPMCommand().withTimeout(1),
-      new WaitCommand(2),
+      swerveSubsystem.correctHeading(twonotetoptraj3).withTimeout(1.5),
+      new CommonSpeakerCommand(shooter, intake, 38.7, 6000), // Ready to shoot again (adjust these params)
+    shooter.waitForShooterRPMCommand().withTimeout(1),
       shooter.spinIndexerCommand(RobotConstants.INDEXER_SHOOT_SPEED), // Shoot
       Commands.waitSeconds(0.25),
       shooter.spinIndexerCommand(RobotConstants.INDEXER_IDLE_SPEED),
@@ -399,12 +416,48 @@ public class RobotContainer {
               new AutoShootSubwoof(shooter, intake),
               autoCommandFactory.generateChoreoCommand(onenotebottomberserktraj1)
       );
+      autoChooser.addOption("One Note Podium Side Berserk", oneNoteBottomBerserk);
+      /* END ONENOTEBOTTOMBERSERK */
+
+      /* START ONENOTEBOTTOM */
+      ChoreoTrajectory onenotebottomtraj1 = Choreo.getTrajectory("onenotebottom.1");
+      Command oneNoteBottom = new SequentialCommandGroup(
+              Commands.runOnce(() -> {
+                  setGyroBasedOnInitialChoreoTrajectory(onenotebottomtraj1);
+                  if(DriverStation.getAlliance().get() == Alliance.Blue) {
+                      swerveSubsystem.resetOdometry(onenotebottomtraj1.getInitialPose());
+                  } else {
+                      swerveSubsystem.resetOdometry(onenotebottomtraj1.flipped().getInitialPose());
+                  }
+              }),
+              new AutoShootSubwoof(shooter, intake),
+              autoCommandFactory.generateChoreoCommand(onenotebottomberserktraj1)
+      );
+      autoChooser.addOption("One Note Podium Side Berserk", oneNoteBottom);
+      /* END ONENOTEBOTTOM */
+
+      /* START ONENOTETOP */
+      ChoreoTrajectory onenotetoptraj1 = Choreo.getTrajectory("onenotetop.1");
+      Command oneNoteTop = new SequentialCommandGroup(
+              Commands.runOnce(() -> {
+                  setGyroBasedOnInitialChoreoTrajectory(onenotetoptraj1);
+                  if(DriverStation.getAlliance().get() == Alliance.Blue) {
+                      swerveSubsystem.resetOdometry(onenotetoptraj1.getInitialPose());
+                  } else {
+                      swerveSubsystem.resetOdometry(onenotetoptraj1.flipped().getInitialPose());
+                  }
+              }),
+              new AutoShootSubwoof(shooter, intake),
+              autoCommandFactory.generateChoreoCommand(onenotetoptraj1)
+      );
+      autoChooser.addOption("One Note Ampside", oneNoteTop);
+      /* END ONENOTETOP */
 
     autoChooser.setDefaultOption("Do nothing", new InstantCommand());
     SmartDashboard.putData(autoChooser);
   }
   public Command getAutonomousCommand() {
     // return new RunCommand(() -> swerveSubsystem.drive(new Translation2d(.1, .2), .3, false), swerveSubsystem); // test drive command, for debugging
-    return autoChooser.getSelected();
+    return autoChooser.getSelected().andThen(zeroOdometryAngleOffset());
     }
 }
