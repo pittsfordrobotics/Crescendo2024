@@ -180,6 +180,9 @@ public class RobotContainer {
 
         m_operatorController.rightBumper().onTrue(climber.setSpeedCommand(1));
         m_operatorController.rightBumper().onFalse(climber.setSpeedCommand(-1));
+        m_driverController.b().onTrue(Commands.runOnce(() ->
+                swerveSubsystem.setTargetAngle(getAllianceDefaultBlue().equals(Alliance.Red) ?
+                        Rotation2d.fromDegrees(90) : Rotation2d.fromDegrees(-90))));
     }
 
     private void configure_TEST_Bindings() {
@@ -253,6 +256,28 @@ public class RobotContainer {
       System.out.println("Is alliance present when setting initial gyro? " + DriverStation.getAlliance().isPresent());
       Rotation2d actualAllianceRelativeAngle = DriverStation.getAlliance().get() == Alliance.Blue ? traj.getInitialPose().getRotation() : new Rotation2d().minus(traj.getInitialPose().getRotation());
       swerveSubsystem.setGyroAngle(actualAllianceRelativeAngle);
+  }
+
+    /**
+     * Requires the swerve subsystem, w/ tolerance of 1 degree and timeout of 2 secs.
+     * @return Command to drive to zero heading with no translation rate and zeros the gyro.
+     */
+  public Command driveToZeroHeadingAndZeroGyro() {
+      return swerveSubsystem.headingDriveCommand(() -> 0, () -> 0, Rotation2d::new).until(() -> Math.abs(swerveSubsystem.getGyroYaw().getDegrees()) < 1).withTimeout(2)
+              .andThen(swerveSubsystem::zeroGyro);
+  }
+  public Command zeroOdometryAngleOffset() {
+      return swerveSubsystem.zeroOdometryAngleOffset();
+  }
+  public Alliance getAllianceDefaultBlue() {
+      Alliance currentAlliance;
+      if(DriverStation.getAlliance().isPresent()) {
+          currentAlliance = DriverStation.getAlliance().get();
+      } else {
+          currentAlliance = Alliance.Blue;
+          System.out.println("No alliance, setting to blue");
+      }
+      return currentAlliance;
   }
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
@@ -346,7 +371,7 @@ public class RobotContainer {
       new StoredCommand(shooter, intake),
       autoCommandFactory.generateChoreoCommand(twonotetoptraj3),
       swerveSubsystem.correctHeading(twonotetoptraj3).withTimeout(1.5),
-      new CommonSpeakerCommand(shooter, intake, 39, 6000), // Ready to shoot again (adjust these params)
+      new CommonSpeakerCommand(shooter, intake, 38.7, 6000), // Ready to shoot again (adjust these params)
     shooter.waitForShooterRPMCommand().withTimeout(1),
       shooter.spinIndexerCommand(RobotConstants.INDEXER_SHOOT_SPEED), // Shoot
       Commands.waitSeconds(0.25),
@@ -412,6 +437,6 @@ public class RobotContainer {
   }
   public Command getAutonomousCommand() {
     // return new RunCommand(() -> swerveSubsystem.drive(new Translation2d(.1, .2), .3, false), swerveSubsystem); // test drive command, for debugging
-    return autoChooser.getSelected();
+    return autoChooser.getSelected().andThen(zeroOdometryAngleOffset());
     }
 }

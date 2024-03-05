@@ -513,7 +513,13 @@ public class SwerveSubsystem extends SubsystemBase {
     public void resetOdometry(Pose2d initialHolonomicPose) {
         swerveDrive.resetOdometry(initialHolonomicPose);
     }
-
+    /**
+     * Sets the odometry angle to the current gyro angle.
+     * @return A command to reset the angle offset of the odometry to zero.
+     */
+    public Command zeroOdometryAngleOffset() {
+        return runOnce(() -> resetOdometry(new Pose2d(getPose().getTranslation(), getGyroYaw())));
+    }
     /**
      * Gets the current pose (position and rotation) of the robot, as reported by
      * odometry.
@@ -551,6 +557,7 @@ public class SwerveSubsystem extends SubsystemBase {
         currentTargetAngle = new Rotation2d();
     }
 
+
     /**
      * Sets the current angle of the gyro. If the robot reaches the same angle, the gyro will report this angle.
      * @param currentAngle The angle that the gyro should read in its current state.
@@ -579,6 +586,14 @@ public class SwerveSubsystem extends SubsystemBase {
     public Rotation2d getHeading() {
         return getPose().getRotation();
     }
+    /**
+     * Gets the current yaw angle of the robot, as reported by the gyro
+     * Note, this is the raw gyro reading, this may not be corrected from calls to
+     * resetOdometry().
+     *
+     * @return The yaw angle
+     */
+    public Rotation2d getGyroYaw() {return swerveDrive.getYaw();}
 
     public Rotation2d getCurrentTargetAngle() {
         return currentTargetAngle;
