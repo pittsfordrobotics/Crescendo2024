@@ -237,6 +237,7 @@ public class Shooter extends SubsystemBase {
     return this.runOnce(() -> pivotAngleSetpointDeg = setpoint_deg_clamped);
   }
 
+  // Requiring the intake in the shooter subsystem?? Probly better to just use common speaker command in robot container - evan
   public Command autoAimSpeaker(DoubleSupplier distanceSupplier, Intake intake) {
     return new ParallelCommandGroup(
       this.setPivotAngleCommand(ShooterInterpolationHelper.getShooterAngle(distanceSupplier.getAsDouble())),
