@@ -134,6 +134,9 @@ public class Shooter extends SubsystemBase {
     SmartDashboard.putNumber("Shooter Pivot P", pivotRPID.getP());
     SmartDashboard.putNumber("Shooter Pivot D", pivotRPID.getD());
 
+    SmartDashboard.putNumber("ShooterRight FF Gain", shooterRPID.getFF());
+    SmartDashboard.putNumber("ShooterLeft FF Gain", shooterLPID.getFF());
+
     Shuffleboard.getTab("SHOOTER").add(this);
 
     Shuffleboard.getTab("SHOOTER").addDouble("Shooter RPM R", this::getShooterRRPM);
@@ -163,6 +166,18 @@ public class Shooter extends SubsystemBase {
         ShooterConstants.SHOOTER_Pivot_D) != pivotRPID.getD()) {
       pivotRPID.setD(SmartDashboard.getNumber("Shooter Pivot D",
           ShooterConstants.SHOOTER_Pivot_D));
+    }
+
+    if (SmartDashboard.getNumber("ShooterRight FF Gain",
+        ShooterConstants.SHOOTER_L_FFGain) != shooterRPID.getFF()) {
+      shooterRPID.setFF(SmartDashboard.getNumber("ShooterRight FF Gain",
+          ShooterConstants.SHOOTER_L_FFGain));
+    }
+
+    if (SmartDashboard.getNumber("ShooterLeft FF Gain",
+        ShooterConstants.SHOOTER_R_FFGain) != shooterLPID.getFF()) {
+      shooterLPID.setFF(SmartDashboard.getNumber("ShooterLeft FF Gain",
+          ShooterConstants.SHOOTER_R_FFGain));
     }
     //
 
