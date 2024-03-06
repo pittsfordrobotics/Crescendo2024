@@ -108,8 +108,8 @@ public class RobotContainer {
 
         StructureStates.setCurrentState(StructureStates.structureState.startup);
         // Configure the trigger bindings
-        configure_COMP_Bindings();
-        // configure_TEST_Bindings();
+        // configure_COMP_Bindings();
+        configure_TEST_Bindings();
         autoConfig();
     }
 
@@ -207,7 +207,7 @@ public class RobotContainer {
         // +RPM means note goes out & +Angle means move up relative to intake pose
         SmartDashboard.putNumber("ShooterPivotAngle_CHANGEME", 0);
         SmartDashboard.putNumber("ShooterRPM_CHANGEME", 0);
-        SmartDashboard.putNumber("IntakePivotAngle_CHANGEME", 180);
+        SmartDashboard.putNumber("IntakePivotAngle_CHANGEME", 35);
 
         // LEFT BUMPER & TRIGGER -> shooter pivot -- Works (tune pids and FF tho)
         m_operatorController.leftBumper().onTrue(shooter.setPivotAngleCommand(53));
@@ -215,7 +215,7 @@ public class RobotContainer {
         m_operatorController.leftTrigger().whileTrue(shooter.setPivotAngleSupplierCommand());
 
         // RIGHT BUMPER & TRIGGER -> intake pivot -- Works (tune pids and FF tho)
-        m_operatorController.rightBumper().onFalse(intake.setPivotAngleCommand(35));
+        m_operatorController.rightBumper().onFalse(intake.setPivotAngleCommand(180));
         m_operatorController.rightBumper().onTrue(intake.setPivotAngleCommand(0));
         m_operatorController.rightTrigger().whileTrue(intake.setPivotAngleSupplierCommand());
 

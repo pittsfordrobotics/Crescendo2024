@@ -105,15 +105,15 @@ public class Intake extends SubsystemBase {
     pivotRPID.setReference(pivotAngleSetpointDeg, ControlType.kPosition, 0, FFCalculator.getInstance().calculateIntakeFF());
 
     // For PidTuningOnly
-    // if (SmartDashboard.getNumber("Intake P", IntakeConstants.INTAKE_Pivot_P) != pivotRPID.getP()) {
-    //   pivotRPID.setP(SmartDashboard.getNumber("Intake P",
-    //       IntakeConstants.INTAKE_Pivot_P));
-    // }
-    // if (SmartDashboard.getNumber("Intake D", IntakeConstants.INTAKE_Pivot_D) != pivotRPID.getD()) {
-    //   pivotRPID.setD(SmartDashboard.getNumber("Intake D",
-    //       IntakeConstants.INTAKE_Pivot_D));
-    // }
-    // // //
+    if (SmartDashboard.getNumber("Intake P", IntakeConstants.INTAKE_Pivot_P) != pivotRPID.getP()) {
+      pivotRPID.setP(SmartDashboard.getNumber("Intake P",
+          IntakeConstants.INTAKE_Pivot_P));
+    }
+    if (SmartDashboard.getNumber("Intake D", IntakeConstants.INTAKE_Pivot_D) != pivotRPID.getD()) {
+      pivotRPID.setD(SmartDashboard.getNumber("Intake D",
+          IntakeConstants.INTAKE_Pivot_D));
+    }
+    // //
   }
 
   // Gets the RPM of the intake motor
