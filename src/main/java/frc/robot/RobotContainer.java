@@ -115,9 +115,9 @@ public class RobotContainer {
   private void configure_COMP_SmartDashboard() {
     Shuffleboard.getTab("COMP").addDouble("Time", () -> DriverStation.getMatchTime());
     Shuffleboard.getTab("COMP").addBoolean("TimeWarning",
-        () -> DriverStation.getMatchTime() < 60 && DriverStation.getMatchTime() > 59 ||
-            DriverStation.getMatchTime() < 58 && DriverStation.getMatchTime() > 58 ||
-            DriverStation.getMatchTime() < 57 && DriverStation.getMatchTime() > 56 ||
+        () -> !(DriverStation.getMatchTime() < 60 && DriverStation.getMatchTime() > 59 ||
+            DriverStation.getMatchTime() < 58 && DriverStation.getMatchTime() > 57 ||
+            DriverStation.getMatchTime() < 56 && DriverStation.getMatchTime() > 55 ||
             DriverStation.getMatchTime() < 30 && DriverStation.getMatchTime() > 29.5 ||
             DriverStation.getMatchTime() < 29 && DriverStation.getMatchTime() > 28.5 ||
             DriverStation.getMatchTime() < 28 && DriverStation.getMatchTime() > 27.5 ||
@@ -126,7 +126,7 @@ public class RobotContainer {
             DriverStation.getMatchTime() < 19.5 && DriverStation.getMatchTime() > 19.25 ||
             DriverStation.getMatchTime() < 19 && DriverStation.getMatchTime() > 18.75 ||
             DriverStation.getMatchTime() < 18.5 && DriverStation.getMatchTime() > 18.25 ||
-            DriverStation.getMatchTime() < 8);
+            DriverStation.getMatchTime() < 8));
   }
 
   private void configure_COMP_Bindings() {
