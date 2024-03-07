@@ -25,7 +25,7 @@ public class PODIUMCommand extends SequentialCommandGroup {
                         shooter.setShooterRPMCommand(RobotConstants.PODIUM_ShooterRPM)),
                 new SequentialCommandGroup(
                         intake.setPivotAngleCommand(RobotConstants.PODIUM_IntakePivotAngle),
-                        intake.waitForPivotAngleCommand(),
+                        // intake.waitForPivotAngleCommand(),
                         shooter.setPivotAngleCommand(RobotConstants.PODIUM_ShooterPivotAngle),
                         shooter.waitForPivotAngleCommand(2)),
                 new InstantCommand(() -> StructureStates.setCurrentState(StructureStates.structureState.podium))

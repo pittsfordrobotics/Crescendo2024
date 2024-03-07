@@ -220,7 +220,7 @@ public class RobotContainer {
         m_operatorController.rightTrigger().whileTrue(intake.setPivotAngleSupplierCommand());
 
         // A -> Shooter RPM (X for supplier) -- Works
-        m_operatorController.a().onTrue(shooter.setShooterRPMCommand(5400));
+        m_operatorController.a().onTrue(shooter.setShooterRPMCommand(4000));
         m_operatorController.a().onFalse(shooter.setShooterRPMCommand(-2500));
         m_operatorController.x().whileTrue(shooter.setShooterRPMSupplierCommand());
 
