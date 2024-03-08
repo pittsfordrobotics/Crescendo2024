@@ -33,6 +33,7 @@ import frc.robot.lib.AutoCommandFactory;
 import frc.robot.lib.FFCalculator;
 import frc.robot.lib.StructureStates;
 import frc.robot.lib.StructureStates.structureState;
+import frc.robot.lib.util.ShooterInterpolationHelper;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
@@ -40,6 +41,7 @@ import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.subsystems.Vision.Vision;
 
 import java.io.File;
+import java.util.function.DoubleSupplier;
 
 
 
@@ -69,10 +71,16 @@ public class RobotContainer {
         swerveSubsystem = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve/maxSwerve"));
     vision = new Vision(VisionConstants.LIMELIGHT1,  VisionConstants.LIMELIGHT2, swerveSubsystem::addVisionData);
 
+        DoubleSupplier distanceSupplier = (() -> swerveSubsystem.getPose().getTranslation()
+        .getDistance(FieldConstants.Speaker.centerSpeakerOpeningZeroY.getTranslation()));
+
+        DoubleSupplier angleSupplier = (() -> ShooterInterpolationHelper.getShooterAngle(distanceSupplier.getAsDouble()));
+        DoubleSupplier RPMSupplier = (() -> ShooterInterpolationHelper.getShooterRPM(distanceSupplier.getAsDouble()));
+
         NamedCommands.registerCommand("StartIntakeCommand", new StartIntakeCommand(shooter, intake)); //TODO: Test if this crashes when runs twice/second auto
         NamedCommands.registerCommand("AutoFireNote", new AutoFireNote(shooter)); // waits for spinner rpm (MUST be previously set to spin up), then fires note
         NamedCommands.registerCommand("StoredCommand", new StoredCommand(shooter, intake));
-        
+        NamedCommands.registerCommand("aimSpeaker", new RepeatCommand(new CommonSpeakerCommandNoDelays(shooter, intake, angleSupplier, RPMSupplier)));
         //TODO: Go to stored state
         //TODO: Add command to aim and keep aiming continuously 
 
