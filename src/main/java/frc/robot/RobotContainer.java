@@ -6,6 +6,9 @@ package frc.robot;
 
 import com.choreo.lib.Choreo;
 import com.choreo.lib.ChoreoTrajectory;
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -23,6 +26,7 @@ import frc.robot.Constants.VisionConstants;
 import frc.robot.commands.AutoActionCommands.AutoShoot;
 import frc.robot.commands.AutoActionCommands.AutoShootSubwoof;
 import frc.robot.commands.AutoActionCommands.StartIntakeCommand;
+import frc.robot.commands.AutoActionCommands.AutoFireNote;
 import frc.robot.commands.DisabledInstantCommand;
 import frc.robot.commands.NewPrettyCommands.*;
 import frc.robot.lib.AutoCommandFactory;
@@ -50,7 +54,7 @@ public class RobotContainer {
 
     private final AutoCommandFactory autoCommandFactory;
 
-    private final SendableChooser<Command> autoChooser = new SendableChooser<>();
+    private SendableChooser<Command> autoChooser = new SendableChooser<>();
     private final CommandXboxController m_driverController = new CommandXboxController(
             OperatorConstants.kDriverControllerPort);
     private final CommandXboxController m_operatorController = new CommandXboxController(
@@ -64,6 +68,17 @@ public class RobotContainer {
         intake = new Intake();
         swerveSubsystem = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve/maxSwerve"));
     vision = new Vision(VisionConstants.LIMELIGHT1,  VisionConstants.LIMELIGHT2, swerveSubsystem::addVisionData);
+
+        NamedCommands.registerCommand("StartIntakeCommand", new StartIntakeCommand(shooter, intake)); //TODO: Test if this crashes when runs twice/second auto
+        NamedCommands.registerCommand("AutoFireNote", new AutoFireNote(shooter)); // waits for spinner rpm (MUST be previously set to spin up), then fires note
+        NamedCommands.registerCommand("StoredCommand", new StoredCommand(shooter, intake));
+        
+        //TODO: Go to stored state
+        //TODO: Add command to aim and keep aiming continuously 
+
+        // instantiates autoChooser based on PathPlanner files (exists at code deploy, no need to wait)
+        autoChooser = AutoBuilder.buildAutoChooser();
+        SmartDashboard.putData("Auto Chooser", autoChooser);
 
         FFCalculator c = FFCalculator.getInstance();
         c.updateIntakePivotAngle(intake::getPivotAngleDeg);
@@ -274,160 +289,163 @@ public class RobotContainer {
    * Use this to pass the autonomous command to the main {@link Robot} class.
    */
   public void autoConfig() {
-    /* TWONOTEMIDDLE START */
-    ChoreoTrajectory twonotemiddletraj1 = Choreo.getTrajectory("twonotemiddle.1");
-    ChoreoTrajectory twonotemiddletraj2 = Choreo.getTrajectory("twonotemiddle.2");
-    ChoreoTrajectory twonotemiddletraj3 = Choreo.getTrajectory("twonotemiddle.3");
-    ChoreoTrajectory twonotemiddletraj4 = Choreo.getTrajectory("twonotemiddle.4");
+    
+    // /* TWONOTEMIDDLE START */
+    // ChoreoTrajectory twonotemiddletraj1 = Choreo.getTrajectory("twonotemiddle.1");
+    // ChoreoTrajectory twonotemiddletraj2 = Choreo.getTrajectory("twonotemiddle.2");
+    // ChoreoTrajectory twonotemiddletraj3 = Choreo.getTrajectory("twonotemiddle.3");
+    // ChoreoTrajectory twonotemiddletraj4 = Choreo.getTrajectory("twonotemiddle.4");
 
-    Command twonotemiddle = new SequentialCommandGroup(
-      Commands.runOnce(() -> {
-          setGyroBasedOnInitialChoreoTrajectory(twonotemiddletraj1);
-        if(DriverStation.getAlliance().get() == Alliance.Blue) {
-          swerveSubsystem.resetOdometry(twonotemiddletraj1.getInitialPose());
-        } else {
-          swerveSubsystem.resetOdometry(twonotemiddletraj1.flipped().getInitialPose());
-        }
-      }),
-      new AutoShoot(shooter, intake, 56, 5400),
-      autoCommandFactory.generateChoreoCommand(twonotemiddletraj1),
-      swerveSubsystem.correctHeading(twonotemiddletraj1).withTimeout(1.5),
-      new StartIntakeCommand(shooter, intake), // Start the intake
-      autoCommandFactory.generateChoreoCommand(twonotemiddletraj2), // Drive forward
-      shooter.waitForLimitSwitchCommand().withTimeout(3), // Wait for it to intake
-      new StoredCommand(shooter, intake), // Store the note
-      autoCommandFactory.generateChoreoCommand(twonotemiddletraj3), // Turn towards the speaker
-      swerveSubsystem.correctHeading(twonotemiddletraj3).withTimeout(1.5),
-      new AutoShoot(shooter, intake, 45, 6000), // Ready to shoot again (adjust these params)
-      autoCommandFactory.generateChoreoCommand(twonotemiddletraj4) // drive out of starting area fully
-    );
-    autoChooser.addOption("Two Note Middle", twonotemiddle);
-    /* TWONOTEMIDDLE END */
+    // Command twonotemiddle = new SequentialCommandGroup(
+    //   Commands.runOnce(() -> {
+    //       setGyroBasedOnInitialChoreoTrajectory(twonotemiddletraj1);
+    //     if(DriverStation.getAlliance().get() == Alliance.Blue) {
+    //       swerveSubsystem.resetOdometry(twonotemiddletraj1.getInitialPose());
+    //     } else {
+    //       swerveSubsystem.resetOdometry(twonotemiddletraj1.flipped().getInitialPose());
+    //     }
+    //   }),
+    //   new AutoShoot(shooter, intake, 56, 5400),
+    //   autoCommandFactory.generateChoreoCommand(twonotemiddletraj1),
+    //   swerveSubsystem.correctHeading(twonotemiddletraj1).withTimeout(1.5),
+    //   new StartIntakeCommand(shooter, intake), // Start the intake
+    //   autoCommandFactory.generateChoreoCommand(twonotemiddletraj2), // Drive forward
+    //   shooter.waitForLimitSwitchCommand().withTimeout(3), // Wait for it to intake
+    //   new StoredCommand(shooter, intake), // Store the note
+    //   autoCommandFactory.generateChoreoCommand(twonotemiddletraj3), // Turn towards the speaker
+    //   swerveSubsystem.correctHeading(twonotemiddletraj3).withTimeout(1.5),
+    //   new AutoShoot(shooter, intake, 45, 6000), // Ready to shoot again (adjust these params)
+    //   autoCommandFactory.generateChoreoCommand(twonotemiddletraj4) // drive out of starting area fully
+    // );
+    // autoChooser.addOption("Two Note Middle", twonotemiddle);
+    // /* TWONOTEMIDDLE END */
 
-    /* TWONOTEBOTTOM START */
-    ChoreoTrajectory twonotebottomtraj1 = Choreo.getTrajectory("twonotebottom.1");
-    ChoreoTrajectory twonotebottomtraj2 = Choreo.getTrajectory("twonotebottom.2");
-    ChoreoTrajectory twonotebottomtraj3 = Choreo.getTrajectory("twonotebottom.3");
-    ChoreoTrajectory twonotebottomtraj4 = Choreo.getTrajectory("twonotebottom.4");
+    // /* TWONOTEBOTTOM START */
+    // ChoreoTrajectory twonotebottomtraj1 = Choreo.getTrajectory("twonotebottom.1");
+    // ChoreoTrajectory twonotebottomtraj2 = Choreo.getTrajectory("twonotebottom.2");
+    // ChoreoTrajectory twonotebottomtraj3 = Choreo.getTrajectory("twonotebottom.3");
+    // ChoreoTrajectory twonotebottomtraj4 = Choreo.getTrajectory("twonotebottom.4");
 
-    Command twonotebottom = new SequentialCommandGroup(
-      Commands.runOnce(() -> {
-          setGyroBasedOnInitialChoreoTrajectory(twonotebottomtraj1);
-        if(DriverStation.getAlliance().get() == Alliance.Blue) {
-          swerveSubsystem.resetOdometry(twonotebottomtraj1.getInitialPose());
-        } else {
-          swerveSubsystem.resetOdometry(twonotebottomtraj1.flipped().getInitialPose());
-        }
-      }),
-      new AutoShootSubwoof(shooter, intake),
-      autoCommandFactory.generateChoreoCommand(twonotebottomtraj1),
-      swerveSubsystem.correctHeading(twonotemiddletraj1).withTimeout(1.5),
-      new StartIntakeCommand(shooter, intake),
-      autoCommandFactory.generateChoreoCommand(twonotebottomtraj2),
-      shooter.waitForLimitSwitchCommand().withTimeout(3), // Wait for it to intake
-      new StoredCommand(shooter, intake),
-      autoCommandFactory.generateChoreoCommand(twonotebottomtraj3),
-      swerveSubsystem.correctHeading(twonotebottomtraj3).withTimeout(1.5),
-      new CommonSpeakerCommand(shooter, intake, 41.5, 6000), // Ready to shoot again (adjust these params)
-    shooter.waitForShooterRPMCommand().withTimeout(1),
-      shooter.spinIndexerCommand(RobotConstants.INDEXER_SHOOT_SPEED), // Shoot
-      Commands.waitSeconds(0.25),
-      shooter.spinIndexerCommand(RobotConstants.INDEXER_IDLE_SPEED),
-      new StoredCommand(shooter, intake),
-      autoCommandFactory.generateChoreoCommand(twonotebottomtraj4)
-    );
-    autoChooser.addOption("Two Note Podiumside", twonotebottom);
-    /* TWONOTEBOTTOM START */
+    // Command twonotebottom = new SequentialCommandGroup(
+    //   Commands.runOnce(() -> {
+    //       setGyroBasedOnInitialChoreoTrajectory(twonotebottomtraj1);
+    //     if(DriverStation.getAlliance().get() == Alliance.Blue) {
+    //       swerveSubsystem.resetOdometry(twonotebottomtraj1.getInitialPose());
+    //     } else {
+    //       swerveSubsystem.resetOdometry(twonotebottomtraj1.flipped().getInitialPose());
+    //     }
+    //   }),
+    //   new AutoShootSubwoof(shooter, intake),
+    //   autoCommandFactory.generateChoreoCommand(twonotebottomtraj1),
+    //   swerveSubsystem.correctHeading(twonotemiddletraj1).withTimeout(1.5),
+    //   new StartIntakeCommand(shooter, intake),
+    //   autoCommandFactory.generateChoreoCommand(twonotebottomtraj2),
+    //   shooter.waitForLimitSwitchCommand().withTimeout(3), // Wait for it to intake
+    //   new StoredCommand(shooter, intake),
+    //   autoCommandFactory.generateChoreoCommand(twonotebottomtraj3),
+    //   swerveSubsystem.correctHeading(twonotebottomtraj3).withTimeout(1.5),
+    //   new CommonSpeakerCommand(shooter, intake, 41.5, 6000), // Ready to shoot again (adjust these params)
+    // shooter.waitForShooterRPMCommand().withTimeout(1),
+    //   shooter.spinIndexerCommand(RobotConstants.INDEXER_SHOOT_SPEED), // Shoot
+    //   Commands.waitSeconds(0.25),
+    //   shooter.spinIndexerCommand(RobotConstants.INDEXER_IDLE_SPEED),
+    //   new StoredCommand(shooter, intake),
+    //   autoCommandFactory.generateChoreoCommand(twonotebottomtraj4)
+    // );
+    // autoChooser.addOption("Two Note Podiumside", twonotebottom);
+    // /* TWONOTEBOTTOM START */
 
-    /* TWONOTETOP START */
-    ChoreoTrajectory twonotetoptraj1 = Choreo.getTrajectory("twonotetop.1");
-    ChoreoTrajectory twonotetoptraj2 = Choreo.getTrajectory("twonotetop.2");
-    ChoreoTrajectory twonotetoptraj3 = Choreo.getTrajectory("twonotetop.3");
+    // /* TWONOTETOP START */
+    // ChoreoTrajectory twonotetoptraj1 = Choreo.getTrajectory("twonotetop.1");
+    // ChoreoTrajectory twonotetoptraj2 = Choreo.getTrajectory("twonotetop.2");
+    // ChoreoTrajectory twonotetoptraj3 = Choreo.getTrajectory("twonotetop.3");
 
-    Command twonotetop = new SequentialCommandGroup(
-      Commands.runOnce(() -> {
-          setGyroBasedOnInitialChoreoTrajectory(twonotetoptraj1);
-        if(DriverStation.getAlliance().get() == Alliance.Blue) {
-          swerveSubsystem.resetOdometry(twonotetoptraj1.getInitialPose());
-        } else {
-          swerveSubsystem.resetOdometry(twonotetoptraj1.flipped().getInitialPose());
-        }
-      }),
-      new AutoShootSubwoof(shooter, intake),
-      autoCommandFactory.generateChoreoCommand(twonotetoptraj1),
-      swerveSubsystem.correctHeading(twonotemiddletraj1).withTimeout(1.5),
-      new StartIntakeCommand(shooter, intake),
-      autoCommandFactory.generateChoreoCommand(twonotetoptraj2),
-      shooter.waitForLimitSwitchCommand().withTimeout(3), // Wait for it to intake
-      new StoredCommand(shooter, intake),
-      autoCommandFactory.generateChoreoCommand(twonotetoptraj3),
-      swerveSubsystem.correctHeading(twonotetoptraj3).withTimeout(1.5),
-      new CommonSpeakerCommand(shooter, intake, 38.7, 6000), // Ready to shoot again (adjust these params)
-    shooter.waitForShooterRPMCommand().withTimeout(1),
-      shooter.spinIndexerCommand(RobotConstants.INDEXER_SHOOT_SPEED), // Shoot
-      Commands.waitSeconds(0.25),
-      shooter.spinIndexerCommand(RobotConstants.INDEXER_IDLE_SPEED),
-      new StoredCommand(shooter, intake)
-    );
-    autoChooser.addOption("Two Note Ampside", twonotetop);
-    /* TWONOTETOP STOP */
+    // Command twonotetop = new SequentialCommandGroup(
+    //   Commands.runOnce(() -> {
+    //       setGyroBasedOnInitialChoreoTrajectory(twonotetoptraj1);
+    //     if(DriverStation.getAlliance().get() == Alliance.Blue) {
+    //       swerveSubsystem.resetOdometry(twonotetoptraj1.getInitialPose());
+    //     } else {
+    //       swerveSubsystem.resetOdometry(twonotetoptraj1.flipped().getInitialPose());
+    //     }
+    //   }),
+    //   new AutoShootSubwoof(shooter, intake),
+    //   autoCommandFactory.generateChoreoCommand(twonotetoptraj1),
+    //   swerveSubsystem.correctHeading(twonotemiddletraj1).withTimeout(1.5),
+    //   new StartIntakeCommand(shooter, intake),
+    //   autoCommandFactory.generateChoreoCommand(twonotetoptraj2),
+    //   shooter.waitForLimitSwitchCommand().withTimeout(3), // Wait for it to intake
+    //   new StoredCommand(shooter, intake),
+    //   autoCommandFactory.generateChoreoCommand(twonotetoptraj3),
+    //   swerveSubsystem.correctHeading(twonotetoptraj3).withTimeout(1.5),
+    //   new CommonSpeakerCommand(shooter, intake, 38.7, 6000), // Ready to shoot again (adjust these params)
+    // shooter.waitForShooterRPMCommand().withTimeout(1),
+    //   shooter.spinIndexerCommand(RobotConstants.INDEXER_SHOOT_SPEED), // Shoot
+    //   Commands.waitSeconds(0.25),
+    //   shooter.spinIndexerCommand(RobotConstants.INDEXER_IDLE_SPEED),
+    //   new StoredCommand(shooter, intake)
+    // );
+    // autoChooser.addOption("Two Note Ampside", twonotetop);
+    // /* TWONOTETOP STOP */
 
-      /* START ONENOTEBOTTOMBERSERK */
-      ChoreoTrajectory onenotebottomberserktraj1 = Choreo.getTrajectory("onenotebottomandmiddlerow.1");
-      Command oneNoteBottomBerserk = new SequentialCommandGroup(
-              Commands.runOnce(() -> {
-                  setGyroBasedOnInitialChoreoTrajectory(onenotebottomberserktraj1);
-                  if(DriverStation.getAlliance().get() == Alliance.Blue) {
-                      swerveSubsystem.resetOdometry(onenotebottomberserktraj1.getInitialPose());
-                  } else {
-                      swerveSubsystem.resetOdometry(onenotebottomberserktraj1.flipped().getInitialPose());
-                  }
-              }),
-              new AutoShootSubwoof(shooter, intake),
-              autoCommandFactory.generateChoreoCommand(onenotebottomberserktraj1)
-      );
-      autoChooser.addOption("One Note Podium Side Berserk", oneNoteBottomBerserk);
-      /* END ONENOTEBOTTOMBERSERK */
+    //   /* START ONENOTEBOTTOMBERSERK */
+    //   ChoreoTrajectory onenotebottomberserktraj1 = Choreo.getTrajectory("onenotebottomandmiddlerow.1");
+    //   Command oneNoteBottomBerserk = new SequentialCommandGroup(
+    //           Commands.runOnce(() -> {
+    //               setGyroBasedOnInitialChoreoTrajectory(onenotebottomberserktraj1);
+    //               if(DriverStation.getAlliance().get() == Alliance.Blue) {
+    //                   swerveSubsystem.resetOdometry(onenotebottomberserktraj1.getInitialPose());
+    //               } else {
+    //                   swerveSubsystem.resetOdometry(onenotebottomberserktraj1.flipped().getInitialPose());
+    //               }
+    //           }),
+    //           new AutoShootSubwoof(shooter, intake),
+    //           autoCommandFactory.generateChoreoCommand(onenotebottomberserktraj1)
+    //   );
+    //   autoChooser.addOption("One Note Podium Side Berserk", oneNoteBottomBerserk);
+    //   /* END ONENOTEBOTTOMBERSERK */
 
-      /* START ONENOTEBOTTOM */
-      ChoreoTrajectory onenotebottomtraj1 = Choreo.getTrajectory("onenotebottom.1");
-      Command oneNoteBottom = new SequentialCommandGroup(
-              Commands.runOnce(() -> {
-                  setGyroBasedOnInitialChoreoTrajectory(onenotebottomtraj1);
-                  if(DriverStation.getAlliance().get() == Alliance.Blue) {
-                      swerveSubsystem.resetOdometry(onenotebottomtraj1.getInitialPose());
-                  } else {
-                      swerveSubsystem.resetOdometry(onenotebottomtraj1.flipped().getInitialPose());
-                  }
-              }),
-              new AutoShootSubwoof(shooter, intake),
-              autoCommandFactory.generateChoreoCommand(onenotebottomberserktraj1)
-      );
-      autoChooser.addOption("One Note Podium Side Berserk", oneNoteBottom);
-      /* END ONENOTEBOTTOM */
+    //   /* START ONENOTEBOTTOM */
+    //   ChoreoTrajectory onenotebottomtraj1 = Choreo.getTrajectory("onenotebottom.1");
+    //   Command oneNoteBottom = new SequentialCommandGroup(
+    //           Commands.runOnce(() -> {
+    //               setGyroBasedOnInitialChoreoTrajectory(onenotebottomtraj1);
+    //               if(DriverStation.getAlliance().get() == Alliance.Blue) {
+    //                   swerveSubsystem.resetOdometry(onenotebottomtraj1.getInitialPose());
+    //               } else {
+    //                   swerveSubsystem.resetOdometry(onenotebottomtraj1.flipped().getInitialPose());
+    //               }
+    //           }),
+    //           new AutoShootSubwoof(shooter, intake),
+    //           autoCommandFactory.generateChoreoCommand(onenotebottomberserktraj1)
+    //   );
+    //   autoChooser.addOption("One Note Podium Side Berserk", oneNoteBottom);
+    //   /* END ONENOTEBOTTOM */
 
-      /* START ONENOTETOP */
-      ChoreoTrajectory onenotetoptraj1 = Choreo.getTrajectory("onenotetop.1");
-      Command oneNoteTop = new SequentialCommandGroup(
-              Commands.runOnce(() -> {
-                  setGyroBasedOnInitialChoreoTrajectory(onenotetoptraj1);
-                  if(DriverStation.getAlliance().get() == Alliance.Blue) {
-                      swerveSubsystem.resetOdometry(onenotetoptraj1.getInitialPose());
-                  } else {
-                      swerveSubsystem.resetOdometry(onenotetoptraj1.flipped().getInitialPose());
-                  }
-              }),
-              new AutoShootSubwoof(shooter, intake),
-              autoCommandFactory.generateChoreoCommand(onenotetoptraj1)
-      );
-      autoChooser.addOption("One Note Ampside", oneNoteTop);
-      /* END ONENOTETOP */
+    //   /* START ONENOTETOP */
+    //   ChoreoTrajectory onenotetoptraj1 = Choreo.getTrajectory("onenotetop.1");
+    //   Command oneNoteTop = new SequentialCommandGroup(
+    //           Commands.runOnce(() -> {
+    //               setGyroBasedOnInitialChoreoTrajectory(onenotetoptraj1);
+    //               if(DriverStation.getAlliance().get() == Alliance.Blue) {
+    //                   swerveSubsystem.resetOdometry(onenotetoptraj1.getInitialPose());
+    //               } else {
+    //                   swerveSubsystem.resetOdometry(onenotetoptraj1.flipped().getInitialPose());
+    //               }
+    //           }),
+    //           new AutoShootSubwoof(shooter, intake),
+    //           autoCommandFactory.generateChoreoCommand(onenotetoptraj1)
+    //   );
+    //   autoChooser.addOption("One Note Ampside", oneNoteTop);
+    //   /* END ONENOTETOP */
 
-    autoChooser.setDefaultOption("Do nothing", new InstantCommand());
-    SmartDashboard.putData(autoChooser);
+    // autoChooser.setDefaultOption("Do nothing", new InstantCommand());
+    // SmartDashboard.putData(autoChooser);
   }
+
   public Command getAutonomousCommand() {
     // return new RunCommand(() -> swerveSubsystem.drive(new Translation2d(.1, .2), .3, false), swerveSubsystem); // test drive command, for debugging
-    return autoChooser.getSelected().andThen(zeroOdometryAngleOffset());
+    return autoChooser.getSelected();
+    // TODO: Replace the andThen statement if this does not align to gyro
     }
 }
