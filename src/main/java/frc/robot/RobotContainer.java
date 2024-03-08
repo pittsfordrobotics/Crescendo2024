@@ -158,6 +158,15 @@ public class RobotContainer {
             new RepeatCommand(new CommonSpeakerCommand(shooter, intake,
                 ShooterInterpolationHelper.getShooterAngle(distanceSupplier.getAsDouble()),
                 ShooterInterpolationHelper.getShooterRPM(distanceSupplier.getAsDouble())))));
+
+    // Probly works
+    // m_driverController.a().whileTrue(new RepeatCommand(Commands.runOnce(()-> {
+    //   double shooteranglee = ShooterInterpolationHelper.getShooterAngle(distanceSupplier.getAsDouble());
+    //   double shooterrpmm = ShooterInterpolationHelper.getShooterRPM(distanceSupplier.getAsDouble());
+    //   new CommonSpeakerCommand(shooter, intake, shooteranglee, shooterrpmm).schedule();
+    //   speakerTargetSteeringCommand.schedule();
+    // })));
+
     m_driverController.a().onFalse(new SequentialCommandGroup(
       shooter.spinIndexerCommand(RobotConstants.INDEXER_SHOOT_SPEED),
       new WaitCommand(.5),
