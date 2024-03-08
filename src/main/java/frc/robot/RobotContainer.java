@@ -226,13 +226,13 @@ public class RobotContainer {
 
         // B -> Intake RAW command -- Untested
         m_operatorController.b().onTrue(intake.spinIntakeCommand(.7));
-        m_operatorController.b().onFalse(intake.spinIntakeCommand(.01));
+        m_operatorController.b().onFalse(intake.spinIntakeCommand(0));
 
         // Y -> Indexer test -- Works
-        m_operatorController.y().onTrue(shooter.spinIndexerCommand(0.5));
+        m_operatorController.y().onTrue(shooter.spinIndexerCommand(1));
         m_operatorController.y().onFalse(shooter.spinIndexerCommand(-0.1));
     }
-//
+
 //  private ChoreoTrajectory finalAutoTrajectory;
 //  public void setGyroBasedOnAutoFinalTrajectory(){
 //    swerveSubsystem.setGyroAngle(finalAutoTrajectory.getFinalPose().getRotation()); // Sets the gyro heading, NEVER FLIPPED since robot should always point away from DS when gyro reports 0

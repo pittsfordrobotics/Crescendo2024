@@ -51,12 +51,12 @@ public class Shooter extends SubsystemBase {
     shooterMotorL.setIdleMode(IdleMode.kCoast);
     shooterMotorL.setSmartCurrentLimit(45);
     // Shooter left pid
-    shooterRPID = shooterMotorL.getPIDController();
-    shooterRPID.setFeedbackDevice(shooterMotorL.getEncoder());
-    shooterRPID.setP(ShooterConstants.SHOOTER_P);
-    shooterRPID.setI(ShooterConstants.SHOOTER_I);
-    shooterRPID.setD(ShooterConstants.SHOOTER_D);
-    shooterRPID.setFF(ShooterConstants.SHOOTER_L_FFGain);
+    shooterLPID = shooterMotorL.getPIDController();
+    shooterLPID.setFeedbackDevice(shooterMotorL.getEncoder());
+    shooterLPID.setP(ShooterConstants.SHOOTER_P);
+    shooterLPID.setI(ShooterConstants.SHOOTER_I);
+    shooterLPID.setD(ShooterConstants.SHOOTER_D);
+    shooterLPID.setFF(ShooterConstants.SHOOTER_L_FFGain);
 
     shooterMotorL.burnFlash();
 
@@ -67,12 +67,12 @@ public class Shooter extends SubsystemBase {
     shooterMotorR.setSmartCurrentLimit(45);
     shooterMotorR.setInverted(true);
     // Shooter right pid
-    shooterLPID = shooterMotorR.getPIDController();
-    shooterLPID.setFeedbackDevice(shooterMotorR.getEncoder());
-    shooterLPID.setP(ShooterConstants.SHOOTER_P);
-    shooterLPID.setI(ShooterConstants.SHOOTER_I);
-    shooterLPID.setD(ShooterConstants.SHOOTER_D);
-    shooterLPID.setFF(ShooterConstants.SHOOTER_R_FFGain);
+    shooterRPID = shooterMotorR.getPIDController();
+    shooterRPID.setFeedbackDevice(shooterMotorR.getEncoder());
+    shooterRPID.setP(ShooterConstants.SHOOTER_P);
+    shooterRPID.setI(ShooterConstants.SHOOTER_I);
+    shooterRPID.setD(ShooterConstants.SHOOTER_D);
+    shooterRPID.setFF(ShooterConstants.SHOOTER_R_FFGain);
 
     shooterMotorR.burnFlash();
 
@@ -136,6 +136,8 @@ public class Shooter extends SubsystemBase {
     SmartDashboard.putNumber("ShooterRight FF Gain", shooterRPID.getFF());
     SmartDashboard.putNumber("ShooterLeft FF Gain", shooterLPID.getFF());
 
+    SmartDashboard.putNumber("Shooter L&R P", shooterRPID.getP());
+
     Shuffleboard.getTab("SHOOTER").add(this);
 
     Shuffleboard.getTab("SHOOTER").addDouble("Shooter RPM R", this::getShooterRRPM);
@@ -177,6 +179,14 @@ public class Shooter extends SubsystemBase {
         ShooterConstants.SHOOTER_R_FFGain) != shooterLPID.getFF()) {
       shooterLPID.setFF(SmartDashboard.getNumber("ShooterLeft FF Gain",
           ShooterConstants.SHOOTER_R_FFGain));
+    }
+
+    if (SmartDashboard.getNumber("Shooter L&R P",
+        ShooterConstants.SHOOTER_P) != shooterRPID.getP()) {
+      shooterRPID.setP(SmartDashboard.getNumber("Shooter L&R P",
+          ShooterConstants.SHOOTER_P));
+      shooterLPID.setP(SmartDashboard.getNumber("Shooter L&R P",
+          ShooterConstants.SHOOTER_P));
     }
     //
 
