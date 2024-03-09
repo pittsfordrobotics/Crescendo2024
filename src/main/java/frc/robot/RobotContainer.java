@@ -7,6 +7,7 @@ package frc.robot;
 import com.choreo.lib.Choreo;
 import com.choreo.lib.ChoreoTrajectory;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -91,9 +92,6 @@ public class RobotContainer {
         () -> -m_driverController.getLeftX(),
         () -> -m_driverController.getRightX());
 
-    // Pose2d speaker = new Pose2d(0.0, 0.0, new Rotation2d());
-    // Pose2d speaker = FieldConstants.Speaker.centerSpeakerOpening;
-
     Pose2d speaker = FieldConstants.Speaker.centerSpeakerOpening;
     speakerTargetSteeringCommand = swerveSubsystem.driveTranslationAndPointAtTarget(
         () -> -m_driverController.getLeftY(),
@@ -122,7 +120,6 @@ public class RobotContainer {
     // Swerve
     m_driverController.start().onTrue(new DisabledInstantCommand(swerveSubsystem::zeroGyro));
 
-    m_driverController.a().whileTrue(speakerTargetSteeringCommand);
     Command driveCommand = driveModeChooser.getSelected();
     swerveSubsystem.setDefaultCommand(driveCommand);
     driveModeChooser.onChange(command -> {
@@ -149,31 +146,22 @@ public class RobotContainer {
 
     // upgraded point and aim at speaker
     DoubleSupplier distanceSupplier = (() -> swerveSubsystem.getPose().getTranslation()
-        .getDistance(FieldConstants.Speaker.centerSpeakerOpeningZeroY.getTranslation()));
+        .getDistance(FieldConstants.allianceFlipper(new Pose3d(FieldConstants.Speaker.centerSpeakerOpeningZeroY),
+            DriverStation.getAlliance().get()).toPose2d().getTranslation()));
 
-    // m_driverController.a().whileTrue(
-    //     speakerTargetSteeringCommand.alongWith(
-    //         new RepeatCommand(new CommonSpeakerCommand(shooter, intake,
-    //             ShooterInterpolationHelper.getShooterAngle(distanceSupplier.getAsDouble()),
-    //             ShooterInterpolationHelper.getShooterRPM(distanceSupplier.getAsDouble())))));
-
-    m_driverController.a().whileTrue(speakerTargetSteeringCommand.alongWith(Commands.run(()-> {
+    m_driverController.a().whileTrue(speakerTargetSteeringCommand.alongWith(Commands.run(() -> {
       double shooteranglee = ShooterInterpolationHelper.getShooterAngle(distanceSupplier.getAsDouble());
       double shooterrpmm = ShooterInterpolationHelper.getShooterRPM(distanceSupplier.getAsDouble());
       new CommonSpeakerCommand(shooter, intake, shooteranglee, shooterrpmm).schedule();
     })));
 
     m_driverController.a().onFalse(new SequentialCommandGroup(
-      shooter.spinIndexerCommand(RobotConstants.INDEXER_SHOOT_SPEED),
-      new WaitCommand(.5),
-      new StoredCommand(shooter, intake),
-      shooter.spinIndexerCommand(RobotConstants.INDEXER_IDLE_SPEED)
-    ));
+        shooter.spinIndexerCommand(RobotConstants.INDEXER_SHOOT_SPEED),
+        new WaitCommand(.5),
+        new StoredCommand(shooter, intake)));
 
-    // old upgraded point and aim at speaker
-    m_driverController.y()
-        .whileTrue(speakerTargetSteeringCommand);
-
+    // old point at speaker
+    // m_driverController.a().whileTrue(speakerTargetSteeringCommand);
 
     // Runs the indexer while the right bumper is held -- essentally a shoot command
     m_driverController.rightBumper().onTrue(shootIndexerCommand);
