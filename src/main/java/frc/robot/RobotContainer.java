@@ -8,6 +8,7 @@ import com.choreo.lib.Choreo;
 import com.choreo.lib.ChoreoTrajectory;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
+import com.pathplanner.lib.util.PathPlannerLogging;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -43,6 +44,7 @@ import frc.robot.subsystems.Vision.Vision;
 
 import java.io.File;
 import java.util.function.DoubleSupplier;
+import java.util.function.Supplier;
 
 
 
@@ -63,6 +65,7 @@ public class RobotContainer {
     private final CommandXboxController m_operatorController = new CommandXboxController(
             OperatorConstants.kOperatorControllerPort);
     Command speakerTargetSteeringCommand;
+    private Pose2d pathPlannerTargetPose;
 
     // The container for the robot. Contains subsystems, OI devices, and commands.
     public RobotContainer() {
@@ -77,6 +80,7 @@ public class RobotContainer {
 
         DoubleSupplier angleSupplier = (() -> ShooterInterpolationHelper.getShooterAngle(distanceSupplier.getAsDouble()));
         DoubleSupplier RPMSupplier = (() -> ShooterInterpolationHelper.getShooterRPM(distanceSupplier.getAsDouble()));
+        Supplier<Pose2d> pathPlannerTargetPoseSupplier = (() -> pathPlannerTargetPose);
 
         NamedCommands.registerCommand("StartIntakeNoDelaysCommand", new SequentialCommandGroup(
           new StoredCommand(shooter, intake),
@@ -87,12 +91,18 @@ public class RobotContainer {
         NamedCommands.registerCommand("AutoFireNote", new AutoFireNote(shooter)); // waits for spinner rpm (MUST be previously set to spin up), then fires note
         NamedCommands.registerCommand("StoredCommand", new StoredCommand(shooter, intake));
         NamedCommands.registerCommand("AimSpeaker", new RepeatCommand(new CommonSpeakerCommandNoDelays(shooter, intake, angleSupplier, RPMSupplier)));
-        NamedCommands.registerCommand("ShootSubwoof", new SUBWOOFCommand(shooter, intake));
-        NamedCommands.registerCommand("CorrectHeading", speakerTargetSteeringCommand);
+        NamedCommands.registerCommand("ShootSubwoof", new SequentialCommandGroup(
+          new SUBWOOFCommand(shooter, intake),
+          new AutoFireNote(shooter),
+          new StoredCommand(shooter, intake)
+        ));
+        NamedCommands.registerCommand("CorrectHeading", swerveSubsystem.correctHeading(pathPlannerTargetPoseSupplier));
         // instantiates autoChooser based on PathPlanner files (exists at code deploy, no need to wait)
 
         autoChooser = AutoBuilder.buildAutoChooser();
         SmartDashboard.putData("Choreo Auto Chooser", autoChooser);
+
+        PathPlannerLogging.setLogTargetPoseCallback((pose) -> pathPlannerTargetPose = pose);
 
         FFCalculator c = FFCalculator.getInstance();
         c.updateIntakePivotAngle(intake::getPivotAngleDeg);

@@ -21,7 +21,8 @@ public class AutoFireNote extends SequentialCommandGroup {
       shooter.waitForShooterRPMCommand().withTimeout(0.2),
       shooter.spinIndexerCommand(RobotConstants.INDEXER_SHOOT_SPEED),
       Commands.waitSeconds(0.25),
-      shooter.spinIndexerCommand(RobotConstants.INDEXER_IDLE_SPEED)
+      shooter.spinIndexerCommand(RobotConstants.INDEXER_IDLE_SPEED),
+      Commands.waitSeconds(0.5)
     );
   }
 }

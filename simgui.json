@@ -14,12 +14,13 @@
       "/Shuffleboard/SHOOTER/Shooter Pivot Set Coast": "Command",
       "/Shuffleboard/SHOOTER/Shooter Pivot Zero": "Command",
       "/SmartDashboard/Auto Chooser": "String Chooser",
+      "/SmartDashboard/Choreo Auto Chooser": "String Chooser",
       "/SmartDashboard/Field": "Field2d",
       "/SmartDashboard/Pigeon 2 (v6) [0]": "Gyro",
       "/SmartDashboard/SendableChooser[0]": "String Chooser"
     },
     "windows": {
-      "/SmartDashboard/Auto Chooser": {
+      "/SmartDashboard/Choreo Auto Chooser": {
         "window": {
           "visible": true
         }
