@@ -30,7 +30,7 @@ public class BetterAMPCommand extends SequentialCommandGroup {
                         shooter.setShooterRPMCommand(RobotConstants.NEWAMP_ShooterRPM_STAGE1)),
                 new SequentialCommandGroup(
                         shooter.setPivotAngleCommand(
-                                RobotConstants.NEWAMP_ShooterPivotAngle_STAGE2),
+                                RobotConstants.NEWAMP_ShooterPivotAngle),
                         intake.setPivotAngleCommand(
                                 RobotConstants.NEWAMP_IntakePivotAngle_STAGE1),
                         intake.waitForPivotAngleCommand()),
@@ -39,7 +39,8 @@ public class BetterAMPCommand extends SequentialCommandGroup {
                 intake.spinIntakeCommand(RobotConstants.NEWAMP_IntakeSpeed_STAGE2),
                 shooter.spinIndexerCommand(RobotConstants.INDEXER_IDLE_SPEED),
                 intake.setPivotAngleCommand(
-                                RobotConstants.NEWAMP_IntakePivotAngle_STAGE2),
+                        RobotConstants.NEWAMP_IntakePivotAngle_STAGE2),
+                intake.waitForPivotAngleCommand(5),
                 new InstantCommand(() -> StructureStates
                         .setCurrentState(StructureStates.structureState.amp)));
     }
