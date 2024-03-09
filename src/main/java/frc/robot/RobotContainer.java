@@ -34,30 +34,12 @@ import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.SwerveSubsystem;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import java.io.File;
 import java.util.function.DoubleSupplier;
 
-import com.choreo.lib.Choreo;
-import com.choreo.lib.ChoreoTrajectory;
-import edu.wpi.first.math.geometry.Pose3d;
-import frc.robot.Constants.FieldConstants;
-import frc.robot.Constants.VisionConstants;
 import frc.robot.subsystems.Vision.Vision;
 
-import com.choreo.lib.Choreo;
-import com.choreo.lib.ChoreoTrajectory;
 import com.pathplanner.lib.path.PathPlannerPath;
-
-import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import frc.robot.Constants.FieldConstants;
-import frc.robot.Constants.VisionConstants;
-import frc.robot.subsystems.Vision.Vision;
-
-import frc.robot.subsystems.Vision.Vision;
-
-import java.io.File;
 
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
