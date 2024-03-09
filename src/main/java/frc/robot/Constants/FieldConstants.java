@@ -12,11 +12,15 @@ import java.io.IOException;
 import java.util.function.Supplier;
 
 /**
- * Contains various field dimensions and useful reference points. Dimensions are in meters, and sets
- * of corners start in the lower left moving clockwise. <b>All units in Meters</b> <br>
+ * Contains various field dimensions and useful reference points. Dimensions are
+ * in meters, and sets
+ * of corners start in the lower left moving clockwise. <b>All units in
+ * Meters</b> <br>
  * <br>
  *
- * <p>All translations and poses are stored with the origin at the rightmost point on the BLUE
+ * <p>
+ * All translations and poses are stored with the origin at the rightmost point
+ * on the BLUE
  * ALLIANCE wall.<br>
  * <br>
  * Length refers to the <i>x</i> direction (as described by wpilib) <br>
@@ -29,8 +33,8 @@ public class FieldConstants {
   public static double podiumX = Units.inchesToMeters(126.75);
   public static double startingLineX = Units.inchesToMeters(74.111);
 
-  public static Translation2d ampCenter =
-      new Translation2d(Units.inchesToMeters(72.455), Units.inchesToMeters(322.996));
+  public static Translation2d ampCenter = new Translation2d(Units.inchesToMeters(72.455),
+      Units.inchesToMeters(322.996));
 
   /** Staging locations for each note */
   public static final class StagingLocations {
@@ -49,8 +53,7 @@ public class FieldConstants {
 
     static {
       for (int i = 0; i < centerlineTranslations.length; i++) {
-        centerlineTranslations[i] =
-            new Translation2d(centerlineX, centerlineFirstY + (i * centerlineSeparationY));
+        centerlineTranslations[i] = new Translation2d(centerlineX, centerlineFirstY + (i * centerlineSeparationY));
       }
     }
 
@@ -65,32 +68,30 @@ public class FieldConstants {
   public static AprilTagFieldLayout aprilTags;
 
   /** Each corner of the speaker * */
-public static final class Speaker {
+  public static final class Speaker {
 
-  // corners (blue alliance origin)
-  public static Translation3d topRightSpeaker =
-      new Translation3d(
-          Units.inchesToMeters(18.055),
-          Units.inchesToMeters(238.815),
-          Units.inchesToMeters(83.091));
+    // corners (blue alliance origin)
+    public static Translation3d topRightSpeaker = new Translation3d(
+        Units.inchesToMeters(18.055),
+        Units.inchesToMeters(238.815),
+        Units.inchesToMeters(83.091));
 
-  public static Translation3d topLeftSpeaker =
-      new Translation3d(
-          Units.inchesToMeters(18.055),
-          Units.inchesToMeters(197.765),
-          Units.inchesToMeters(83.091));
+    public static Translation3d topLeftSpeaker = new Translation3d(
+        Units.inchesToMeters(18.055),
+        Units.inchesToMeters(197.765),
+        Units.inchesToMeters(83.091));
 
-  public static Translation3d bottomRightSpeaker =
-      new Translation3d(0.0, Units.inchesToMeters(238.815), Units.inchesToMeters(78.324));
-  public static Translation3d bottomLeftSpeaker =
-      new Translation3d(0.0, Units.inchesToMeters(197.765), Units.inchesToMeters(78.324));
+    public static Translation3d bottomRightSpeaker = new Translation3d(0.0, Units.inchesToMeters(238.815),
+        Units.inchesToMeters(78.324));
+    public static Translation3d bottomLeftSpeaker = new Translation3d(0.0, Units.inchesToMeters(197.765),
+        Units.inchesToMeters(78.324));
 
-  /** Center of the speaker opening (blue alliance) */
-  public static Pose2d centerSpeakerOpening =
-      new Pose2d(bottomLeftSpeaker.interpolate(topRightSpeaker, 0.5).toTranslation2d(), new Rotation2d());
-  public static Pose2d centerSpeakerOpeningZeroY =
-      new Pose2d(centerSpeakerOpening.getX(), 0, new Rotation2d());
-  
+    /** Center of the speaker opening (blue alliance) */
+    public static Pose2d centerSpeakerOpening = new Pose2d(
+        bottomLeftSpeaker.interpolate(topRightSpeaker, 0.5).toTranslation2d(), new Rotation2d());
+    public static Pose2d centerSpeakerOpeningZeroY = new Pose2d(centerSpeakerOpening.getX(), 0, new Rotation2d());
+
+  }
 
   static {
     try {
@@ -99,19 +100,18 @@ public static final class Speaker {
       throw new RuntimeException(e);
     }
   }
-}
 
   // Evan added probaly wrong
   public static Pose3d allianceFlipper(Pose3d pose, Alliance alliance) {
     if (alliance == Alliance.Blue) {
-        return pose;
+      return pose;
     }
-    //Keep the x-component, change the magnitude of y component.
-    //Height remains the same.
-    Translation3d transformedTranslation =
-            new Translation3d(pose.getTranslation().getX(), FieldConstants.fieldWidth - pose.getTranslation().getY(), pose.getTranslation().getZ());
-    
-    //Rotate by 180 degrees
+    // Keep the x-component, change the magnitude of y component.
+    // Height remains the same.
+    Translation3d transformedTranslation = new Translation3d(pose.getTranslation().getX(),
+        FieldConstants.fieldWidth - pose.getTranslation().getY(), pose.getTranslation().getZ());
+
+    // Rotate by 180 degrees
     Rotation3d transformedHolonomicRotation = pose.getRotation().times(-1);
     return new Pose3d(transformedTranslation, transformedHolonomicRotation);
   }
