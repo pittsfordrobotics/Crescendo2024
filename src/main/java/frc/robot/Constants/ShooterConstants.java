@@ -30,6 +30,19 @@ public final class ShooterConstants {
     public static final double SHOOTER_R_FFGain = 0.000167;
 
 
+
+    // key: distance from center of robot to middle pose of subwoof projected down
+    // (inches); value: shooter angle (degrees)
+    public static final InterpolatingDoubleTreeMap DISTANCE_ANGLE_MAP = new InterpolatingDoubleTreeMap();
+    static {
+        DISTANCE_ANGLE_MAP.put(Units.inchesToMeters(87.0), 45.0); // Middle auto second shoot
+        DISTANCE_ANGLE_MAP.put(Units.inchesToMeters(104.0), 41.5); // Podium auto second shoot
+        DISTANCE_ANGLE_MAP.put(Units.inchesToMeters(115.0), 40.25); // Podium
+        DISTANCE_ANGLE_MAP.put(Units.inchesToMeters(127.0), 39.0); // Amp auto second shoot
+        DISTANCE_ANGLE_MAP.put(Units.inchesToMeters(154.0), 37.8); // Tested distance
+    }
+
+
     // FF constants
     // See diagram its very usefull
     // deg -> rad = deg * .0175

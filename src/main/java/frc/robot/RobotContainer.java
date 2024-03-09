@@ -153,6 +153,7 @@ public class RobotContainer {
     // upgraded point and aim at speaker
     DoubleSupplier distanceSupplier = (() -> swerveSubsystem.getPose().getTranslation()
         .getDistance(FieldConstants.Speaker.centerSpeakerOpeningZeroY.getTranslation()));
+
     // m_driverController.a().whileTrue(
     //     speakerTargetSteeringCommand.alongWith(
     //         new RepeatCommand(new CommonSpeakerCommand(shooter, intake,
@@ -173,11 +174,8 @@ public class RobotContainer {
     ));
 
     // old upgraded point and aim at speaker
-    // m_driverController.b()
-    //     .whileTrue(speakerTargetSteeringCommand.alongWith(shooter.autoAimSpeaker(distanceSupplier, intake)));
-
-    // old basic point to speaker
-    // m_driverController.a().whileTrue(speakerTargetSteeringCommand);
+    m_driverController.y()
+        .whileTrue(speakerTargetSteeringCommand);
 
     // Runs the indexer while the right bumper is held -- essentally a shoot command
     m_driverController.rightBumper().onTrue(shootIndexerCommand);
