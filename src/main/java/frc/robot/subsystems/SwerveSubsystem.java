@@ -36,6 +36,7 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.SimpleWidget;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.FieldConstants;
@@ -238,16 +239,36 @@ public class SwerveSubsystem extends SubsystemBase {
         );
     }
 
+    public Command pathToPath (PathPlannerPath path) {
+        // Load the path we want to pathfind to and follow
+        // PathPlannerPath path = PathPlannerPath.fromPathFile("Example Human Player Pickup");
+
+        // Create the constraints to use while pathfinding. The constraints defined in
+        // the path will only be used for the path.
+        PathConstraints constraints = new PathConstraints(
+                swerveDrive.getMaximumVelocity() * .25, 2.0,
+                swerveDrive.getMaximumAngularVelocity(), Units.degreesToRadians(360));
+
+        // Since AutoBuilder is configured, we can use it to build pathfinding commands
+        return AutoBuilder.pathfindThenFollowPath(
+                path,
+                constraints,
+                .5 // Rotation delay distance in meters. This is how far the robot should travel
+                    // before attempting to rotate.
+        );
+    }
+
     /**
      * Corrects heading angle continuously until it is reached and angular velocity
      * is low (Autonomous only)
      * 
      * @return A command to drive to that heading angle between path segments
      */
-    public Command correctHeading(ChoreoTrajectory traj) {
-        return this.run(() -> {
-            swerveDrive.drive(swerveDrive.swerveController.getTargetSpeeds(0, 0, currentTargetAngle.getRadians(),
-                    getHeading().getRadians(), swerveDrive.getMaximumVelocity()));
+   public Command correctHeading(ChoreoTrajectory traj) {
+        return this.run(() -> 
+        {
+        swerveDrive.drive(swerveDrive.swerveController.getTargetSpeeds(0, 0, currentTargetAngle.getRadians(),
+                getHeading().getRadians(), swerveDrive.getMaximumVelocity()));
         })
                 .beforeStarting(() -> {
                     swerveDrive.setHeadingCorrection(true);
@@ -256,7 +277,35 @@ public class SwerveSubsystem extends SubsystemBase {
                     // traj.flipped().getFinalPose().getRotation();
                     currentTargetAngle = AllianceFlipUtil.apply(traj.getFinalPose()).getRotation();
                 })
-                .until(() -> Math.abs(currentTargetAngle.getDegrees() - getHeading().getDegrees()) < 1.5);
+                .until(() -> Math.abs(currentTargetAngle.getDegrees() - getHeading().getDegrees()) < 4);
+    }
+    public Command correctHeading(Supplier<Pose2d> targetPoseSupplier) {
+        return Commands.run(() -> 
+        {
+        swerveDrive.drive(swerveDrive.swerveController.getTargetSpeeds(0, 0, currentTargetAngle.getRadians(),
+                getHeading().getRadians(), swerveDrive.getMaximumVelocity()));
+        })
+                .beforeStarting(() -> 
+                {
+                swerveDrive.setHeadingCorrection(true);
+                //currentTargetAngle = (DriverStation.getAlliance().get() == Alliance.Blue) ? traj.getFinalPose().getRotation() : traj.flipped().getFinalPose().getRotation();
+                currentTargetAngle = AllianceFlipUtil.apply(targetPoseSupplier.get().getRotation());
+                })
+                .until(() -> Math.abs(currentTargetAngle.getDegrees() - getHeading().getDegrees()) < 4); //TODO: edit tolerance
+    }
+    public Command correctHeading(Rotation2d targetRotation) {
+        return Commands.run(() -> 
+        {
+        swerveDrive.drive(swerveDrive.swerveController.getTargetSpeeds(0, 0, currentTargetAngle.getRadians(),
+                getHeading().getRadians(), swerveDrive.getMaximumVelocity()));
+        })
+                .beforeStarting(() -> 
+                {
+                swerveDrive.setHeadingCorrection(true);
+                //currentTargetAngle = (DriverStation.getAlliance().get() == Alliance.Blue) ? traj.getFinalPose().getRotation() : traj.flipped().getFinalPose().getRotation();
+                currentTargetAngle = AllianceFlipUtil.apply(targetRotation);
+                })
+                .until(() -> Math.abs(currentTargetAngle.getDegrees() - getHeading().getDegrees()) < 4); //TODO: edit tolerance
     }
 
     /**
@@ -345,15 +394,7 @@ public class SwerveSubsystem extends SubsystemBase {
             }
             if (leftRotationInput != 0 && rightRotationInput == 0) {
                 swerveDrive.setHeadingCorrection(false);
-                double leftRotationOutput = Math.pow(leftRotationInput, 3) * swerveDrive.getMaximumAngularVelocity()// For
-                                                                                                                    // some
-                                                                                                                    // reason
-                                                                                                                    // max
-                                                                                                                    // angular
-                                                                                                                    // velocity
-                                                                                                                    // is
-                                                                                                                    // too
-                                                                                                                    // low
+                double leftRotationOutput = Math.pow(leftRotationInput, 3) * swerveDrive.getMaximumAngularVelocity() * 2 //For some reason max angular velocity is too low
                         * speedFactor;
                 swerveDrive.drive(new Translation2d(
                         xInput * swerveDrive.getMaximumVelocity() * speedFactor,
