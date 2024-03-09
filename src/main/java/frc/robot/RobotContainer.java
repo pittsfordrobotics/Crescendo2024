@@ -236,42 +236,40 @@ public class RobotContainer {
     // right trigger - intake angle supplier
     // x - shooter RPM supplier
 
-    // Remember zeroed at intake pose
-    // +RPM means note goes out & +Angle means move up relative to intake pose
-    SmartDashboard.putNumber("ShooterPivotAngle_CHANGEME", 0);
-    SmartDashboard.putNumber("ShooterRPM_CHANGEME", 0);
-    SmartDashboard.putNumber("IntakePivotAngle_CHANGEME", 180);
+        // Remember zeroed at intake pose
+        // +RPM means note goes out & +Angle means move up relative to intake pose
+        SmartDashboard.putNumber("ShooterPivotAngle_CHANGEME", 0);
+        SmartDashboard.putNumber("ShooterRPM_CHANGEME", 0);
+        SmartDashboard.putNumber("IntakePivotAngle_CHANGEME", 35);
 
     // LEFT BUMPER & TRIGGER -> shooter pivot -- Works (tune pids and FF tho)
     m_operatorController.leftBumper().onTrue(shooter.setPivotAngleCommand(53));
     m_operatorController.leftBumper().onFalse(shooter.setPivotAngleCommand(0.0));
     m_operatorController.leftTrigger().whileTrue(shooter.setPivotAngleSupplierCommand());
 
-    // RIGHT BUMPER & TRIGGER -> intake pivot -- Works (tune pids and FF tho)
-    m_operatorController.rightBumper().onFalse(intake.setPivotAngleCommand(35));
-    m_operatorController.rightBumper().onTrue(intake.setPivotAngleCommand(0));
-    m_operatorController.rightTrigger().whileTrue(intake.setPivotAngleSupplierCommand());
+        // RIGHT BUMPER & TRIGGER -> intake pivot -- Works (tune pids and FF tho)
+        m_operatorController.rightBumper().onFalse(intake.setPivotAngleCommand(180));
+        m_operatorController.rightBumper().onTrue(intake.setPivotAngleCommand(0));
+        m_operatorController.rightTrigger().whileTrue(intake.setPivotAngleSupplierCommand());
 
-    // A -> Shooter RPM (X for supplier) -- Works
-    m_operatorController.a().onTrue(shooter.setShooterRPMCommand(5400));
-    m_operatorController.a().onFalse(shooter.setShooterRPMCommand(-2500));
-    m_operatorController.x().whileTrue(shooter.setShooterRPMSupplierCommand());
+        // A -> Shooter RPM (X for supplier) -- Works
+        m_operatorController.a().onTrue(shooter.setShooterRPMCommand(4000));
+        m_operatorController.a().onFalse(shooter.setShooterRPMCommand(-2500));
+        m_operatorController.x().whileTrue(shooter.setShooterRPMSupplierCommand());
 
-    // B -> Intake RAW command -- Untested
-    m_operatorController.b().onTrue(intake.spinIntakeCommand(.7));
-    m_operatorController.b().onFalse(intake.spinIntakeCommand(.01));
+        // B -> Intake RAW command -- Untested
+        m_operatorController.b().onTrue(intake.spinIntakeCommand(.7));
+        m_operatorController.b().onFalse(intake.spinIntakeCommand(0));
 
-    // Y -> Indexer test -- Works
-    m_operatorController.y().onTrue(shooter.spinIndexerCommand(0.5));
-    m_operatorController.y().onFalse(shooter.spinIndexerCommand(-0.1));
-  }
-  //
-  // private ChoreoTrajectory finalAutoTrajectory;
-  // public void setGyroBasedOnAutoFinalTrajectory(){
-  // swerveSubsystem.setGyroAngle(finalAutoTrajectory.getFinalPose().getRotation());
-  // // Sets the gyro heading, NEVER FLIPPED since robot should always point away
-  // from DS when gyro reports 0
-  // } // Unnecessary since it can be done initially
+        // Y -> Indexer test -- Works
+        m_operatorController.y().onTrue(shooter.spinIndexerCommand(1));
+        m_operatorController.y().onFalse(shooter.spinIndexerCommand(-0.1));
+    }
+
+//  private ChoreoTrajectory finalAutoTrajectory;
+//  public void setGyroBasedOnAutoFinalTrajectory(){
+//    swerveSubsystem.setGyroAngle(finalAutoTrajectory.getFinalPose().getRotation()); // Sets the gyro heading, NEVER FLIPPED since robot should always point away from DS when gyro reports 0
+//  } // Unnecessary since it can be done initially
 
   /**
    * <p>
@@ -337,23 +335,23 @@ public class RobotContainer {
     Command twonotemiddle = new SequentialCommandGroup(
         Commands.runOnce(() -> {
           setGyroBasedOnInitialChoreoTrajectory(twonotemiddletraj1);
-          if (DriverStation.getAlliance().get() == Alliance.Blue) {
-            swerveSubsystem.resetOdometry(twonotemiddletraj1.getInitialPose());
-          } else {
-            swerveSubsystem.resetOdometry(twonotemiddletraj1.flipped().getInitialPose());
-          }
-        }),
-        new AutoShoot(shooter, intake, 56, 5400),
-        autoCommandFactory.generateChoreoCommand(twonotemiddletraj1),
-        swerveSubsystem.correctHeading(twonotemiddletraj1).withTimeout(1.5),
-        new StartIntakeCommand(shooter, intake), // Start the intake
-        autoCommandFactory.generateChoreoCommand(twonotemiddletraj2), // Drive forward
-        shooter.waitForLimitSwitchCommand().withTimeout(3), // Wait for it to intake
-        new StoredCommand(shooter, intake), // Store the note
-        autoCommandFactory.generateChoreoCommand(twonotemiddletraj3), // Turn towards the speaker
-        swerveSubsystem.correctHeading(twonotemiddletraj3).withTimeout(1.5),
-        new AutoShoot(shooter, intake, 45, 6000), // Ready to shoot again (adjust these params)
-        autoCommandFactory.generateChoreoCommand(twonotemiddletraj4) // drive out of starting area fully
+        if(DriverStation.getAlliance().get() == Alliance.Blue) {
+          swerveSubsystem.resetOdometry(twonotemiddletraj1.getInitialPose());
+        } else {
+          swerveSubsystem.resetOdometry(twonotemiddletraj1.flipped().getInitialPose());
+        }
+      }),
+      new AutoShoot(shooter, intake, 56, 5400),
+      autoCommandFactory.generateChoreoCommand(twonotemiddletraj1),
+      swerveSubsystem.correctHeading(twonotemiddletraj1).withTimeout(1.5),
+      new StartIntakeCommand(shooter, intake), // Start the intake
+      autoCommandFactory.generateChoreoCommand(twonotemiddletraj2), // Drive forward
+      shooter.waitForLimitSwitchCommand().withTimeout(3), // Wait for it to intake
+      new StoredCommand(shooter, intake), // Store the note
+      autoCommandFactory.generateChoreoCommand(twonotemiddletraj3), // Turn towards the speaker
+      swerveSubsystem.correctHeading(twonotemiddletraj3).withTimeout(1.5),
+      new AutoShoot(shooter, intake, 45, 5400), // Ready to shoot again (adjust these params)
+      autoCommandFactory.generateChoreoCommand(twonotemiddletraj4) // drive out of starting area fully
     );
     autoChooser.addOption("Two Note Middle", twonotemiddle);
     /* TWONOTEMIDDLE END */
@@ -367,28 +365,29 @@ public class RobotContainer {
     Command twonotebottom = new SequentialCommandGroup(
         Commands.runOnce(() -> {
           setGyroBasedOnInitialChoreoTrajectory(twonotebottomtraj1);
-          if (DriverStation.getAlliance().get() == Alliance.Blue) {
-            swerveSubsystem.resetOdometry(twonotebottomtraj1.getInitialPose());
-          } else {
-            swerveSubsystem.resetOdometry(twonotebottomtraj1.flipped().getInitialPose());
-          }
-        }),
-        new AutoShootSubwoof(shooter, intake),
-        autoCommandFactory.generateChoreoCommand(twonotebottomtraj1),
-        swerveSubsystem.correctHeading(twonotemiddletraj1).withTimeout(1.5),
-        new StartIntakeCommand(shooter, intake),
-        autoCommandFactory.generateChoreoCommand(twonotebottomtraj2),
-        shooter.waitForLimitSwitchCommand().withTimeout(3), // Wait for it to intake
-        new StoredCommand(shooter, intake),
-        autoCommandFactory.generateChoreoCommand(twonotebottomtraj3),
-        swerveSubsystem.correctHeading(twonotebottomtraj3).withTimeout(1.5),
-        new CommonSpeakerCommand(shooter, intake, 41.5, 6000), // Ready to shoot again (adjust these params)
-        shooter.waitForShooterRPMCommand().withTimeout(1),
-        shooter.spinIndexerCommand(RobotConstants.INDEXER_SHOOT_SPEED), // Shoot
-        Commands.waitSeconds(0.25),
-        shooter.spinIndexerCommand(RobotConstants.INDEXER_IDLE_SPEED),
-        new StoredCommand(shooter, intake),
-        autoCommandFactory.generateChoreoCommand(twonotebottomtraj4));
+        if(DriverStation.getAlliance().get() == Alliance.Blue) {
+          swerveSubsystem.resetOdometry(twonotebottomtraj1.getInitialPose());
+        } else {
+          swerveSubsystem.resetOdometry(twonotebottomtraj1.flipped().getInitialPose());
+        }
+      }),
+      new AutoShootSubwoof(shooter, intake),
+      autoCommandFactory.generateChoreoCommand(twonotebottomtraj1),
+      swerveSubsystem.correctHeading(twonotemiddletraj1).withTimeout(1.5),
+      new StartIntakeCommand(shooter, intake),
+      autoCommandFactory.generateChoreoCommand(twonotebottomtraj2),
+      shooter.waitForLimitSwitchCommand().withTimeout(3), // Wait for it to intake
+      new StoredCommand(shooter, intake),
+      autoCommandFactory.generateChoreoCommand(twonotebottomtraj3),
+      swerveSubsystem.correctHeading(twonotebottomtraj3).withTimeout(1.5),
+      new CommonSpeakerCommand(shooter, intake, 41.5, 5400), // Ready to shoot again (adjust these params)
+    shooter.waitForShooterRPMCommand().withTimeout(1),
+      shooter.spinIndexerCommand(RobotConstants.INDEXER_SHOOT_SPEED), // Shoot
+      Commands.waitSeconds(0.25),
+      shooter.spinIndexerCommand(RobotConstants.INDEXER_IDLE_SPEED),
+      new StoredCommand(shooter, intake),
+      autoCommandFactory.generateChoreoCommand(twonotebottomtraj4)
+    );
     autoChooser.addOption("Two Note Podiumside", twonotebottom);
     /* TWONOTEBOTTOM START */
 
@@ -400,27 +399,28 @@ public class RobotContainer {
     Command twonotetop = new SequentialCommandGroup(
         Commands.runOnce(() -> {
           setGyroBasedOnInitialChoreoTrajectory(twonotetoptraj1);
-          if (DriverStation.getAlliance().get() == Alliance.Blue) {
-            swerveSubsystem.resetOdometry(twonotetoptraj1.getInitialPose());
-          } else {
-            swerveSubsystem.resetOdometry(twonotetoptraj1.flipped().getInitialPose());
-          }
-        }),
-        new AutoShootSubwoof(shooter, intake),
-        autoCommandFactory.generateChoreoCommand(twonotetoptraj1),
-        swerveSubsystem.correctHeading(twonotemiddletraj1).withTimeout(1.5),
-        new StartIntakeCommand(shooter, intake),
-        autoCommandFactory.generateChoreoCommand(twonotetoptraj2),
-        shooter.waitForLimitSwitchCommand().withTimeout(3), // Wait for it to intake
-        new StoredCommand(shooter, intake),
-        autoCommandFactory.generateChoreoCommand(twonotetoptraj3),
-        swerveSubsystem.correctHeading(twonotetoptraj3).withTimeout(1.5),
-        new CommonSpeakerCommand(shooter, intake, 38.7, 6000), // Ready to shoot again (adjust these params)
-        shooter.waitForShooterRPMCommand().withTimeout(1),
-        shooter.spinIndexerCommand(RobotConstants.INDEXER_SHOOT_SPEED), // Shoot
-        Commands.waitSeconds(0.25),
-        shooter.spinIndexerCommand(RobotConstants.INDEXER_IDLE_SPEED),
-        new StoredCommand(shooter, intake));
+        if(DriverStation.getAlliance().get() == Alliance.Blue) {
+          swerveSubsystem.resetOdometry(twonotetoptraj1.getInitialPose());
+        } else {
+          swerveSubsystem.resetOdometry(twonotetoptraj1.flipped().getInitialPose());
+        }
+      }),
+      new AutoShootSubwoof(shooter, intake),
+      autoCommandFactory.generateChoreoCommand(twonotetoptraj1),
+      swerveSubsystem.correctHeading(twonotemiddletraj1).withTimeout(1.5),
+      new StartIntakeCommand(shooter, intake),
+      autoCommandFactory.generateChoreoCommand(twonotetoptraj2),
+      shooter.waitForLimitSwitchCommand().withTimeout(3), // Wait for it to intake
+      new StoredCommand(shooter, intake),
+      autoCommandFactory.generateChoreoCommand(twonotetoptraj3),
+      swerveSubsystem.correctHeading(twonotetoptraj3).withTimeout(1.5),
+      new CommonSpeakerCommand(shooter, intake, 38.7, 5400), // Ready to shoot again (adjust these params)
+    shooter.waitForShooterRPMCommand().withTimeout(1),
+      shooter.spinIndexerCommand(RobotConstants.INDEXER_SHOOT_SPEED), // Shoot
+      Commands.waitSeconds(0.25),
+      shooter.spinIndexerCommand(RobotConstants.INDEXER_IDLE_SPEED),
+      new StoredCommand(shooter, intake)
+    );
     autoChooser.addOption("Two Note Ampside", twonotetop);
     /* TWONOTETOP STOP */
 

@@ -33,8 +33,8 @@ import frc.robot.lib.util.ShooterInterpolationHelper;
 
 
 public class Shooter extends SubsystemBase {
-  private CANSparkFlex shooterMotorL;
-  private CANSparkFlex shooterMotorR;
+  private CANSparkMax shooterMotorL;
+  private CANSparkMax shooterMotorR;
   private CANSparkMax indexerMotorL;
   private CANSparkMax indexerMotorR;
   private CANSparkMax pivotMotorL;
@@ -54,33 +54,33 @@ public class Shooter extends SubsystemBase {
     pivotAngleSetpointDeg = RobotConstants.STORED_ShooterPivotAngle;
     // // SHOOTER // //
     // Shooter Motor L
-    shooterMotorL = new CANSparkFlex(ShooterConstants.CAN_SHOOTER_L, MotorType.kBrushless);
+    shooterMotorL = new CANSparkMax(ShooterConstants.CAN_SHOOTER_L, MotorType.kBrushless);
     shooterMotorL.restoreFactoryDefaults();
     shooterMotorL.setIdleMode(IdleMode.kCoast);
     shooterMotorL.setSmartCurrentLimit(45);
     // Shooter left pid
-    shooterRPID = shooterMotorL.getPIDController();
-    shooterRPID.setFeedbackDevice(shooterMotorL.getEncoder());
-    shooterRPID.setP(ShooterConstants.SHOOTER_P);
-    shooterRPID.setI(ShooterConstants.SHOOTER_I);
-    shooterRPID.setD(ShooterConstants.SHOOTER_D);
-    shooterRPID.setFF(ShooterConstants.SHOOTER_L_FFGain);
+    shooterLPID = shooterMotorL.getPIDController();
+    shooterLPID.setFeedbackDevice(shooterMotorL.getEncoder());
+    shooterLPID.setP(ShooterConstants.SHOOTER_P);
+    shooterLPID.setI(ShooterConstants.SHOOTER_I);
+    shooterLPID.setD(ShooterConstants.SHOOTER_D);
+    shooterLPID.setFF(ShooterConstants.SHOOTER_L_FFGain);
 
     shooterMotorL.burnFlash();
 
     // Shooter Motor R
-    shooterMotorR = new CANSparkFlex(ShooterConstants.CAN_SHOOTER_R, MotorType.kBrushless);
+    shooterMotorR = new CANSparkMax(ShooterConstants.CAN_SHOOTER_R, MotorType.kBrushless);
     shooterMotorR.restoreFactoryDefaults();
     shooterMotorR.setIdleMode(IdleMode.kCoast);
     shooterMotorR.setSmartCurrentLimit(45);
     shooterMotorR.setInverted(true);
     // Shooter right pid
-    shooterLPID = shooterMotorR.getPIDController();
-    shooterLPID.setFeedbackDevice(shooterMotorR.getEncoder());
-    shooterLPID.setP(ShooterConstants.SHOOTER_P);
-    shooterLPID.setI(ShooterConstants.SHOOTER_I);
-    shooterLPID.setD(ShooterConstants.SHOOTER_D);
-    shooterLPID.setFF(ShooterConstants.SHOOTER_R_FFGain);
+    shooterRPID = shooterMotorR.getPIDController();
+    shooterRPID.setFeedbackDevice(shooterMotorR.getEncoder());
+    shooterRPID.setP(ShooterConstants.SHOOTER_P);
+    shooterRPID.setI(ShooterConstants.SHOOTER_I);
+    shooterRPID.setD(ShooterConstants.SHOOTER_D);
+    shooterRPID.setFF(ShooterConstants.SHOOTER_R_FFGain);
 
     shooterMotorR.burnFlash();
 
@@ -138,8 +138,13 @@ public class Shooter extends SubsystemBase {
     }
 
     // Logging
-    SmartDashboard.putNumber("Shooter Pivot P", pivotRPID.getP());
-    SmartDashboard.putNumber("Shooter Pivot D", pivotRPID.getD());
+    // SmartDashboard.putNumber("Shooter Pivot P", pivotRPID.getP());
+    // SmartDashboard.putNumber("Shooter Pivot D", pivotRPID.getD());
+
+    // SmartDashboard.putNumber("ShooterRight FF Gain", shooterRPID.getFF());
+    // SmartDashboard.putNumber("ShooterLeft FF Gain", shooterLPID.getFF());
+
+    // SmartDashboard.putNumber("Shooter L&R P", shooterRPID.getP());
 
     Shuffleboard.getTab("SHOOTER").add(this);
 
@@ -149,8 +154,8 @@ public class Shooter extends SubsystemBase {
     Shuffleboard.getTab("SHOOTER").addDouble("Shooter Angle", this::getPivotAngleDeg);
     Shuffleboard.getTab("SHOOTER").addBoolean("Shooter Limit Switch", this::getLimitSwitch);
 
-    Shuffleboard.getTab("SHOOTER").add("Shooter Pivot Set Coast", new DisabledInstantCommand(this::coastShooter));
-    Shuffleboard.getTab("SHOOTER").add("Shooter Pivot Set Brake", new DisabledInstantCommand(this::brakeShooter));
+    // Shuffleboard.getTab("SHOOTER").add("Shooter Pivot Set Coast", new DisabledInstantCommand(this::coastShooter));
+    // Shuffleboard.getTab("SHOOTER").add("Shooter Pivot Set Brake", new DisabledInstantCommand(this::brakeShooter));
 
     Shuffleboard.getTab("SHOOTER").add("Shooter Pivot Zero", new DisabledInstantCommand(this::zeroPivot));
 
@@ -160,7 +165,7 @@ public class Shooter extends SubsystemBase {
   public void periodic() {
     pivotRPID.setReference(pivotAngleSetpointDeg, ControlType.kPosition, 0, FFCalculator.getInstance().calculateShooterFF());
 
-    // For PidTuningOnly
+    // // For PidTuningOnly
     // if (SmartDashboard.getNumber("Shooter Pivot P",
     //     ShooterConstants.SHOOTER_Pivot_P) != pivotRPID.getP()) {
     //   pivotRPID.setP(SmartDashboard.getNumber("Shooter Pivot P",
@@ -170,6 +175,26 @@ public class Shooter extends SubsystemBase {
     //     ShooterConstants.SHOOTER_Pivot_D) != pivotRPID.getD()) {
     //   pivotRPID.setD(SmartDashboard.getNumber("Shooter Pivot D",
     //       ShooterConstants.SHOOTER_Pivot_D));
+    // }
+
+    // if (SmartDashboard.getNumber("ShooterRight FF Gain",
+    //     ShooterConstants.SHOOTER_L_FFGain) != shooterRPID.getFF()) {
+    //   shooterRPID.setFF(SmartDashboard.getNumber("ShooterRight FF Gain",
+    //       ShooterConstants.SHOOTER_L_FFGain));
+    // }
+
+    // if (SmartDashboard.getNumber("ShooterLeft FF Gain",
+    //     ShooterConstants.SHOOTER_R_FFGain) != shooterLPID.getFF()) {
+    //   shooterLPID.setFF(SmartDashboard.getNumber("ShooterLeft FF Gain",
+    //       ShooterConstants.SHOOTER_R_FFGain));
+    // }
+
+    // if (SmartDashboard.getNumber("Shooter L&R P",
+    //     ShooterConstants.SHOOTER_P) != shooterRPID.getP()) {
+    //   shooterRPID.setP(SmartDashboard.getNumber("Shooter L&R P",
+    //       ShooterConstants.SHOOTER_P));
+    //   shooterLPID.setP(SmartDashboard.getNumber("Shooter L&R P",
+    //       ShooterConstants.SHOOTER_P));
     // }
     // //
 

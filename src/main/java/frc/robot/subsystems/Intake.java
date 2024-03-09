@@ -87,8 +87,8 @@ public class Intake extends SubsystemBase {
     }
 
     // For PidTuningOnly
-    SmartDashboard.putNumber("Intake P", pivotRPID.getP());
-    SmartDashboard.putNumber("Intake D", pivotRPID.getD());
+    // SmartDashboard.putNumber("Intake P", pivotRPID.getP());
+    // SmartDashboard.putNumber("Intake D", pivotRPID.getD());
 
     
     Shuffleboard.getTab("Intake").addDouble("Intake RPM", this::getIntakeRPM);
@@ -96,15 +96,15 @@ public class Intake extends SubsystemBase {
 
     Shuffleboard.getTab("Intake").add("Zero Intake Pivot", new DisabledInstantCommand(this::zeroIntakePivot));
 
-    Shuffleboard.getTab("Intake").add("Intake Pivot Coast", new DisabledInstantCommand(this::setPivotCoastCommand));
-    Shuffleboard.getTab("Intake").add("Intake Pivot Brake", new DisabledInstantCommand(this::setPivotBrakeCommand));
+    // Shuffleboard.getTab("Intake").add("Intake Pivot Coast", new DisabledInstantCommand(this::setPivotCoastCommand));
+    // Shuffleboard.getTab("Intake").add("Intake Pivot Brake", new DisabledInstantCommand(this::setPivotBrakeCommand));
   }
 
   @Override
   public void periodic() {
     pivotRPID.setReference(pivotAngleSetpointDeg, ControlType.kPosition, 0, FFCalculator.getInstance().calculateIntakeFF());
 
-    // For PidTuningOnly
+    // // For PidTuningOnly
     // if (SmartDashboard.getNumber("Intake P", IntakeConstants.INTAKE_Pivot_P) != pivotRPID.getP()) {
     //   pivotRPID.setP(SmartDashboard.getNumber("Intake P",
     //       IntakeConstants.INTAKE_Pivot_P));

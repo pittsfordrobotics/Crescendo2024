@@ -343,7 +343,7 @@ public class SwerveSubsystem extends SubsystemBase {
             }
             if (leftRotationInput != 0 && rightRotationInput == 0) {
                 swerveDrive.setHeadingCorrection(false);
-                double leftRotationOutput = Math.pow(leftRotationInput, 3) * swerveDrive.getMaximumAngularVelocity()//For some reason max angular velocity is too low
+                double leftRotationOutput = Math.pow(leftRotationInput, 3) * swerveDrive.getMaximumAngularVelocity() * 2 //For some reason max angular velocity is too low
                         * speedFactor;
                 swerveDrive.drive(new Translation2d(
                         xInput * swerveDrive.getMaximumVelocity() * speedFactor,
