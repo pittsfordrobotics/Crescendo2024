@@ -621,31 +621,31 @@
             "circleObstacles": [],
             "eventMarkers": [
                 {
-                    "name": "deployIntake",
+                    "name": "StartIntakeNoDelaysCommand",
                     "target": 1,
                     "targetTimestamp": 0.22079124017835863,
                     "offset": 0,
                     "command": {
                         "type": "named",
                         "data": {
-                            "name": "StartIntakeCommand"
+                            "name": "StartIntakeNoDelaysCommand"
                         }
                     }
                 },
                 {
-                    "name": "raiseShooterAndAim",
+                    "name": "AimSpeaker",
                     "target": 3,
                     "targetTimestamp": 1.8206318468219074,
                     "offset": 0,
                     "command": {
                         "type": "named",
                         "data": {
-                            "name": "raiseShooterAndAim"
+                            "name": "AimSpeaker"
                         }
                     }
                 },
                 {
-                    "name": "shoot->stored state",
+                    "name": "AutoFireNote; StoredCommand",
                     "target": 4,
                     "targetTimestamp": 2.617513478968772,
                     "offset": 0,
@@ -668,9 +668,21 @@
                             ]
                         }
                     }
+                },
+                {
+                    "name": "ShootSubwoof",
+                    "target": 0,
+                    "targetTimestamp": 0,
+                    "offset": 0,
+                    "command": {
+                        "type": "named",
+                        "data": {
+                            "name": "ShootSubwoof"
+                        }
+                    }
                 }
             ],
-            "isTrajectoryStale": true
+            "isTrajectoryStale": false
         }
     },
     "splitTrajectoriesAtStopPoints": false,

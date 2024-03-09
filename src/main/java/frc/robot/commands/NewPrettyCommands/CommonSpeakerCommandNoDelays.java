@@ -23,11 +23,13 @@ public class CommonSpeakerCommandNoDelays extends SequentialCommandGroup {
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
             addCommands(
-                new ParallelCommandGroup(intake.spinIntakeCommand(RobotConstants.SUBWOOF_IntakeSpeed),
-                        shooter.setShooterRPMCommand(shooterRPMSupplier.getAsDouble())),
-                new SequentialCommandGroup(
+                new ParallelCommandGroup(
+                  intake.spinIntakeCommand(RobotConstants.SUBWOOF_IntakeSpeed),
+                  shooter.setShooterRPMCommand(shooterRPMSupplier.getAsDouble())
+                ),
+                new ParallelCommandGroup(
                         intake.setPivotAngleCommand(35),
-                        // TODO: See if I need to add wait command or delay here (or how to make both angles set simultaneously without breaking. this should be same as teleop parallelization)
+                        // TODO: Make sure this doesn't oscillate (should be fixed with pidtuning in subsystem)
                         shooter.setPivotAngleCommand(shooterAngleSupplier.getAsDouble()),
                 new InstantCommand(
                         () -> StructureStates.setCurrentState(StructureStates.structureState.commonSpeaker))));

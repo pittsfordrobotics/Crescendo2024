@@ -466,7 +466,7 @@
       "command": {
         "type": "named",
         "data": {
-          "name": "StartIntakeCommand"
+          "name": "StartIntakeNoDelaysCommand"
         }
       }
     },
@@ -475,7 +475,7 @@
       "command": {
         "type": "named",
         "data": {
-          "name": "raiseShooterAndAim"
+          "name": "AimSpeaker"
         }
       }
     },
@@ -498,6 +498,15 @@
               }
             }
           ]
+        }
+      }
+    },
+    {
+      "timestamp": 0,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "ShootSubwoof"
         }
       }
     }
