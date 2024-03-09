@@ -108,8 +108,8 @@ public class RobotContainer {
 
         StructureStates.setCurrentState(StructureStates.structureState.startup);
         // Configure the trigger bindings
-        // configure_COMP_Bindings();
-        configure_TEST_Bindings();
+        configure_COMP_Bindings();
+        // configure_TEST_Bindings();
         autoConfig();
     }
 
