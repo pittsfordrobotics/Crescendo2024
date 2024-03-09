@@ -207,7 +207,7 @@ public class RobotContainer {
         // +RPM means note goes out & +Angle means move up relative to intake pose
         SmartDashboard.putNumber("ShooterPivotAngle_CHANGEME", 0);
         SmartDashboard.putNumber("ShooterRPM_CHANGEME", 0);
-        SmartDashboard.putNumber("IntakePivotAngle_CHANGEME", 180);
+        SmartDashboard.putNumber("IntakePivotAngle_CHANGEME", 35);
 
         // LEFT BUMPER & TRIGGER -> shooter pivot -- Works (tune pids and FF tho)
         m_operatorController.leftBumper().onTrue(shooter.setPivotAngleCommand(53));
@@ -215,24 +215,24 @@ public class RobotContainer {
         m_operatorController.leftTrigger().whileTrue(shooter.setPivotAngleSupplierCommand());
 
         // RIGHT BUMPER & TRIGGER -> intake pivot -- Works (tune pids and FF tho)
-        m_operatorController.rightBumper().onFalse(intake.setPivotAngleCommand(35));
+        m_operatorController.rightBumper().onFalse(intake.setPivotAngleCommand(180));
         m_operatorController.rightBumper().onTrue(intake.setPivotAngleCommand(0));
         m_operatorController.rightTrigger().whileTrue(intake.setPivotAngleSupplierCommand());
 
         // A -> Shooter RPM (X for supplier) -- Works
-        m_operatorController.a().onTrue(shooter.setShooterRPMCommand(5400));
+        m_operatorController.a().onTrue(shooter.setShooterRPMCommand(4000));
         m_operatorController.a().onFalse(shooter.setShooterRPMCommand(-2500));
         m_operatorController.x().whileTrue(shooter.setShooterRPMSupplierCommand());
 
         // B -> Intake RAW command -- Untested
         m_operatorController.b().onTrue(intake.spinIntakeCommand(.7));
-        m_operatorController.b().onFalse(intake.spinIntakeCommand(.01));
+        m_operatorController.b().onFalse(intake.spinIntakeCommand(0));
 
         // Y -> Indexer test -- Works
-        m_operatorController.y().onTrue(shooter.spinIndexerCommand(0.5));
+        m_operatorController.y().onTrue(shooter.spinIndexerCommand(1));
         m_operatorController.y().onFalse(shooter.spinIndexerCommand(-0.1));
     }
-//
+
 //  private ChoreoTrajectory finalAutoTrajectory;
 //  public void setGyroBasedOnAutoFinalTrajectory(){
 //    swerveSubsystem.setGyroAngle(finalAutoTrajectory.getFinalPose().getRotation()); // Sets the gyro heading, NEVER FLIPPED since robot should always point away from DS when gyro reports 0
@@ -298,7 +298,7 @@ public class RobotContainer {
       new StoredCommand(shooter, intake), // Store the note
       autoCommandFactory.generateChoreoCommand(twonotemiddletraj3), // Turn towards the speaker
       swerveSubsystem.correctHeading(twonotemiddletraj3).withTimeout(1.5),
-      new AutoShoot(shooter, intake, 45, 6000), // Ready to shoot again (adjust these params)
+      new AutoShoot(shooter, intake, 45, 5400), // Ready to shoot again (adjust these params)
       autoCommandFactory.generateChoreoCommand(twonotemiddletraj4) // drive out of starting area fully
     );
     autoChooser.addOption("Two Note Middle", twonotemiddle);
@@ -328,7 +328,7 @@ public class RobotContainer {
       new StoredCommand(shooter, intake),
       autoCommandFactory.generateChoreoCommand(twonotebottomtraj3),
       swerveSubsystem.correctHeading(twonotebottomtraj3).withTimeout(1.5),
-      new CommonSpeakerCommand(shooter, intake, 41.5, 6000), // Ready to shoot again (adjust these params)
+      new CommonSpeakerCommand(shooter, intake, 41.5, 5400), // Ready to shoot again (adjust these params)
     shooter.waitForShooterRPMCommand().withTimeout(1),
       shooter.spinIndexerCommand(RobotConstants.INDEXER_SHOOT_SPEED), // Shoot
       Commands.waitSeconds(0.25),
@@ -362,7 +362,7 @@ public class RobotContainer {
       new StoredCommand(shooter, intake),
       autoCommandFactory.generateChoreoCommand(twonotetoptraj3),
       swerveSubsystem.correctHeading(twonotetoptraj3).withTimeout(1.5),
-      new CommonSpeakerCommand(shooter, intake, 38.7, 6000), // Ready to shoot again (adjust these params)
+      new CommonSpeakerCommand(shooter, intake, 38.7, 5400), // Ready to shoot again (adjust these params)
     shooter.waitForShooterRPMCommand().withTimeout(1),
       shooter.spinIndexerCommand(RobotConstants.INDEXER_SHOOT_SPEED), // Shoot
       Commands.waitSeconds(0.25),
