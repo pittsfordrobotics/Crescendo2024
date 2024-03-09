@@ -161,41 +161,25 @@ public class RobotContainer {
       idleIndexerCommand.schedule();
       storedCommand.schedule();
     }));
+    
+    PathPlannerPath redampPath = PathPlannerPath.fromPathFile("RedAmpPath");
+    PathPlannerPath blueampPath = PathPlannerPath.fromPathFile("BlueAmpPath");
+    Command blueampheadingcommand = swerveSubsystem.correctHeading(Rotation2d.fromDegrees(-90));
+    Command redampheadingcommand = swerveSubsystem.correctHeading(Rotation2d.fromDegrees(90));
 
-    // HELP HELP HELP IDK IF THIS WORKS AND NO ROBOT TIME
-    // new amp scoring approach
-    // Goal functionality :
-    // driver presses button --> note handoff & path to amp
-    // driver releases button --> note shot out & go to stored
-    // Alliance alliance = Alliance.Blue;
-    // if (DriverStation.getAlliance().isPresent()) {
-    //   alliance = DriverStation.getAlliance().get();
-    // }
-
-    // if (alliance == Alliance.Blue) {
-    PathPlannerPath BlueampPath = PathPlannerPath.fromPathFile("BlueAmpPath");
     m_driverController.b().onTrue(
         new ParallelCommandGroup(
             new BetterAMPCommand(shooter, intake),
-            swerveSubsystem.pathToPath(BlueampPath)));
+            new ConditionalCommand(swerveSubsystem.pathToPath(blueampPath), swerveSubsystem.pathToPath(redampPath),
+                () -> DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == Alliance.Blue))
+            .beforeStarting(new ConditionalCommand(blueampheadingcommand, redampheadingcommand,
+                () -> DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == Alliance.Blue)
+                .withTimeout(1)));
     m_driverController.b().onFalse(
         new SequentialCommandGroup(
             AmpShootIntake,
             new WaitCommand(.75),
             new StoredCommand(shooter, intake)));
-    // }
-    // if (alliance == Alliance.Red) {
-    //   PathPlannerPath RedampPath = PathPlannerPath.fromPathFile("RedAMPPath");
-    //   m_driverController.b().onTrue(
-    //       new ParallelCommandGroup(
-    //           new BetterAMPCommand(shooter, intake),
-    //           swerveSubsystem.pathToPath(RedampPath)));
-    //   m_driverController.b().onFalse(
-    //       new SequentialCommandGroup(
-    //           AmpShootIntake,
-    //           new WaitCommand(.75),
-    //           new StoredCommand(shooter, intake)));
-    // }
 
     // Old amp scoring approach -- still in just in bc above is untested
     // Runs the intake on left bummper true
