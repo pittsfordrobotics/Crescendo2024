@@ -17,7 +17,7 @@ public class RobotConstants {
     public static final double INTAKE_IntakePivotAngle = 0;
     public static final double INTAKE_ShooterPivotAngle = 0;
     public static final double INTAKE_IntakeSpeed = -1;
-    public static final double INTAKE_ShooterRPM = -3000;
+    public static final double INTAKE_ShooterRPM = -4000;
 
     // Stored "state"
     public static final double STORED_ShooterPivotAngle = 0;
@@ -40,7 +40,7 @@ public class RobotConstants {
     // Speaker_PODIUM "state"
     public static final double PODIUM_ShooterPivotAngle = 40.25;
     public static final double PODIUM_IntakePivotAngle = 35;
-    public static final double PODIUM_ShooterRPM = 6000;
+    public static final double PODIUM_ShooterRPM = 5400;
     public static final double PODIUM_IntakeSpeed = 0;
 
     // new AMP COMMAND "STATE"

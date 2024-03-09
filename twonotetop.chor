@@ -1,5 +1,5 @@
 {
-    "version": "v0.2.2",
+    "version": "v0.3",
     "robotConfiguration": {
         "mass": 74.08797700309194,
         "rotationalInertia": 6,
@@ -477,6 +477,7 @@
                     "timestamp": 3.2740803653682105
                 }
             ],
+            "trajectoryWaypoints": [],
             "constraints": [
                 {
                     "scope": [
@@ -521,7 +522,9 @@
             "usesControlIntervalGuessing": true,
             "defaultControlIntervalCount": 40,
             "usesDefaultFieldObstacles": true,
-            "circleObstacles": []
+            "circleObstacles": [],
+            "eventMarkers": [],
+            "isTrajectoryStale": true
         }
     },
     "splitTrajectoriesAtStopPoints": true,

@@ -6,7 +6,6 @@ package frc.robot.subsystems;
 
 import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkBase.IdleMode;
-import com.revrobotics.CANSparkFlex;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.SparkAbsoluteEncoder;
@@ -26,8 +25,8 @@ import frc.robot.lib.FFCalculator;
 
 
 public class Shooter extends SubsystemBase {
-  private CANSparkFlex shooterMotorL;
-  private CANSparkFlex shooterMotorR;
+  private CANSparkMax shooterMotorL;
+  private CANSparkMax shooterMotorR;
   private CANSparkMax indexerMotorL;
   private CANSparkMax indexerMotorR;
   private CANSparkMax pivotMotorL;
@@ -47,7 +46,7 @@ public class Shooter extends SubsystemBase {
     pivotAngleSetpointDeg = RobotConstants.STORED_ShooterPivotAngle;
     // // SHOOTER // //
     // Shooter Motor L
-    shooterMotorL = new CANSparkFlex(ShooterConstants.CAN_SHOOTER_L, MotorType.kBrushless);
+    shooterMotorL = new CANSparkMax(ShooterConstants.CAN_SHOOTER_L, MotorType.kBrushless);
     shooterMotorL.restoreFactoryDefaults();
     shooterMotorL.setIdleMode(IdleMode.kCoast);
     shooterMotorL.setSmartCurrentLimit(45);
@@ -62,7 +61,7 @@ public class Shooter extends SubsystemBase {
     shooterMotorL.burnFlash();
 
     // Shooter Motor R
-    shooterMotorR = new CANSparkFlex(ShooterConstants.CAN_SHOOTER_R, MotorType.kBrushless);
+    shooterMotorR = new CANSparkMax(ShooterConstants.CAN_SHOOTER_R, MotorType.kBrushless);
     shooterMotorR.restoreFactoryDefaults();
     shooterMotorR.setIdleMode(IdleMode.kCoast);
     shooterMotorR.setSmartCurrentLimit(45);

@@ -78,12 +78,19 @@ public class RobotContainer {
         DoubleSupplier angleSupplier = (() -> ShooterInterpolationHelper.getShooterAngle(distanceSupplier.getAsDouble()));
         DoubleSupplier RPMSupplier = (() -> ShooterInterpolationHelper.getShooterRPM(distanceSupplier.getAsDouble()));
 
-        NamedCommands.registerCommand("StartIntakeNoDelaysCommand", new StartIntakeNoDelaysCommand(shooter, intake));
+        NamedCommands.registerCommand("StartIntakeNoDelaysCommand", new SequentialCommandGroup(
+          new StoredCommand(shooter, intake),
+          Commands.waitSeconds(0.5),
+          new StartIntakeNoDelaysCommand(shooter, intake)
+          )
+        );
         NamedCommands.registerCommand("AutoFireNote", new AutoFireNote(shooter)); // waits for spinner rpm (MUST be previously set to spin up), then fires note
         NamedCommands.registerCommand("StoredCommand", new StoredCommand(shooter, intake));
         NamedCommands.registerCommand("AimSpeaker", new RepeatCommand(new CommonSpeakerCommandNoDelays(shooter, intake, angleSupplier, RPMSupplier)));
         NamedCommands.registerCommand("ShootSubwoof", new SUBWOOFCommand(shooter, intake));
+        NamedCommands.registerCommand("CorrectHeading", speakerTargetSteeringCommand);
         // instantiates autoChooser based on PathPlanner files (exists at code deploy, no need to wait)
+
         autoChooser = AutoBuilder.buildAutoChooser();
         SmartDashboard.putData("Choreo Auto Chooser", autoChooser);
 

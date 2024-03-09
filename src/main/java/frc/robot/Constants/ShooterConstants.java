@@ -20,14 +20,14 @@ public final class ShooterConstants {
 
     public static final double SHOOTER_P = 0.0004;
     public static final double SHOOTER_I = 0;
-    public static final double SHOOTER_D = 0;
+    public static final double SHOOTER_D = 0.01;
 
-    public static final double SHOOTER_Pivot_P = 0.025;// was .03 before 2/21 (evan changed)
+    public static final double SHOOTER_Pivot_P = 0.026;// was .03 before 2/21 (evan changed)
     public static final double SHOOTER_Pivot_I = 0;
     public static final double SHOOTER_Pivot_D = 0.35;// was .3 before 2/21 (evan changed)
 
-    public static final double SHOOTER_L_FFGain = 0.000155;
-    public static final double SHOOTER_R_FFGain = 0.000158;
+    public static final double SHOOTER_L_FFGain = 0.000168;
+    public static final double SHOOTER_R_FFGain = 0.000167;
 
 
     // FF constants
@@ -39,7 +39,7 @@ public final class ShooterConstants {
     public static final double L1_SpivtoWpivperp = 14.631 * 0.0254;
     public static final double L1CM1_SpivtoCM1 = 7.387 * 0.0254;
     public static final double M1_Total_Mass_of_Shooter = 23 * 0.453592;
-    public static final double SHOOTER_Pivot_FF_Multiplier = 0.014;//.83 for the basic ff
+    public static final double SHOOTER_Pivot_FF_Multiplier = 0.018;//.83 for the basic ff
 
     // key: distance from center of robot to middle pose of subwoof projected down (inches); value: shooter angle (degrees)
     public static final InterpolatingDoubleTreeMap DISTANCE_ANGLE_MAP = new InterpolatingDoubleTreeMap();
