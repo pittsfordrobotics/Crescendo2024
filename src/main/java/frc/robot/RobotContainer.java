@@ -298,7 +298,7 @@ public class RobotContainer {
       new StoredCommand(shooter, intake), // Store the note
       autoCommandFactory.generateChoreoCommand(twonotemiddletraj3), // Turn towards the speaker
       swerveSubsystem.correctHeading(twonotemiddletraj3).withTimeout(1.5),
-      new AutoShoot(shooter, intake, 45, 6000), // Ready to shoot again (adjust these params)
+      new AutoShoot(shooter, intake, 45, 5400), // Ready to shoot again (adjust these params)
       autoCommandFactory.generateChoreoCommand(twonotemiddletraj4) // drive out of starting area fully
     );
     autoChooser.addOption("Two Note Middle", twonotemiddle);
@@ -328,7 +328,7 @@ public class RobotContainer {
       new StoredCommand(shooter, intake),
       autoCommandFactory.generateChoreoCommand(twonotebottomtraj3),
       swerveSubsystem.correctHeading(twonotebottomtraj3).withTimeout(1.5),
-      new CommonSpeakerCommand(shooter, intake, 41.5, 6000), // Ready to shoot again (adjust these params)
+      new CommonSpeakerCommand(shooter, intake, 41.5, 5400), // Ready to shoot again (adjust these params)
     shooter.waitForShooterRPMCommand().withTimeout(1),
       shooter.spinIndexerCommand(RobotConstants.INDEXER_SHOOT_SPEED), // Shoot
       Commands.waitSeconds(0.25),
@@ -362,7 +362,7 @@ public class RobotContainer {
       new StoredCommand(shooter, intake),
       autoCommandFactory.generateChoreoCommand(twonotetoptraj3),
       swerveSubsystem.correctHeading(twonotetoptraj3).withTimeout(1.5),
-      new CommonSpeakerCommand(shooter, intake, 38.7, 6000), // Ready to shoot again (adjust these params)
+      new CommonSpeakerCommand(shooter, intake, 38.7, 5400), // Ready to shoot again (adjust these params)
     shooter.waitForShooterRPMCommand().withTimeout(1),
       shooter.spinIndexerCommand(RobotConstants.INDEXER_SHOOT_SPEED), // Shoot
       Commands.waitSeconds(0.25),
