@@ -161,7 +161,7 @@ public class RobotContainer {
       idleIndexerCommand.schedule();
       storedCommand.schedule();
     }));
-    
+
     PathPlannerPath redampPath = PathPlannerPath.fromPathFile("RedAmpPath");
     PathPlannerPath blueampPath = PathPlannerPath.fromPathFile("BlueAmpPath");
     Command blueampheadingcommand = swerveSubsystem.correctHeading(Rotation2d.fromDegrees(-90));
@@ -183,8 +183,8 @@ public class RobotContainer {
 
     // Old amp scoring approach -- still in just in bc above is untested
     // Runs the intake on left bummper true
-    // m_driverController.leftBumper().onTrue(AmpShootIntake);
-    // m_driverController.leftBumper().onFalse(storedCommand);
+    m_driverController.leftBumper().onTrue(AmpShootIntake);
+    m_driverController.leftBumper().onFalse(storedCommand);
     m_operatorController.x().onTrue(betterAmpCommand);
 
     m_operatorController.b().onTrue(subwoofCommand);
