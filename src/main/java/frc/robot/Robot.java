@@ -118,13 +118,14 @@ public class Robot extends LoggedRobot {
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
-    if (DriverStation.getMatchTime() < 60.0 && DriverStation.getMatchTime() > 59.75
-        || DriverStation.getMatchTime() < 59.5 && DriverStation.getMatchTime() > 59.25
-        || DriverStation.getMatchTime() < 30.0 && DriverStation.getMatchTime() > 29.75
-        || DriverStation.getMatchTime() < 29.5 && DriverStation.getMatchTime() > 29.25
-        || DriverStation.getMatchTime() < 21 && DriverStation.getMatchTime() > 19.5) {
+    double matchtime = DriverStation.getMatchTime();
+    if (matchtime < 60.0 && matchtime > 59.75
+        || matchtime < 59.5 && matchtime > 59.25
+        || matchtime < 30.0 && matchtime > 29.75
+        || matchtime < 29.5 && matchtime > 29.25
+        || matchtime < 21 && matchtime > 19.5) {
       m_robotContainer.buzz_controllers(1);
-    } else {
+    }else {
       m_robotContainer.buzz_controllers(0);
     }
   }

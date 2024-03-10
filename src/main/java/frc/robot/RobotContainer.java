@@ -51,6 +51,7 @@ public class RobotContainer {
   private final Shooter shooter;
   private final Intake intake;
   private final Vision vision;
+  private double previousRumblePower = 0;
 
   private final AutoCommandFactory autoCommandFactory;
 
@@ -109,8 +110,8 @@ public class RobotContainer {
 
     StructureStates.setCurrentState(StructureStates.structureState.startup);
     // Configure the trigger bindings
-    configure_COMP_Bindings();
-    // configure_TEST_Bindings();
+    // configure_COMP_Bindings();
+    configure_TEST_Bindings();
     configure_COMP_SmartDashboard();
     autoConfig();
   }
@@ -176,7 +177,7 @@ public class RobotContainer {
 
     // upgraded point and aim at speaker
     DoubleSupplier distanceSupplier = (() -> swerveSubsystem.getPose().getTranslation()
-        .getDistance(FieldConstants.allianceFlipper(new Pose3d(FieldConstants.Speaker.centerSpeakerOpening),
+        .getDistance(FieldConstants.allianceFlipper(new Pose3d(FieldConstants.Speaker.centerSpeakerOpeningZeroX),
             DriverStation.getAlliance().get()).toPose2d().getTranslation()));
 
     // m_driverController.a().whileTrue(speakerTargetSteeringCommand.alongWith(Commands.run(()
@@ -214,7 +215,7 @@ public class RobotContainer {
 
     m_driverController.a().onFalse(new SequentialCommandGroup(
         shooter.spinIndexerCommand(RobotConstants.INDEXER_SHOOT_SPEED),
-        new WaitCommand(.5),
+        new WaitCommand(.25),
         shooter.spinIndexerCommand(RobotConstants.INDEXER_IDLE_SPEED),
         new StoredCommand(shooter, intake)));
 
@@ -320,7 +321,7 @@ public class RobotContainer {
     m_operatorController.rightTrigger().whileTrue(intake.setPivotAngleSupplierCommand());
 
     // A -> Shooter RPM (X for supplier) -- Works
-    m_operatorController.a().onTrue(shooter.setShooterRPMCommand(4000));
+    m_operatorController.a().onTrue(shooter.setShooterRPMCommand(5400));
     m_operatorController.a().onFalse(shooter.setShooterRPMCommand(-2500));
     m_operatorController.x().whileTrue(shooter.setShooterRPMSupplierCommand());
 
@@ -392,6 +393,9 @@ public class RobotContainer {
   }
 
   public void buzz_controllers(double power) {
+    if (Math.abs(power - previousRumblePower) < .1) {
+      return;
+    }
     m_driverController.getHID().setRumble(RumbleType.kBothRumble, power);
     m_operatorController.getHID().setRumble(RumbleType.kBothRumble, power);
   }
