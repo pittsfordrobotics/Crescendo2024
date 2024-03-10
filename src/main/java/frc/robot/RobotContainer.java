@@ -129,17 +129,24 @@ public class RobotContainer {
     Shuffleboard.getTab("COMP").addDouble("Time", () -> DriverStation.getMatchTime());
 
     Shuffleboard.getTab("COMP").addBoolean("TimeWarning",
-        () -> !(DriverStation.getMatchTime() < 60 && DriverStation.getMatchTime() > 59 ||
-            DriverStation.getMatchTime() < 58 && DriverStation.getMatchTime() > 57 ||
-            DriverStation.getMatchTime() < 56 && DriverStation.getMatchTime() > 55 ||
-            DriverStation.getMatchTime() < 30 && DriverStation.getMatchTime() > 29.5 ||
-            DriverStation.getMatchTime() < 29 && DriverStation.getMatchTime() > 28.5 ||
-            DriverStation.getMatchTime() < 28 && DriverStation.getMatchTime() > 27.5 ||
-            DriverStation.getMatchTime() < 20.5 && DriverStation.getMatchTime() > 20.25 ||
-            DriverStation.getMatchTime() < 20 && DriverStation.getMatchTime() > 19.75 ||
-            DriverStation.getMatchTime() < 19.5 && DriverStation.getMatchTime() > 19.25 ||
-            DriverStation.getMatchTime() < 19 && DriverStation.getMatchTime() > 18.75 ||
-            DriverStation.getMatchTime() < 18.5 && DriverStation.getMatchTime() > 18.25 ||
+        () -> !(
+            DriverStation.getMatchTime() < 60.0 && DriverStation.getMatchTime() > 59.875 ||
+            DriverStation.getMatchTime() < 59.75 && DriverStation.getMatchTime() > 59.625 ||
+            DriverStation.getMatchTime() < 59.5 && DriverStation.getMatchTime() > 59.375 ||
+            DriverStation.getMatchTime() < 59.25 && DriverStation.getMatchTime() > 59.125 ||
+            DriverStation.getMatchTime() < 59.0 && DriverStation.getMatchTime() > 58.875 ||
+
+            DriverStation.getMatchTime() < 30.0 && DriverStation.getMatchTime() > 29.875 ||
+            DriverStation.getMatchTime() < 29.75 && DriverStation.getMatchTime() > 29.625 ||
+            DriverStation.getMatchTime() < 29.5 && DriverStation.getMatchTime() > 29.375 ||
+            DriverStation.getMatchTime() < 29.25 && DriverStation.getMatchTime() > 29.125 ||
+            DriverStation.getMatchTime() < 29.0 && DriverStation.getMatchTime() > 28.875 ||
+
+            DriverStation.getMatchTime() < 21.0 && DriverStation.getMatchTime() > 20.875 ||
+            DriverStation.getMatchTime() < 20.75 && DriverStation.getMatchTime() > 20.625 ||
+            DriverStation.getMatchTime() < 20.5 && DriverStation.getMatchTime() > 20.375 ||
+            DriverStation.getMatchTime() < 20.25 && DriverStation.getMatchTime() > 20.125 ||
+            DriverStation.getMatchTime() < 20.0 && DriverStation.getMatchTime() > 19.875 ||
             DriverStation.getMatchTime() < 8));
 
     // Shuffleboard.getTab("COMP").addString("State", () ->
