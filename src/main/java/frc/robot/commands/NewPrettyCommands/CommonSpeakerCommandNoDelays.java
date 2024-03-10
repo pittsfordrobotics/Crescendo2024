@@ -25,12 +25,11 @@ public class CommonSpeakerCommandNoDelays extends SequentialCommandGroup {
             addCommands(
                 new ParallelCommandGroup(
                   intake.spinIntakeCommand(RobotConstants.SUBWOOF_IntakeSpeed),
-                  shooter.setShooterRPMCommand(shooterRPMSupplier.getAsDouble())
+                  shooter.setShooterRPMCommand(shooterRPMSupplier)
                 ),
                 new ParallelCommandGroup(
                         intake.setPivotAngleCommand(35),
-                        // TODO: Make sure this doesn't oscillate (should be fixed with pidtuning in subsystem)
-                        shooter.setPivotAngleCommand(shooterAngleSupplier.getAsDouble()),
+                        shooter.setPivotAngleCommand(shooterAngleSupplier),
                 new InstantCommand(
                         () -> StructureStates.setCurrentState(StructureStates.structureState.commonSpeaker))));
   }

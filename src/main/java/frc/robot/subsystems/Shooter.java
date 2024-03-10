@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems;
 
+import java.util.function.DoubleSupplier;
+
 import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
@@ -203,6 +205,20 @@ public class Shooter extends SubsystemBase {
       // shooterMotorL.set(setpoint);
     });
   }
+
+  public Command setShooterRPMCommand(DoubleSupplier setpointRPM) {
+    return this.runOnce(() -> {
+      // // onboard pid
+      shooterRPMSetpoint = setpointRPM.getAsDouble();
+      shooterRPID.setReference(setpointRPM.getAsDouble(), ControlType.kVelocity);
+      shooterLPID.setReference(setpointRPM.getAsDouble(), ControlType.kVelocity);
+
+      // // commands raw
+      // shooterMotorR.set(setpoint);
+      // shooterMotorL.set(setpoint);
+    });
+  }
+
   public Command spinShooterCommand(double output) {
     return this.run(() -> {shooterMotorL.set(output);shooterMotorR.set(output);});
   }
@@ -227,6 +243,13 @@ public class Shooter extends SubsystemBase {
   public Command setPivotAngleCommand(double setpoint_deg) {
     double setpoint_deg_clamped = MathUtil.clamp(setpoint_deg, 0, 90);
     return this.runOnce(() -> pivotAngleSetpointDeg = setpoint_deg_clamped);
+  }
+
+  public Command setPivotAngleCommand(DoubleSupplier setpoint_deg) {
+    return this.runOnce(() -> {
+      double setpoint_deg_clamped = MathUtil.clamp(setpoint_deg.getAsDouble(), 0, 90);
+      pivotAngleSetpointDeg = setpoint_deg_clamped;
+    });
   }
   
   public Command waitForPivotAngleCommand(double degTolerance) {
