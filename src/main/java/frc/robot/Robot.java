@@ -47,7 +47,6 @@ public class Robot extends LoggedRobot {
     // autonomous chooser on the dashboard.
     UsbCamera camera = CameraServer.startAutomaticCapture();
     camera.setVideoMode(PixelFormat.kYUYV, 640, 480, 10);
-    Shuffleboard.getTab("COMP").add(camera);
     m_robotContainer = new RobotContainer();
   }
 
