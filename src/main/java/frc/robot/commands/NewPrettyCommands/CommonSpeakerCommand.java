@@ -4,6 +4,9 @@
 
 package frc.robot.commands.NewPrettyCommands;
 
+import java.util.function.DoubleSupplier;
+
+import edu.wpi.first.networktables.DoubleSubscriber;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -24,10 +27,29 @@ public class CommonSpeakerCommand extends SequentialCommandGroup {
                 new ParallelCommandGroup(intake.spinIntakeCommand(RobotConstants.SUBWOOF_IntakeSpeed),
                         shooter.setShooterRPMCommand(ShooterRPM)),
                 new SequentialCommandGroup(
+                        // new InstantCommand(() -> System.out.println("In the commonspeakercommand 1: " + ShooterAngle)),
+                        intake.setPivotAngleCommand(35),
+                        // intake.waitForPivotAngleCommand(),
+                        shooter.setPivotAngleCommand(ShooterAngle)
+                        // new InstantCommand(() -> System.out.println("In the commonspeakercommand 2: " + ShooterAngle)),
+                        // shooter.waitForPivotAngleCommand(5)
+                ),
+                new InstantCommand(
+                        () -> StructureStates.setCurrentState(StructureStates.structureState.commonSpeaker)));
+    }
+
+    public CommonSpeakerCommand (Shooter shooter, Intake intake, DoubleSupplier ShooterAngle, DoubleSupplier ShooterRPM){
+        addCommands(
+                new ParallelCommandGroup(intake.spinIntakeCommand(RobotConstants.SUBWOOF_IntakeSpeed),
+                        shooter.setShooterRPMCommand(ShooterRPM)),
+                new SequentialCommandGroup(
+                        new InstantCommand(() -> System.out.println("In the commonspeakercommand 1: " + ShooterAngle.getAsDouble())),
                         intake.setPivotAngleCommand(35),
                         // intake.waitForPivotAngleCommand(),
                         shooter.setPivotAngleCommand(ShooterAngle),
-                        shooter.waitForPivotAngleCommand(2)),
+                        new InstantCommand(() -> System.out.println("In the commonspeakercommand 2: " + ShooterAngle.getAsDouble()))
+                        // shooter.waitForPivotAngleCommand(5)
+                ),
                 new InstantCommand(
                         () -> StructureStates.setCurrentState(StructureStates.structureState.commonSpeaker)));
     }
