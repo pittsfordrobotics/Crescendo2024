@@ -25,6 +25,7 @@ public class SUBWOOFCommand extends SequentialCommandGroup {
                         shooter.setShooterRPMCommand(RobotConstants.SUBWOOF_ShooterRPM)),
                 new SequentialCommandGroup(
                         intake.setPivotAngleCommand(RobotConstants.SUBWOOF_IntakePivotAngle),
+                        // intake.waitForPivotAngleCommand(),
                         shooter.setPivotAngleCommand(RobotConstants.SUBWOOF_ShooterPivotAngle),
                         shooter.waitForPivotAngleCommand(2)),
                 new InstantCommand(() -> StructureStates.setCurrentState(StructureStates.structureState.subwoof))

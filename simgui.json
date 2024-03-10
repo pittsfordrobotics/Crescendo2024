@@ -37,12 +37,10 @@
         }
       }
     }
-  },
-  "NetworkTables": {
-    "retained": {
+      "/SmartDashboard/SendableChooser[0]": {
+        "window": {
       "SmartDashboard": {
-        "open": true
-      }
+          "visible": true
     },
     "transitory": {
       "SmartDashboard": {

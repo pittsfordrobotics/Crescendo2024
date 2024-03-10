@@ -11,6 +11,7 @@ import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.util.PathPlannerLogging;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -40,44 +41,44 @@ import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.SwerveSubsystem;
-import frc.robot.subsystems.Vision.Vision;
-
 import java.io.File;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
+import frc.robot.subsystems.Vision.Vision;
 
+import com.pathplanner.lib.path.PathPlannerPath;
 
 public class RobotContainer {
-    // The robot's subsystems and commands are defined here...
-    private final SwerveSubsystem swerveSubsystem;
-    private final SendableChooser<Command> driveModeChooser;
-    private final Climber climber;
-    private final Shooter shooter;
-    private final Intake intake;
-    private final Vision vision;
+  // The robot's subsystems and commands are defined here...
+  private final SwerveSubsystem swerveSubsystem;
+  private final SendableChooser<Command> driveModeChooser;
+  private final Climber climber;
+  private final Shooter shooter;
+  private final Intake intake;
+  private final Vision vision;
 
-    private final AutoCommandFactory autoCommandFactory;
+  private final AutoCommandFactory autoCommandFactory;
 
     private SendableChooser<Command> autoChooser = new SendableChooser<>();
-    private final CommandXboxController m_driverController = new CommandXboxController(
-            OperatorConstants.kDriverControllerPort);
-    private final CommandXboxController m_operatorController = new CommandXboxController(
-            OperatorConstants.kOperatorControllerPort);
-    Command speakerTargetSteeringCommand;
+  private final CommandXboxController m_driverController = new CommandXboxController(
+      OperatorConstants.kDriverControllerPort);
+  private final CommandXboxController m_operatorController = new CommandXboxController(
+      OperatorConstants.kOperatorControllerPort);
+  Command speakerTargetSteeringCommand;
     private static Pose2d pathPlannerTargetPose;
 
-    // The container for the robot. Contains subsystems, OI devices, and commands.
-    public RobotContainer() {
-        climber = new Climber();
-        shooter = new Shooter();
-        intake = new Intake();
-        swerveSubsystem = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve/maxSwerve"));
-      vision = new Vision(VisionConstants.LIMELIGHT1,  VisionConstants.LIMELIGHT2, swerveSubsystem::addVisionData);
+  // The container for the robot. Contains subsystems, OI devices, and commands.
+  public RobotContainer() {
+    climber = new Climber();
+    shooter = new Shooter();
+    intake = new Intake();
+    swerveSubsystem = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve/maxSwerve"));
+    vision = new Vision(VisionConstants.LIMELIGHT1,  VisionConstants.LIMELIGHT2, swerveSubsystem::addVisionData);
       pathPlannerTargetPose = new Pose2d();
 
         DoubleSupplier distanceSupplier = (() -> swerveSubsystem.getPose().getTranslation()
-        .getDistance(FieldConstants.Speaker.centerSpeakerOpeningZeroY.getTranslation()));
+        .getDistance(FieldConstants.Speaker.centerSpeakerOpening.getTranslation()));
 
         DoubleSupplier angleSupplier = (() -> ShooterInterpolationHelper.getShooterAngle(distanceSupplier.getAsDouble()));
         DoubleSupplier RPMSupplier = (() -> ShooterInterpolationHelper.getShooterRPM(distanceSupplier.getAsDouble()));
@@ -97,7 +98,7 @@ public class RobotContainer {
           new AutoFireNote(shooter),
           new StoredCommand(shooter, intake)
         ));
-        NamedCommands.registerCommand("CorrectHeading", swerveSubsystem.correctHeading(pathPlannerTargetPoseSupplier, false).withTimeout(1.5));
+        NamedCommands.registerCommand("CorrectHeading", swerveSubsystem.correctHeading(pathPlannerTargetPoseSupplier).withTimeout(1.5));
         NamedCommands.registerCommand("AlignStuffOnStart", new SequentialCommandGroup(setGyroBasedOnPathPlannerTrajectory(), swerveSubsystem.resetOdometry(pathPlannerTargetPoseSupplier)));
         // instantiates autoChooser based on PathPlanner files (exists at code deploy, no need to wait)
         autoChooser = AutoBuilder.buildAutoChooser();
@@ -107,196 +108,279 @@ public class RobotContainer {
         pathPlannerTargetPose = pose;
         });
 
-        FFCalculator c = FFCalculator.getInstance();
-        c.updateIntakePivotAngle(intake::getPivotAngleDeg);
-        c.updateShooterAngle(shooter::getPivotAngleDeg);
-        driveModeChooser = new SendableChooser<>();
-        autoCommandFactory = new AutoCommandFactory(swerveSubsystem);
-        Command enhancedHeadingSteeringCommand = swerveSubsystem.enhancedHeadingDriveCommand(
-                () -> -m_driverController.getLeftY(),
-                () -> -m_driverController.getLeftX(),
-                () -> -m_driverController.getRightY(),
-                () -> -m_driverController.getRightX(),
-                m_driverController::getLeftTriggerAxis,
-                m_driverController::getRightTriggerAxis);
-        enhancedHeadingSteeringCommand.setName("Enhanced Heading Steer");
-        Command headingSteeringCommand = swerveSubsystem.headingDriveCommand(
-                () -> -m_driverController.getLeftY(),
-                () -> -m_driverController.getLeftX(),
-                () -> -m_driverController.getRightX(),
-                () -> -m_driverController.getRightY());
-        headingSteeringCommand.setName("Heading Steer");
-        Command rotationRateSteeringCommand = swerveSubsystem.rotationRateDriveCommand(
-                () -> -m_driverController.getLeftY(),
-                () -> -m_driverController.getLeftX(),
-                () -> -m_driverController.getRightX());
+    FFCalculator c = FFCalculator.getInstance();
+    c.updateIntakePivotAngle(intake::getPivotAngleDeg);
+    c.updateShooterAngle(shooter::getPivotAngleDeg);
+    driveModeChooser = new SendableChooser<>();
+    autoCommandFactory = new AutoCommandFactory(swerveSubsystem);
+    Command enhancedHeadingSteeringCommand = swerveSubsystem.enhancedHeadingDriveCommand(
+        () -> -m_driverController.getLeftY(),
+        () -> -m_driverController.getLeftX(),
+        () -> -m_driverController.getRightY(),
+        () -> -m_driverController.getRightX(),
+        m_driverController::getLeftTriggerAxis,
+        m_driverController::getRightTriggerAxis);
+    enhancedHeadingSteeringCommand.setName("Enhanced Heading Steer");
+    Command headingSteeringCommand = swerveSubsystem.headingDriveCommand(
+        () -> -m_driverController.getLeftY(),
+        () -> -m_driverController.getLeftX(),
+        () -> -m_driverController.getRightX(),
+        () -> -m_driverController.getRightY());
+    headingSteeringCommand.setName("Heading Steer");
+    Command rotationRateSteeringCommand = swerveSubsystem.rotationRateDriveCommand(
+        () -> -m_driverController.getLeftY(),
+        () -> -m_driverController.getLeftX(),
+        () -> -m_driverController.getRightX());
 
-        // Pose2d speaker = new Pose2d(0.0, 0.0, new Rotation2d());
-        // Pose2d speaker = FieldConstants.Speaker.centerSpeakerOpening;
+    Pose2d speaker = FieldConstants.Speaker.centerSpeakerOpening;
+    speakerTargetSteeringCommand = swerveSubsystem.driveTranslationAndPointAtTarget(
+        () -> -m_driverController.getLeftY(),
+        () -> -m_driverController.getLeftX(),
+        speaker);
+    rotationRateSteeringCommand.setName("Rotation Rate Steer");
+    driveModeChooser.setDefaultOption("Enhanced Steering (BETA)", enhancedHeadingSteeringCommand);
+    driveModeChooser.addOption("Heading Steering", headingSteeringCommand);
+    driveModeChooser.addOption("Rotation Rate Steering", rotationRateSteeringCommand);
+    Shuffleboard.getTab("CONFIG").add(driveModeChooser);
+    DisabledInstantCommand zeroOffsetCommand = new DisabledInstantCommand(swerveSubsystem::setSwerveOffsets);
+    zeroOffsetCommand.setName("Zero Offsets");
+    Shuffleboard.getTab("CONFIG").add("Zero Swerve Module Offsets", zeroOffsetCommand);
 
-        Pose2d speaker = FieldConstants.Speaker.centerSpeakerOpening;
-        speakerTargetSteeringCommand = swerveSubsystem.driveTranslationAndPointAtTarget(
-                () -> -m_driverController.getLeftY(),
-                () -> -m_driverController.getLeftX(),
-                speaker);
-        rotationRateSteeringCommand.setName("Rotation Rate Steer");
-        driveModeChooser.setDefaultOption("Enhanced Steering (BETA)", enhancedHeadingSteeringCommand);
-        driveModeChooser.addOption("Heading Steering", headingSteeringCommand);
-        driveModeChooser.addOption("Rotation Rate Steering", rotationRateSteeringCommand);
-        Shuffleboard.getTab("CONFIG").add(driveModeChooser);
-        DisabledInstantCommand zeroOffsetCommand = new DisabledInstantCommand(swerveSubsystem::setSwerveOffsets);
-        zeroOffsetCommand.setName("Zero Offsets");
-        Shuffleboard.getTab("CONFIG").add("Zero Swerve Module Offsets", zeroOffsetCommand);
+    StructureStates.setCurrentState(StructureStates.structureState.startup);
+    // Configure the trigger bindings
+    configure_COMP_Bindings();
+    // configure_TEST_Bindings();
+    autoConfig();
+  }
 
-        StructureStates.setCurrentState(StructureStates.structureState.startup);
-        // Configure the trigger bindings
-        configure_COMP_Bindings();
-        // configure_TEST_Bindings();
-        autoConfig();
-    }
+  private void configure_COMP_Bindings() {
+    // ToDo:
+    // Test if stored command should be set in the begining or end of the command
 
-    private void configure_COMP_Bindings() {
-        // ToDo:
-        // Test if stored command should be set in the begining or end of the command
+    // Swerve
+    m_driverController.start().onTrue(new DisabledInstantCommand(swerveSubsystem::zeroGyro));
 
-        // Swerve
-        m_driverController.start().onTrue(new DisabledInstantCommand(swerveSubsystem::zeroGyro));
+    Command driveCommand = driveModeChooser.getSelected();
+    swerveSubsystem.setDefaultCommand(driveCommand);
+    driveModeChooser.onChange(command -> {
+      Command currentDefault = swerveSubsystem.getDefaultCommand();
+      swerveSubsystem.removeDefaultCommand();
+      CommandScheduler.getInstance().cancel(currentDefault);
+      swerveSubsystem.setDefaultCommand(command);
+      System.out.println(swerveSubsystem.getDefaultCommand().getName());
+    });
+    m_driverController.start().onTrue(new InstantCommand(() -> {
+      swerveSubsystem.zeroGyro();
+      System.out.println("Resetting gyro");
+    }));
 
-        m_driverController.a().whileTrue(speakerTargetSteeringCommand);
-        Command driveCommand = driveModeChooser.getSelected();
-        swerveSubsystem.setDefaultCommand(driveCommand);
-        driveModeChooser.onChange(command -> {
-            Command currentDefault = swerveSubsystem.getDefaultCommand();
-            swerveSubsystem.removeDefaultCommand();
-            CommandScheduler.getInstance().cancel(currentDefault);
-            swerveSubsystem.setDefaultCommand(command);
-            System.out.println(swerveSubsystem.getDefaultCommand().getName());
-        });
-        m_driverController.start().onTrue(new InstantCommand(() -> {
-            swerveSubsystem.zeroGyro();
-            System.out.println("Resetting gyro");
-        }));
+    // // states
+    StoredCommand storedCommand = new StoredCommand(shooter, intake);
+    IntakeCommand intakeCommand = new IntakeCommand(shooter, intake);
+    BetterAMPCommand betterAmpCommand = new BetterAMPCommand(shooter, intake);
+    SUBWOOFCommand subwoofCommand = new SUBWOOFCommand(shooter, intake);
+    PODIUMCommand podiumCommand = new PODIUMCommand(shooter, intake);
+    Command idleIndexerCommand = shooter.spinIndexerCommand(RobotConstants.INDEXER_IDLE_SPEED);
+    Command shootIndexerCommand = shooter.spinIndexerCommand(RobotConstants.INDEXER_SHOOT_SPEED);
+    Command AmpShootIntake = intake.spinIntakeCommand(RobotConstants.NEWAMP_IntakeSpeed_ShootOut);
 
-        // // states
-        StoredCommand storedCommand = new StoredCommand(shooter, intake);
-        IntakeCommand intakeCommand = new IntakeCommand(shooter, intake);
-        BetterAMPCommand betterAmpCommand = new BetterAMPCommand(shooter, intake);
-        SUBWOOFCommand subwoofCommand = new SUBWOOFCommand(shooter, intake);
-        PODIUMCommand podiumCommand = new PODIUMCommand(shooter, intake);
-        Command idleIndexerCommand = shooter.spinIndexerCommand(RobotConstants.INDEXER_IDLE_SPEED);
-        Command shootIndexerCommand = shooter.spinIndexerCommand(RobotConstants.INDEXER_SHOOT_SPEED);
-        Command AmpShootIntake = intake.spinIntakeCommand(RobotConstants.NEWAMP_IntakeSpeed_ShootOut);
+    // upgraded point and aim at speaker
+    DoubleSupplier distanceSupplier = (() -> swerveSubsystem.getPose().getTranslation()
+        .getDistance(FieldConstants.allianceFlipper(new Pose3d(FieldConstants.Speaker.centerSpeakerOpening),
+            DriverStation.getAlliance().get()).toPose2d().getTranslation()));
 
-        // Runs the indexer while the right bumper is held -- essentally a shoot command
-        m_driverController.rightBumper().onTrue(shootIndexerCommand);
-        m_driverController.rightBumper().onFalse(Commands.runOnce(() -> {
-            idleIndexerCommand.schedule();
-            storedCommand.schedule();
-        }));
+    // m_driverController.a().whileTrue(speakerTargetSteeringCommand.alongWith(Commands.run(()
+    // -> {
+    // double shooteranglee =
+    // ShooterInterpolationHelper.getShooterAngle(distanceSupplier.getAsDouble());
+    // double shooterrpmm =
+    // ShooterInterpolationHelper.getShooterRPM(distanceSupplier.getAsDouble());
+    // System.out.println("Distance to speaker is: " +
+    // distanceSupplier.getAsDouble());
+    // System.out.println("Interpolated angle is: " + shooteranglee);
+    // System.out.println("RPM is: " + shooterrpmm);
+    // new CommonSpeakerCommand(shooter, intake, shooteranglee,
+    // shooterrpmm).schedule();
+    // })));
 
-        // Runs the intake on left bummper true
-        m_driverController.leftBumper().onTrue(AmpShootIntake);
-        m_driverController.leftBumper().onFalse(storedCommand);
+    // m_driverController.a().whileTrue(speakerTargetSteeringCommand.alongWith(new
+    // RepeatCommand(Commands.runOnce(() -> {
+    // double shooteranglee =
+    // ShooterInterpolationHelper.getShooterAngle(distanceSupplier.getAsDouble());
+    // double shooterrpmm =
+    // ShooterInterpolationHelper.getShooterRPM(distanceSupplier.getAsDouble());
+    // System.out.println("Distance to speaker is: " +
+    // distanceSupplier.getAsDouble());
+    // System.out.println("Interpolated angle is: " + shooteranglee);
+    // System.out.println("RPM is: " + shooterrpmm);
+    // new CommonSpeakerCommand(shooter, intake, shooteranglee,
+    // shooterrpmm).schedule();
+    // }))));
 
-        m_operatorController.b().onTrue(subwoofCommand);
-        m_operatorController.y().onTrue(podiumCommand);
-        m_operatorController.x().onTrue(betterAmpCommand);
+    m_driverController.a().whileTrue(speakerTargetSteeringCommand.alongWith(new RepeatCommand(
+        new CommonSpeakerCommand(shooter, intake,
+            ShooterInterpolationHelper.getShooterAngle(distanceSupplier),
+            ShooterInterpolationHelper.getShooterRPM(distanceSupplier)))));
 
-        m_driverController.x().onTrue(Commands.runOnce(() -> {
-            if (StructureStates.getCurrentState() == structureState.stored) {
-                intakeCommand.schedule();
-            } else {
-                storedCommand.schedule();
-            }
-        }));
-        // m_driverController.y().onTrue(storedCommand);
+    m_driverController.a().onFalse(new SequentialCommandGroup(
+        shooter.spinIndexerCommand(RobotConstants.INDEXER_SHOOT_SPEED),
+        new WaitCommand(.5),
+        shooter.spinIndexerCommand(RobotConstants.INDEXER_IDLE_SPEED),
+        new StoredCommand(shooter, intake)));
 
-        m_operatorController.rightBumper().onTrue(climber.setSpeedCommand(1));
-        m_operatorController.rightBumper().onFalse(climber.setSpeedCommand(-1));
-        m_driverController.b().onTrue(Commands.runOnce(() ->
-                swerveSubsystem.setTargetAngle(getAllianceDefaultBlue().equals(Alliance.Red) ?
-                        Rotation2d.fromDegrees(90) : Rotation2d.fromDegrees(-90))));
-    }
+    // old point at speaker
+    // m_driverController.a().whileTrue(speakerTargetSteeringCommand);
 
-    private void configure_TEST_Bindings() {
-        // Swerve Drive Command chooser
-        m_driverController.start().onTrue(new DisabledInstantCommand(swerveSubsystem::zeroGyro));
-        m_driverController.leftBumper().onTrue(swerveSubsystem.setSlowSpeed())
-                .onFalse(swerveSubsystem.setNormalSpeed());
+    // Runs the indexer while the right bumper is held -- essentally a shoot command
+    m_driverController.rightBumper().onTrue(shootIndexerCommand);
+    m_driverController.rightBumper().onFalse(Commands.runOnce(() -> {
+      idleIndexerCommand.schedule();
+      storedCommand.schedule();
+    }));
 
-        Command driveCommand = driveModeChooser.getSelected();
-        swerveSubsystem.setDefaultCommand(driveCommand);
-        driveModeChooser.onChange(command -> {
-            Command currentDefault = swerveSubsystem.getDefaultCommand();
-            swerveSubsystem.removeDefaultCommand();
-            CommandScheduler.getInstance().cancel(currentDefault);
-            swerveSubsystem.setDefaultCommand(command);
-            System.out.println(swerveSubsystem.getDefaultCommand().getName());
-        });
+    PathPlannerPath redampPath = PathPlannerPath.fromPathFile("RedAmpPath");
+    PathPlannerPath blueampPath = PathPlannerPath.fromPathFile("BlueAmpPath");
+    Command blueampheadingcommand = swerveSubsystem.correctHeading(Rotation2d.fromDegrees(-90))
+        .beforeStarting(Commands.runOnce(() -> vision.useVision(false)));
+    Command redampheadingcommand = swerveSubsystem.correctHeading(Rotation2d.fromDegrees(90))
+        .beforeStarting(Commands.runOnce(() -> vision.useVision(false)));
 
-        // y- indexer
-        // b- ontrue intake (onfalse zero)
-        // left bumper - shooter angle 53 on true 0 on false
-        // right bummper - intake angle 35 on trun 0 on false
-        // a - ontrue shooter RPM 5400 (0 on flase)
+    m_driverController.b().onTrue(
+        new ParallelCommandGroup(
+            new BetterAMPCommand(shooter, intake),
+            new ConditionalCommand(swerveSubsystem.pathToPath(blueampPath), swerveSubsystem.pathToPath(redampPath),
+                () -> DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == Alliance.Blue))
+            .beforeStarting(new ConditionalCommand(blueampheadingcommand, redampheadingcommand,
+                () -> DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == Alliance.Blue)
+                .withTimeout(1)));
+    m_driverController.b().onFalse(
+        new SequentialCommandGroup(
+            Commands.runOnce(() -> vision.useVision(true)),
+            AmpShootIntake,
+            new WaitCommand(.75),
+            new StoredCommand(shooter, intake)));
 
-        // Suppliers //
-        // left trigger - shooter angle supplier
-        // right trigger - intake angle supplier
-        // x - shooter RPM supplier
+    m_driverController.b().onTrue(Commands.runOnce(() -> swerveSubsystem.setTargetAngle(
+        getAllianceDefaultBlue().equals(Alliance.Red) ? Rotation2d.fromDegrees(90) : Rotation2d.fromDegrees(-90))));
 
-        // Remember zeroed at intake pose
-        // +RPM means note goes out & +Angle means move up relative to intake pose
-        SmartDashboard.putNumber("ShooterPivotAngle_CHANGEME", 0);
-        SmartDashboard.putNumber("ShooterRPM_CHANGEME", 0);
-        SmartDashboard.putNumber("IntakePivotAngle_CHANGEME", 180);
+    // Old amp scoring approach
+    // Runs the intake on left bummper true
+    m_driverController.leftBumper().onTrue(intake.spinIntakeCommand(RobotConstants.NEWAMP_IntakeSpeed_ShootOut));
+    m_driverController.leftBumper().onFalse(storedCommand);
+    m_operatorController.x().onTrue(betterAmpCommand);
 
-        // LEFT BUMPER & TRIGGER -> shooter pivot -- Works (tune pids and FF tho)
-        m_operatorController.leftBumper().onTrue(shooter.setPivotAngleCommand(53));
-        m_operatorController.leftBumper().onFalse(shooter.setPivotAngleCommand(0.0));
-        m_operatorController.leftTrigger().whileTrue(shooter.setPivotAngleSupplierCommand());
+    m_operatorController.b().onTrue(subwoofCommand);
+    m_operatorController.y().onTrue(podiumCommand);
 
-        // RIGHT BUMPER & TRIGGER -> intake pivot -- Works (tune pids and FF tho)
-        m_operatorController.rightBumper().onFalse(intake.setPivotAngleCommand(35));
-        m_operatorController.rightBumper().onTrue(intake.setPivotAngleCommand(0));
-        m_operatorController.rightTrigger().whileTrue(intake.setPivotAngleSupplierCommand());
+    m_driverController.x().onTrue(Commands.runOnce(() -> {
+      if (StructureStates.getCurrentState() == structureState.stored) {
+        intakeCommand.schedule();
+      } else {
+        storedCommand.schedule();
+      }
+    }));
+    // m_driverController.y().onTrue(storedCommand);
 
-        // A -> Shooter RPM (X for supplier) -- Works
-        m_operatorController.a().onTrue(shooter.setShooterRPMCommand(5400));
-        m_operatorController.a().onFalse(shooter.setShooterRPMCommand(-2500));
-        m_operatorController.x().whileTrue(shooter.setShooterRPMSupplierCommand());
+    m_operatorController.rightBumper().onTrue(climber.setSpeedCommand(1));
+    m_operatorController.rightBumper().onFalse(climber.setSpeedCommand(-1));
 
-        // B -> Intake RAW command -- Untested
-        m_operatorController.b().onTrue(intake.spinIntakeCommand(.7));
-        m_operatorController.b().onFalse(intake.spinIntakeCommand(.01));
+  }
 
-        // Y -> Indexer test -- Works
-        m_operatorController.y().onTrue(shooter.spinIndexerCommand(0.5));
-        m_operatorController.y().onFalse(shooter.spinIndexerCommand(-0.1));
-    }
-//
-//  private ChoreoTrajectory finalAutoTrajectory;
-//  public void setGyroBasedOnAutoFinalTrajectory(){
-//    swerveSubsystem.setGyroAngle(finalAutoTrajectory.getFinalPose().getRotation()); // Sets the gyro heading, NEVER FLIPPED since robot should always point away from DS when gyro reports 0
-//  } // Unnecessary since it can be done initially
 
-    /** <p>Sets the gyro heading, flipped in relation to the ALLIANCE's origin, NOT the origin of the FIELD.</p>
-     * <p>Uses alliance-relative flipping, so only used for teleop.</p>
-     * <p>Auto will simply ignore it if odometry is reset after.</p>
-     * @param traj The choreo trajectory whose initial angle is used to set the gyro angle.
-     */
-  public void setGyroBasedOnInitialChoreoTrajectory(ChoreoTrajectory traj){
-      System.out.println("Is alliance present when setting initial gyro? " + DriverStation.getAlliance().isPresent());
-      Rotation2d actualAllianceRelativeAngle = DriverStation.getAlliance().get() == Alliance.Blue ? traj.getInitialPose().getRotation() : new Rotation2d().minus(traj.getInitialPose().getRotation());
-      swerveSubsystem.setGyroAngle(actualAllianceRelativeAngle);
+  private void configure_TEST_Bindings() {
+    // Swerve Drive Command chooser
+    m_driverController.start().onTrue(new DisabledInstantCommand(swerveSubsystem::zeroGyro));
+    m_driverController.leftBumper().onTrue(swerveSubsystem.setSlowSpeed())
+        .onFalse(swerveSubsystem.setNormalSpeed());
+
+    Command driveCommand = driveModeChooser.getSelected();
+    swerveSubsystem.setDefaultCommand(driveCommand);
+    driveModeChooser.onChange(command -> {
+      Command currentDefault = swerveSubsystem.getDefaultCommand();
+      swerveSubsystem.removeDefaultCommand();
+      CommandScheduler.getInstance().cancel(currentDefault);
+      swerveSubsystem.setDefaultCommand(command);
+      System.out.println(swerveSubsystem.getDefaultCommand().getName());
+    });
+
+    // y- indexer
+    // b- ontrue intake (onfalse zero)
+    // left bumper - shooter angle 53 on true 0 on false
+    // right bummper - intake angle 35 on trun 0 on false
+    // a - ontrue shooter RPM 5400 (0 on flase)
+
+    // Suppliers //
+    // left trigger - shooter angle supplier
+    // right trigger - intake angle supplier
+    // x - shooter RPM supplier
+
+    // Remember zeroed at intake pose
+    // +RPM means note goes out & +Angle means move up relative to intake pose
+    SmartDashboard.putNumber("ShooterPivotAngle_CHANGEME", 0);
+    SmartDashboard.putNumber("ShooterRPM_CHANGEME", 0);
+    SmartDashboard.putNumber("IntakePivotAngle_CHANGEME", 35);
+
+    // LEFT BUMPER & TRIGGER -> shooter pivot -- Works (tune pids and FF tho)
+    m_operatorController.leftBumper().onTrue(shooter.setPivotAngleCommand(53));
+    m_operatorController.leftBumper().onFalse(shooter.setPivotAngleCommand(0.0));
+    m_operatorController.leftTrigger().whileTrue(shooter.setPivotAngleSupplierCommand());
+
+    // RIGHT BUMPER & TRIGGER -> intake pivot -- Works (tune pids and FF tho)
+    m_operatorController.rightBumper().onFalse(intake.setPivotAngleCommand(180));
+    m_operatorController.rightBumper().onTrue(intake.setPivotAngleCommand(0));
+    m_operatorController.rightTrigger().whileTrue(intake.setPivotAngleSupplierCommand());
+
+    // A -> Shooter RPM (X for supplier) -- Works
+    m_operatorController.a().onTrue(shooter.setShooterRPMCommand(4000));
+    m_operatorController.a().onFalse(shooter.setShooterRPMCommand(-2500));
+    m_operatorController.x().whileTrue(shooter.setShooterRPMSupplierCommand());
+
+    // B -> Intake RAW command -- Untested
+    m_operatorController.b().onTrue(intake.spinIntakeCommand(.7));
+    m_operatorController.b().onFalse(intake.spinIntakeCommand(0));
+
+    // Y -> Indexer test -- Works
+    m_operatorController.y().onTrue(shooter.spinIndexerCommand(1));
+    m_operatorController.y().onFalse(shooter.spinIndexerCommand(-0.1));
+  }
+
+  // private ChoreoTrajectory finalAutoTrajectory;
+  // public void setGyroBasedOnAutoFinalTrajectory(){
+  // swerveSubsystem.setGyroAngle(finalAutoTrajectory.getFinalPose().getRotation());
+  // // Sets the gyro heading, NEVER FLIPPED since robot should always point away
+  // from DS when gyro reports 0
+  // } // Unnecessary since it can be done initially
+
+  /**
+   * <p>
+   * Sets the gyro heading, flipped in relation to the ALLIANCE's origin, NOT the
+   * origin of the FIELD.
+   * </p>
+   * <p>
+   * Uses alliance-relative flipping, so only used for teleop.
+   * </p>
+   * <p>
+   * Auto will simply ignore it if odometry is reset after.
+   * </p>
+   * 
+   * @param traj The choreo trajectory whose initial angle is used to set the gyro
+   *             angle.
+   */
+  public void setGyroBasedOnInitialChoreoTrajectory(ChoreoTrajectory traj) {
+    System.out.println("Is alliance present when setting initial gyro? " + DriverStation.getAlliance().isPresent());
+    Rotation2d actualAllianceRelativeAngle = DriverStation.getAlliance().get() == Alliance.Blue
+        ? traj.getInitialPose().getRotation()
+        : new Rotation2d().minus(traj.getInitialPose().getRotation());
+    swerveSubsystem.setGyroAngle(actualAllianceRelativeAngle);
   }
 
   public Command setGyroBasedOnPathPlannerTrajectory(){
     return Commands.runOnce(() -> {
       System.out.println("Is alliance present when setting initial gyro? " + DriverStation.getAlliance().isPresent());
-      System.out.println("What is the perceived initial pathplanner pose?:" + pathPlannerTargetPose.getTranslation() + " " + new Rotation2d().minus(pathPlannerTargetPose.getRotation()));
-      Rotation2d actualAllianceRelativeAngle = DriverStation.getAlliance().get() == Alliance.Blue ? pathPlannerTargetPose.getRotation() : new Rotation2d().minus(pathPlannerTargetPose.getRotation());
-      swerveSubsystem.setGyroAngle(actualAllianceRelativeAngle);
+      System.out.println("What is the perceived initial pathplanner pose?:" + pathPlannerTargetPose.getTranslation() + " " + (pathPlannerTargetPose.getRotation()));
+      Rotation2d actualFieldRelativeRotation = pathPlannerTargetPose.getRotation();
+      Rotation2d allianceRelativeRotation = DriverStation.getAlliance().get() == Alliance.Blue ? actualFieldRelativeRotation : actualFieldRelativeRotation.plus(Rotation2d.fromDegrees(180));
+      swerveSubsystem.setGyroAngle(allianceRelativeRotation);
     });
   }
 
@@ -304,31 +388,38 @@ public class RobotContainer {
     return pathPlannerTargetPose;
   }
 
-    /**
-     * Requires the swerve subsystem, w/ tolerance of 1 degree and timeout of 2 secs.
-     * @return Command to drive to zero heading with no translation rate and zeros the gyro.
-     */
+  /**
+   * Requires the swerve subsystem, w/ tolerance of 1 degree and timeout of 2
+   * secs.
+   * 
+   * @return Command to drive to zero heading with no translation rate and zeros
+   *         the gyro.
+   */
   public Command driveToZeroHeadingAndZeroGyro() {
-      return swerveSubsystem.headingDriveCommand(() -> 0, () -> 0, Rotation2d::new).until(() -> Math.abs(swerveSubsystem.getGyroYaw().getDegrees()) < 1).withTimeout(2)
-              .andThen(swerveSubsystem::zeroGyro);
+    return swerveSubsystem.headingDriveCommand(() -> 0, () -> 0, Rotation2d::new)
+        .until(() -> Math.abs(swerveSubsystem.getGyroYaw().getDegrees()) < 1).withTimeout(2)
+        .andThen(swerveSubsystem::zeroGyro);
   }
+
   public Command zeroOdometryAngleOffset() {
-      return swerveSubsystem.zeroOdometryAngleOffset();
+    return swerveSubsystem.zeroOdometryAngleOffset();
   }
 
   public Command zeroOdometryFromLastPathPose() {
     return swerveSubsystem.zeroOdometryFromLastPathPose();
   }
+
   public Alliance getAllianceDefaultBlue() {
-      Alliance currentAlliance;
-      if(DriverStation.getAlliance().isPresent()) {
-          currentAlliance = DriverStation.getAlliance().get();
-      } else {
-          currentAlliance = Alliance.Blue;
-          System.out.println("No alliance, setting to blue");
-      }
-      return currentAlliance;
+    Alliance currentAlliance;
+    if (DriverStation.getAlliance().isPresent()) {
+      currentAlliance = DriverStation.getAlliance().get();
+    } else {
+      currentAlliance = Alliance.Blue;
+      System.out.println("No alliance, setting to blue");
+    }
+    return currentAlliance;
   }
+
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
    */
@@ -394,7 +485,7 @@ public class RobotContainer {
     //   Commands.waitSeconds(0.25),
     //   shooter.spinIndexerCommand(RobotConstants.INDEXER_IDLE_SPEED),
     //   new StoredCommand(shooter, intake),
-    //   autoCommandFactory.generateChoreoCommand(twonotebottomtraj4)
+    //autoCommandFactory.generateChoreoCommand(twonotebottomtraj4)
     // );
     // autoChooser.addOption("Two Note Podiumside", twonotebottom);
     // /* TWONOTEBOTTOM START */
@@ -432,7 +523,7 @@ public class RobotContainer {
     // autoChooser.addOption("Two Note Ampside", twonotetop);
     // /* TWONOTETOP STOP */
 
-    //   /* START ONENOTEBOTTOMBERSERK */
+      /* START ONENOTEBOTTOMBERSERK */
     //   ChoreoTrajectory onenotebottomberserktraj1 = Choreo.getTrajectory("onenotebottomandmiddlerow.1");
     //   Command oneNoteBottomBerserk = new SequentialCommandGroup(
     //           Commands.runOnce(() -> {
@@ -447,9 +538,9 @@ public class RobotContainer {
     //           autoCommandFactory.generateChoreoCommand(onenotebottomberserktraj1)
     //   );
     //   autoChooser.addOption("One Note Podium Side Berserk", oneNoteBottomBerserk);
-    //   /* END ONENOTEBOTTOMBERSERK */
+      /* END ONENOTEBOTTOMBERSERK */
 
-    //   /* START ONENOTEBOTTOM */
+      /* START ONENOTEBOTTOM */
     //   ChoreoTrajectory onenotebottomtraj1 = Choreo.getTrajectory("onenotebottom.1");
     //   Command oneNoteBottom = new SequentialCommandGroup(
     //           Commands.runOnce(() -> {
@@ -464,9 +555,9 @@ public class RobotContainer {
     //           autoCommandFactory.generateChoreoCommand(onenotebottomberserktraj1)
     //   );
     //   autoChooser.addOption("One Note Podium Side Berserk", oneNoteBottom);
-    //   /* END ONENOTEBOTTOM */
+      /* END ONENOTEBOTTOM */
 
-    //   /* START ONENOTETOP */
+      /* START ONENOTETOP */
     //   ChoreoTrajectory onenotetoptraj1 = Choreo.getTrajectory("onenotetop.1");
     //   Command oneNoteTop = new SequentialCommandGroup(
     //           Commands.runOnce(() -> {
@@ -481,16 +572,17 @@ public class RobotContainer {
     //           autoCommandFactory.generateChoreoCommand(onenotetoptraj1)
     //   );
     //   autoChooser.addOption("One Note Ampside", oneNoteTop);
-    //   /* END ONENOTETOP */
+      /* END ONENOTETOP */
 
     // autoChooser.setDefaultOption("Do nothing", new InstantCommand());
     // SmartDashboard.putData(autoChooser);
   }
 
   public Command getAutonomousCommand() {
-    // return new RunCommand(() -> swerveSubsystem.drive(new Translation2d(.1, .2), .3, false), swerveSubsystem); // test drive command, for debugging
+    // return new RunCommand(() -> swerveSubsystem.drive(new Translation2d(.1, .2),
+    // .3, false), swerveSubsystem); // test drive command, for debugging
     //return autoChooser.getSelected().andThen(zeroOdometryAngleOffset());
     return autoChooser.getSelected();
     // TODO: Replace the andThen statement if this does not align to gyro
-    }
+  }
 }

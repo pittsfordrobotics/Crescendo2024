@@ -34,7 +34,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Vision extends SubsystemBase {
 
-    // Initialization
+    // Initializatio
+    private boolean useVision = true;
     private Consumer<VisionData> visionDataConsumer;
 
     private final VisionIO[] io;
@@ -45,11 +46,17 @@ public class Vision extends SubsystemBase {
         io = new VisionIO[] { ioLimelight1, ioLimelight2 };
         FieldConstants.aprilTags.getTags().forEach((AprilTag tag) -> lastTagDetectionTimes.put(tag.ID, 0.0));
     }
-    private final VisionIO.VisionIOInputs[] inputs = new VisionIO.VisionIOInputs[] {new VisionIO.VisionIOInputs(), new VisionIO.VisionIOInputs()};
+
+    private final VisionIO.VisionIOInputs[] inputs = new VisionIO.VisionIOInputs[] { new VisionIO.VisionIOInputs(),
+            new VisionIO.VisionIOInputs() };
     private final String[] camNames = new String[] { VisionConstants.LIMELIGHT1_NAME, VisionConstants.LIMELIGHT2_NAME };
-    
+
     private Pipelines pipeline = Pipelines.Test; // default pipeline
-    
+
+    public void useVision (boolean usevision){
+        this.useVision = usevision;
+    }
+
     @Override
     public void periodic() {
         for (int i = 0; i < io.length; i++) {
@@ -60,9 +67,14 @@ public class Vision extends SubsystemBase {
         }
         List<Pose2d> allRobotPoses = new ArrayList<>();
 
+        if (!useVision) {
+            return;
+        }
+
         // Pose estimation
         if (!DriverStation.isAutonomous()) {
             for (int i = 0; i < io.length; i++) {
+                // exit if boolean
 
                 // exit if data is bad
                 if (Arrays.equals(inputs[i].botXYZ, new double[] { 0.0, 0.0, 0.0 }) || inputs[i].botXYZ.length == 0
@@ -73,12 +85,10 @@ public class Vision extends SubsystemBase {
                 // Gets robot pose from the current camera
                 // Pose is centered differently depending on the alliance of the robot
                 Pose3d robotPose3d = new Pose3d(inputs[i].botXYZ[0], inputs[i].botXYZ[1], inputs[i].botXYZ[2],
-                    new Rotation3d(
-                        Math.toRadians(inputs[i].botRPY[0]),
-                        Math.toRadians(inputs[i].botRPY[1]),
-                        Math.toRadians(inputs[i].botRPY[2])
-                    )
-                );
+                        new Rotation3d(
+                                Math.toRadians(inputs[i].botRPY[0]),
+                                Math.toRadians(inputs[i].botRPY[1]),
+                                Math.toRadians(inputs[i].botRPY[2])));
                 Pose2d visionCalcPose = robotPose3d.toPose2d();
 
                 // exit if off the field (might be bad)
@@ -91,7 +101,7 @@ public class Vision extends SubsystemBase {
                     continue;
                 }
 
-                //Vision should not be exited at this point?
+                // Vision should not be exited at this point?
                 SmartDashboard.putBoolean("Vision exited?", true);
 
                 SmartDashboard.putNumber("Vision/Pose" + i + "/X", visionCalcPose.getX());
@@ -113,7 +123,7 @@ public class Vision extends SubsystemBase {
                 Pose2d[] tagPoses2d = new Pose2d[tagPoses.size()];
                 int num = 0;
                 for (Pose3d tagPose : tagPoses) {
-                    Alliance alliance = DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue);                    
+                    Alliance alliance = DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue);
                     tagPose = FieldConstants.allianceFlipper(tagPose, alliance);
                     totalDistance += tagPose.getTranslation().getDistance(robotPose3d.getTranslation());
                     tagPoses2d[num] = tagPose.toPose2d();
@@ -127,17 +137,18 @@ public class Vision extends SubsystemBase {
                 // to the distance to the tag
                 // Increase VisionConstants.XY_STD_DEV_COEF and
                 // VisionConstants.THETA_STD_DEV_COEF to trust vision in general less
-                
+
                 double xyStdDev = VisionConstants.XY_STD_DEV_COEF * Math.pow(avgDistance, 2.0) / tagPoses.size();
                 double thetaStdDev = VisionConstants.THETA_STD_DEV_COEF * Math.pow(avgDistance, 2.0) / tagPoses.size();
 
                 SmartDashboard.putNumber("Vision/XYstd", xyStdDev);
                 SmartDashboard.putNumber("Vision/ThetaStd", thetaStdDev);
 
-                // Add vision data to swerve pose estimator -- will depend on swerve 
-                VisionData visionData = new VisionData(visionCalcPose, inputs[i].captureTimestamp, VecBuilder.fill(xyStdDev, xyStdDev, thetaStdDev));
+                // Add vision data to swerve pose estimator -- will depend on swerve
+                VisionData visionData = new VisionData(visionCalcPose, inputs[i].captureTimestamp,
+                        VecBuilder.fill(xyStdDev, xyStdDev, thetaStdDev));
                 visionDataConsumer.accept(visionData);
-                
+
                 // Add robot pose from this camera to a list of all robot poses
                 allRobotPoses.add(visionCalcPose);
                 List<Pose3d> allTagPoses = new ArrayList<>();

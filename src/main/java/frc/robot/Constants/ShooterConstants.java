@@ -30,6 +30,21 @@ public final class ShooterConstants {
     public static final double SHOOTER_R_FFGain = 0.000167;
 
 
+
+    // key: distance from center of robot to middle pose of subwoof projected down
+    // (inches); value: shooter angle (degrees)
+    public static final InterpolatingDoubleTreeMap DISTANCE_ANGLE_MAP = new InterpolatingDoubleTreeMap();
+    static {
+        DISTANCE_ANGLE_MAP.put(Units.inchesToMeters(53.6), 54.0); // Source (4.5ft)
+        DISTANCE_ANGLE_MAP.put(Units.inchesToMeters(66.0), 52.0); // Tested distance (5.5ft)
+        DISTANCE_ANGLE_MAP.put(Units.inchesToMeters(78.0), 49.0); // Tested distance (6.5ft)
+        DISTANCE_ANGLE_MAP.put(Units.inchesToMeters(96.0), 45.0); // Tested distance (8ft)
+        DISTANCE_ANGLE_MAP.put(Units.inchesToMeters(115.0), 42.0); // Podium (9.5ft)
+        DISTANCE_ANGLE_MAP.put(Units.inchesToMeters(132.0), 40.0); // Tested distance (11ft)
+        DISTANCE_ANGLE_MAP.put(Units.inchesToMeters(156.0), 38.0); // Tested distance (13 ft)
+    }
+
+
     // FF constants
     // See diagram its very usefull
     // deg -> rad = deg * .0175
@@ -41,14 +56,4 @@ public final class ShooterConstants {
     public static final double M1_Total_Mass_of_Shooter = 23 * 0.453592;
     public static final double SHOOTER_Pivot_FF_Multiplier = 0.018;//.83 for the basic ff
 
-    // key: distance from center of robot to middle pose of subwoof projected down (inches); value: shooter angle (degrees)
-    public static final InterpolatingDoubleTreeMap DISTANCE_ANGLE_MAP = new InterpolatingDoubleTreeMap();
-    static {
-        // TODO: ENTIRELY REPLACE THESE, MAKE THEM CORRECT WITH NEW SHOOTER
-        DISTANCE_ANGLE_MAP.put(Units.inchesToMeters(87.0), 45.0); // Middle auto second shoot
-        DISTANCE_ANGLE_MAP.put(Units.inchesToMeters(104.0), 41.5); // Podium auto second shoot
-        DISTANCE_ANGLE_MAP.put(Units.inchesToMeters(115.0), 40.25); // Podium
-        DISTANCE_ANGLE_MAP.put(Units.inchesToMeters(127.0), 39.0); // Amp auto second shoot
-        DISTANCE_ANGLE_MAP.put(Units.inchesToMeters(154.0), 37.8); // Tested distance
-    }
 }
