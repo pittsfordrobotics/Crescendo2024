@@ -12,6 +12,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Filesystem;
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -110,7 +111,36 @@ public class RobotContainer {
     // Configure the trigger bindings
     configure_COMP_Bindings();
     // configure_TEST_Bindings();
+    configure_COMP_SmartDashboard();
     autoConfig();
+  }
+
+  private void configure_COMP_SmartDashboard() {
+    Shuffleboard.getTab("COMP").addDouble("Time", () -> DriverStation.getMatchTime());
+
+    Shuffleboard.getTab("COMP").addBoolean("TimeWarning",
+        () -> !(
+            DriverStation.getMatchTime() < 60.0 && DriverStation.getMatchTime() > 59.875 ||
+            DriverStation.getMatchTime() < 59.75 && DriverStation.getMatchTime() > 59.625 ||
+            DriverStation.getMatchTime() < 59.5 && DriverStation.getMatchTime() > 59.375 ||
+            DriverStation.getMatchTime() < 59.25 && DriverStation.getMatchTime() > 59.125 ||
+            DriverStation.getMatchTime() < 59.0 && DriverStation.getMatchTime() > 58.875 ||
+
+            DriverStation.getMatchTime() < 30.0 && DriverStation.getMatchTime() > 29.875 ||
+            DriverStation.getMatchTime() < 29.75 && DriverStation.getMatchTime() > 29.625 ||
+            DriverStation.getMatchTime() < 29.5 && DriverStation.getMatchTime() > 29.375 ||
+            DriverStation.getMatchTime() < 29.25 && DriverStation.getMatchTime() > 29.125 ||
+            DriverStation.getMatchTime() < 29.0 && DriverStation.getMatchTime() > 28.875 ||
+
+            DriverStation.getMatchTime() < 21.0 && DriverStation.getMatchTime() > 20.875 ||
+            DriverStation.getMatchTime() < 20.75 && DriverStation.getMatchTime() > 20.625 ||
+            DriverStation.getMatchTime() < 20.5 && DriverStation.getMatchTime() > 20.375 ||
+            DriverStation.getMatchTime() < 20.25 && DriverStation.getMatchTime() > 20.125 ||
+            DriverStation.getMatchTime() < 20.0 && DriverStation.getMatchTime() > 19.875 ||
+            DriverStation.getMatchTime() < 8));
+
+    // Shuffleboard.getTab("COMP").addString("State", () ->
+    // StructureStates.currentState.toString());
   }
 
   private void configure_COMP_Bindings() {
@@ -359,6 +389,11 @@ public class RobotContainer {
       System.out.println("No alliance, setting to blue");
     }
     return currentAlliance;
+  }
+
+  public void buzz_controllers(double power) {
+    m_driverController.getHID().setRumble(RumbleType.kBothRumble, power);
+    m_operatorController.getHID().setRumble(RumbleType.kBothRumble, power);
   }
 
   /**
