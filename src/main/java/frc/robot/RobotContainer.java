@@ -11,6 +11,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Filesystem;
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -126,7 +127,7 @@ public class RobotContainer {
 
   private void configure_COMP_SmartDashboard() {
     Shuffleboard.getTab("COMP").addDouble("Time", () -> DriverStation.getMatchTime());
-    
+
     Shuffleboard.getTab("COMP").addBoolean("TimeWarning",
         () -> !(DriverStation.getMatchTime() < 60 && DriverStation.getMatchTime() > 59 ||
             DriverStation.getMatchTime() < 58 && DriverStation.getMatchTime() > 57 ||
@@ -141,7 +142,8 @@ public class RobotContainer {
             DriverStation.getMatchTime() < 18.5 && DriverStation.getMatchTime() > 18.25 ||
             DriverStation.getMatchTime() < 8));
 
-    Shuffleboard.getTab("COMP").addString("State", () -> StructureStates.currentState.toString());
+    // Shuffleboard.getTab("COMP").addString("State", () ->
+    // StructureStates.currentState.toString());
   }
 
   private void configure_COMP_Bindings() {
@@ -339,6 +341,11 @@ public class RobotContainer {
       System.out.println("No alliance, setting to blue");
     }
     return currentAlliance;
+  }
+
+  public void buzz_controllers(double power) {
+    m_driverController.getHID().setRumble(RumbleType.kBothRumble, power);
+    m_operatorController.getHID().setRumble(RumbleType.kBothRumble, power);
   }
 
   /**

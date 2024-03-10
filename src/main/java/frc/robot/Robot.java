@@ -10,6 +10,7 @@ import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.net.PortForwarder;
 import edu.wpi.first.util.PixelFormat;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
@@ -108,14 +109,22 @@ public class Robot extends LoggedRobot {
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
-//    m_robotContainer.driveToZeroHeadingAndZeroGyro().schedule();
+    // m_robotContainer.driveToZeroHeadingAndZeroGyro().schedule();
     m_robotContainer.zeroOdometryAngleOffset();
-    //m_robotContainer.setGyroBasedOnAutoFinalTrajectory();
+    // m_robotContainer.setGyroBasedOnAutoFinalTrajectory();
   }
 
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
+    if (DriverStation.getMatchTime() < 60 && DriverStation.getMatchTime() > 59.5
+        || DriverStation.getMatchTime() < 30 && DriverStation.getMatchTime() > 29.5
+        || DriverStation.getMatchTime() < 20 && DriverStation.getMatchTime() > 19.5) {
+      m_robotContainer.buzz_controllers(1);
+    }
+    else {
+      m_robotContainer.buzz_controllers(0);
+    }
   }
 
   @Override
