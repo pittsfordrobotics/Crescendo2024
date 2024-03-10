@@ -164,8 +164,10 @@ public class RobotContainer {
 
     PathPlannerPath redampPath = PathPlannerPath.fromPathFile("RedAmpPath");
     PathPlannerPath blueampPath = PathPlannerPath.fromPathFile("BlueAmpPath");
-    Command blueampheadingcommand = swerveSubsystem.correctHeading(Rotation2d.fromDegrees(-90));
-    Command redampheadingcommand = swerveSubsystem.correctHeading(Rotation2d.fromDegrees(90));
+    Command blueampheadingcommand = swerveSubsystem.correctHeading(Rotation2d.fromDegrees(-90))
+        .beforeStarting(Commands.runOnce(() -> vision.useVision(false)));
+    Command redampheadingcommand = swerveSubsystem.correctHeading(Rotation2d.fromDegrees(90))
+        .beforeStarting(Commands.runOnce(() -> vision.useVision(false)));
 
     m_driverController.b().onTrue(
         new ParallelCommandGroup(
@@ -177,13 +179,14 @@ public class RobotContainer {
                 .withTimeout(1)));
     m_driverController.b().onFalse(
         new SequentialCommandGroup(
+            Commands.runOnce(() -> vision.useVision(true)),
             AmpShootIntake,
             new WaitCommand(.75),
             new StoredCommand(shooter, intake)));
 
     // Old amp scoring approach -- still in just in bc above is untested
     // Runs the intake on left bummper true
-    m_driverController.leftBumper().onTrue(AmpShootIntake);
+    m_driverController.leftBumper().onTrue(intake.spinIntakeCommand(RobotConstants.NEWAMP_IntakeSpeed_ShootOut));
     m_driverController.leftBumper().onFalse(storedCommand);
     m_operatorController.x().onTrue(betterAmpCommand);
 
