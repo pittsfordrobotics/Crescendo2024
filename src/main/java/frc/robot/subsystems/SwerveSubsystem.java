@@ -39,7 +39,9 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.RobotContainer;
 import frc.robot.Constants.FieldConstants;
+import frc.robot.Constants.RobotConstants;
 import frc.robot.lib.VisionData;
 import frc.robot.lib.util.AllianceFlipUtil;
 import frc.robot.lib.AllDeadbands;
@@ -169,11 +171,11 @@ public class SwerveSubsystem extends SubsystemBase {
                 this::drive, // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds
                 new HolonomicPathFollowerConfig( // HolonomicPathFollowerConfig, this should likely live in your
                                                  // Constants class
-                        new PIDConstants(5.0, 0.0, 0.0),
+                        new PIDConstants(0.65, 0.0, 0.0),
                         // Translation PID constants
-                        new PIDConstants(2.2,
+                        new PIDConstants(2,
                                 0,
-                                0),
+                                0.05), // TODO: make 0.005 when not in sim
                         // Rotation PID constants
                         4.5,
                         // Max module speed, in m/s
@@ -245,22 +247,12 @@ public class SwerveSubsystem extends SubsystemBase {
      * is low (Autonomous only)
      * 
      * @return A command to drive to that heading angle between path segments
+     * 
      */
-    public Command correctHeading(ChoreoTrajectory traj) {
-        return this.run(() -> 
-        {
-        swerveDrive.drive(swerveDrive.swerveController.getTargetSpeeds(0, 0, currentTargetAngle.getRadians(),
-                getHeading().getRadians(), swerveDrive.getMaximumVelocity()));
-        })
-                .beforeStarting(() -> 
-                {
-                swerveDrive.setHeadingCorrection(true);
-                //currentTargetAngle = (DriverStation.getAlliance().get() == Alliance.Blue) ? traj.getFinalPose().getRotation() : traj.flipped().getFinalPose().getRotation();
-                currentTargetAngle = AllianceFlipUtil.apply(traj.getFinalPose()).getRotation();
-                })
-                .until(() -> Math.abs(currentTargetAngle.getDegrees() - getHeading().getDegrees()) < 1.5);
+    public Command correctHeading(ChoreoTrajectory traj, boolean applyFlipUti) {
+        return correctHeading(traj.getFinalPose().getRotation(), applyFlipUti);
     }
-    public Command correctHeading(Supplier<Pose2d> targetPoseSupplier) {
+    public Command correctHeading(Supplier<Pose2d> targetPoseSupplier, boolean applyFlipUtil) {
         return Commands.run(() -> 
         {
         swerveDrive.drive(swerveDrive.swerveController.getTargetSpeeds(0, 0, currentTargetAngle.getRadians(),
@@ -270,9 +262,30 @@ public class SwerveSubsystem extends SubsystemBase {
                 {
                 swerveDrive.setHeadingCorrection(true);
                 //currentTargetAngle = (DriverStation.getAlliance().get() == Alliance.Blue) ? traj.getFinalPose().getRotation() : traj.flipped().getFinalPose().getRotation();
-                currentTargetAngle = AllianceFlipUtil.apply(targetPoseSupplier.get().getRotation());
+                System.out.println("Correcting heading to: " + targetPoseSupplier.get().getRotation());
+                if(applyFlipUtil) {
+                    currentTargetAngle = AllianceFlipUtil.apply(targetPoseSupplier.get().getRotation());
+                } else {
+                    currentTargetAngle = (targetPoseSupplier.get().getRotation());
+                }
+
                 })
-                .until(() -> Math.abs(currentTargetAngle.getDegrees() - getHeading().getDegrees()) < 4); //TODO: edit tolerance
+                .until(() -> Math.abs(currentTargetAngle.getDegrees() - getHeading().getDegrees()) < RobotConstants.CORRECTHEADING_TOLERANCE_DEGREES); //TODO: edit tolerance
+    }
+
+    public Command correctHeading(Rotation2d targetRotation, boolean applyFlipUtil) {
+        return Commands.run(() -> 
+        {
+        swerveDrive.drive(swerveDrive.swerveController.getTargetSpeeds(0, 0, currentTargetAngle.getRadians(),
+                getHeading().getRadians(), swerveDrive.getMaximumVelocity()));
+        })
+                .beforeStarting(() -> 
+                {
+                swerveDrive.setHeadingCorrection(true);
+                //currentTargetAngle = (DriverStation.getAlliance().get() == Alliance.Blue) ? traj.getFinalPose().getRotation() : traj.flipped().getFinalPose().getRotation();
+                currentTargetAngle = AllianceFlipUtil.apply(targetRotation);
+                })
+                .until(() -> Math.abs(currentTargetAngle.getDegrees() - getHeading().getDegrees()) < RobotConstants.CORRECTHEADING_TOLERANCE_DEGREES); //TODO: edit tolerance
     }
 
     /**
@@ -528,12 +541,27 @@ public class SwerveSubsystem extends SubsystemBase {
     public void resetOdometry(Pose2d initialHolonomicPose) {
         swerveDrive.resetOdometry(initialHolonomicPose);
     }
+    public Command resetOdometry(Supplier<Pose2d> initialHolonomicPoseSupplier) {
+        return Commands.runOnce(() ->
+        {
+        swerveDrive.resetOdometry(initialHolonomicPoseSupplier.get());
+        System.out.println("Reset odometry based on pose: " + initialHolonomicPoseSupplier.get());
+        }
+        );
+    }
     /**
      * Sets the odometry angle to the current gyro angle.
      * @return A command to reset the angle offset of the odometry to zero.
      */
     public Command zeroOdometryAngleOffset() {
         return runOnce(() -> resetOdometry(new Pose2d(getPose().getTranslation(), getGyroYaw())));
+    }
+
+    public Command zeroOdometryFromLastPathPose() {
+        return runOnce(() -> {
+            resetOdometry(RobotContainer.getPathPlannerTargetPose());
+            System.out.println("resetOdometry with LastPathPose = " + RobotContainer.getPathPlannerTargetPose());
+        });
     }
     /**
      * Gets the current pose (position and rotation) of the robot, as reported by

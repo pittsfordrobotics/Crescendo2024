@@ -105,9 +105,10 @@ public class Robot extends LoggedRobot {
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
-//    m_robotContainer.driveToZeroHeadingAndZeroGyro().schedule();
+    //m_robotContainer.driveToZeroHeadingAndZeroGyro().schedule();
     m_robotContainer.zeroOdometryAngleOffset();
-    //m_robotContainer.setGyroBasedOnAutoFinalTrajectory();
+    //m_robotContainer.zeroOdometryFromLastPathPose();
+    //m_robotContainer.setGyroBasedOnPathPlannerTrajectory();
   }
 
   /** This function is called periodically during operator control. */

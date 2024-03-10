@@ -65,7 +65,7 @@ public class RobotContainer {
     private final CommandXboxController m_operatorController = new CommandXboxController(
             OperatorConstants.kOperatorControllerPort);
     Command speakerTargetSteeringCommand;
-    private Pose2d pathPlannerTargetPose;
+    private static Pose2d pathPlannerTargetPose;
 
     // The container for the robot. Contains subsystems, OI devices, and commands.
     public RobotContainer() {
@@ -74,6 +74,7 @@ public class RobotContainer {
         intake = new Intake();
         swerveSubsystem = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve/maxSwerve"));
       vision = new Vision(VisionConstants.LIMELIGHT1,  VisionConstants.LIMELIGHT2, swerveSubsystem::addVisionData);
+      pathPlannerTargetPose = new Pose2d();
 
         DoubleSupplier distanceSupplier = (() -> swerveSubsystem.getPose().getTranslation()
         .getDistance(FieldConstants.Speaker.centerSpeakerOpeningZeroY.getTranslation()));
@@ -96,13 +97,15 @@ public class RobotContainer {
           new AutoFireNote(shooter),
           new StoredCommand(shooter, intake)
         ));
-        NamedCommands.registerCommand("CorrectHeading", swerveSubsystem.correctHeading(pathPlannerTargetPoseSupplier));
+        NamedCommands.registerCommand("CorrectHeading", swerveSubsystem.correctHeading(pathPlannerTargetPoseSupplier, false).withTimeout(1.5));
+        NamedCommands.registerCommand("AlignStuffOnStart", new SequentialCommandGroup(setGyroBasedOnPathPlannerTrajectory(), swerveSubsystem.resetOdometry(pathPlannerTargetPoseSupplier)));
         // instantiates autoChooser based on PathPlanner files (exists at code deploy, no need to wait)
-
         autoChooser = AutoBuilder.buildAutoChooser();
-        SmartDashboard.putData("Choreo Auto Chooser", autoChooser);
+        SmartDashboard.putData("PathPlanner Auto Chooser", autoChooser);
 
-        PathPlannerLogging.setLogTargetPoseCallback((pose) -> pathPlannerTargetPose = pose);
+        PathPlannerLogging.setLogTargetPoseCallback((pose) -> { 
+        pathPlannerTargetPose = pose;
+        });
 
         FFCalculator c = FFCalculator.getInstance();
         c.updateIntakePivotAngle(intake::getPivotAngleDeg);
@@ -288,6 +291,19 @@ public class RobotContainer {
       swerveSubsystem.setGyroAngle(actualAllianceRelativeAngle);
   }
 
+  public Command setGyroBasedOnPathPlannerTrajectory(){
+    return Commands.runOnce(() -> {
+      System.out.println("Is alliance present when setting initial gyro? " + DriverStation.getAlliance().isPresent());
+      System.out.println("What is the perceived initial pathplanner pose?:" + pathPlannerTargetPose.getTranslation() + " " + new Rotation2d().minus(pathPlannerTargetPose.getRotation()));
+      Rotation2d actualAllianceRelativeAngle = DriverStation.getAlliance().get() == Alliance.Blue ? pathPlannerTargetPose.getRotation() : new Rotation2d().minus(pathPlannerTargetPose.getRotation());
+      swerveSubsystem.setGyroAngle(actualAllianceRelativeAngle);
+    });
+  }
+
+  public static Pose2d getPathPlannerTargetPose() {
+    return pathPlannerTargetPose;
+  }
+
     /**
      * Requires the swerve subsystem, w/ tolerance of 1 degree and timeout of 2 secs.
      * @return Command to drive to zero heading with no translation rate and zeros the gyro.
@@ -298,6 +314,10 @@ public class RobotContainer {
   }
   public Command zeroOdometryAngleOffset() {
       return swerveSubsystem.zeroOdometryAngleOffset();
+  }
+
+  public Command zeroOdometryFromLastPathPose() {
+    return swerveSubsystem.zeroOdometryFromLastPathPose();
   }
   public Alliance getAllianceDefaultBlue() {
       Alliance currentAlliance;
@@ -469,6 +489,7 @@ public class RobotContainer {
 
   public Command getAutonomousCommand() {
     // return new RunCommand(() -> swerveSubsystem.drive(new Translation2d(.1, .2), .3, false), swerveSubsystem); // test drive command, for debugging
+    //return autoChooser.getSelected().andThen(zeroOdometryAngleOffset());
     return autoChooser.getSelected();
     // TODO: Replace the andThen statement if this does not align to gyro
     }

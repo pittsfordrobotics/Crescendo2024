@@ -2,10 +2,10 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 1.343,
-      "y": 5.55
+      "x": 0.753,
+      "y": 6.669
     },
-    "rotation": 179.99984796050427
+    "rotation": -119.97736230039438
   },
   "command": {
     "type": "sequential",
@@ -20,13 +20,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "twonotemiddlenew"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 0.25
+            "pathName": "twonoteampsidenew"
           }
         },
         {
@@ -51,7 +45,7 @@
         {
           "type": "wait",
           "data": {
-            "waitTime": 0.1
+            "waitTime": 0.5
           }
         },
         {

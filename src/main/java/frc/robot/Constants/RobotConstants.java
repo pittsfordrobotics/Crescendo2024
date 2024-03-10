@@ -57,4 +57,5 @@ public class RobotConstants {
 
     public static final double NEWAMP_IntakeSpeed_ShootOut = .7;
 
+    public static final double CORRECTHEADING_TOLERANCE_DEGREES = 4;
 }

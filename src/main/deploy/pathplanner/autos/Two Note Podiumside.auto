@@ -2,10 +2,10 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 1.343,
-      "y": 5.55
+      "x": 0.76,
+      "y": 4.449
     },
-    "rotation": 179.99984796050427
+    "rotation": 119.97736230039438
   },
   "command": {
     "type": "sequential",
@@ -20,13 +20,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "twonotemiddlenew"
+            "pathName": "twonotepodiumsidenew"
           }
         },
         {
           "type": "wait",
           "data": {
-            "waitTime": 0.25
+            "waitTime": 0.5
           }
         },
         {
@@ -51,13 +51,19 @@
         {
           "type": "wait",
           "data": {
-            "waitTime": 0.1
+            "waitTime": 0.2
           }
         },
         {
           "type": "named",
           "data": {
             "name": "StoredCommand"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "twonotepodiumsidemoveoutoftheway"
           }
         }
       ]
