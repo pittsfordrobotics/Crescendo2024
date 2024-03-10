@@ -146,18 +146,46 @@ public class RobotContainer {
 
     // upgraded point and aim at speaker
     DoubleSupplier distanceSupplier = (() -> swerveSubsystem.getPose().getTranslation()
-        .getDistance(FieldConstants.allianceFlipper(new Pose3d(FieldConstants.Speaker.centerSpeakerOpeningZeroY),
+        .getDistance(FieldConstants.allianceFlipper(new Pose3d(FieldConstants.Speaker.centerSpeakerOpening),
             DriverStation.getAlliance().get()).toPose2d().getTranslation()));
 
-    m_driverController.a().whileTrue(speakerTargetSteeringCommand.alongWith(Commands.run(() -> {
-      double shooteranglee = ShooterInterpolationHelper.getShooterAngle(distanceSupplier.getAsDouble());
-      double shooterrpmm = ShooterInterpolationHelper.getShooterRPM(distanceSupplier.getAsDouble());
-      new CommonSpeakerCommand(shooter, intake, shooteranglee, shooterrpmm).schedule();
-    })));
+    // m_driverController.a().whileTrue(speakerTargetSteeringCommand.alongWith(Commands.run(()
+    // -> {
+    // double shooteranglee =
+    // ShooterInterpolationHelper.getShooterAngle(distanceSupplier.getAsDouble());
+    // double shooterrpmm =
+    // ShooterInterpolationHelper.getShooterRPM(distanceSupplier.getAsDouble());
+    // System.out.println("Distance to speaker is: " +
+    // distanceSupplier.getAsDouble());
+    // System.out.println("Interpolated angle is: " + shooteranglee);
+    // System.out.println("RPM is: " + shooterrpmm);
+    // new CommonSpeakerCommand(shooter, intake, shooteranglee,
+    // shooterrpmm).schedule();
+    // })));
+
+    // m_driverController.a().whileTrue(speakerTargetSteeringCommand.alongWith(new
+    // RepeatCommand(Commands.runOnce(() -> {
+    // double shooteranglee =
+    // ShooterInterpolationHelper.getShooterAngle(distanceSupplier.getAsDouble());
+    // double shooterrpmm =
+    // ShooterInterpolationHelper.getShooterRPM(distanceSupplier.getAsDouble());
+    // System.out.println("Distance to speaker is: " +
+    // distanceSupplier.getAsDouble());
+    // System.out.println("Interpolated angle is: " + shooteranglee);
+    // System.out.println("RPM is: " + shooterrpmm);
+    // new CommonSpeakerCommand(shooter, intake, shooteranglee,
+    // shooterrpmm).schedule();
+    // }))));
+
+    m_driverController.a().whileTrue(speakerTargetSteeringCommand.alongWith(new RepeatCommand(
+        new CommonSpeakerCommand(shooter, intake,
+            ShooterInterpolationHelper.getShooterAngle(distanceSupplier),
+            ShooterInterpolationHelper.getShooterRPM(distanceSupplier)))));
 
     m_driverController.a().onFalse(new SequentialCommandGroup(
         shooter.spinIndexerCommand(RobotConstants.INDEXER_SHOOT_SPEED),
         new WaitCommand(.5),
+        shooter.spinIndexerCommand(RobotConstants.INDEXER_IDLE_SPEED),
         new StoredCommand(shooter, intake)));
 
     // old point at speaker
@@ -194,7 +222,7 @@ public class RobotContainer {
 
     // Old amp scoring approach
     // Runs the intake on left bummper true
-    m_driverController.leftBumper().onTrue(AmpShootIntake);
+    m_driverController.leftBumper().onTrue(intake.spinIntakeCommand(RobotConstants.NEWAMP_IntakeSpeed_ShootOut));
     m_driverController.leftBumper().onFalse(storedCommand);
     m_operatorController.x().onTrue(betterAmpCommand);
 

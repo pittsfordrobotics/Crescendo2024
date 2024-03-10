@@ -4,6 +4,8 @@
 
 package frc.robot.lib.util;
 
+import java.util.function.DoubleSupplier;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.util.Units;
 import frc.robot.Constants.FieldConstants;
@@ -26,6 +28,9 @@ public class ShooterInterpolationHelper {
         }
         return ShooterConstants.DISTANCE_ANGLE_MAP.get(distance);
     }
+    public static DoubleSupplier getShooterAngle (DoubleSupplier distance){
+        return () -> getShooterAngle(distance.getAsDouble());
+    }
 
     /** Takes a distance from the cetner of the robot to the subwoof apriltag (meters)
     * and returns an RPM to set the shooter to
@@ -33,6 +38,10 @@ public class ShooterInterpolationHelper {
     public static double getShooterRPM(double distance) {
         // decreases RPM from usual 6000 if close to the speaker
         return 5400;
+    }
+
+    public static DoubleSupplier getShooterRPM (DoubleSupplier distance) {
+        return ()-> getShooterRPM(distance.getAsDouble());
     }
 
 
