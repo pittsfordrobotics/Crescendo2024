@@ -7,6 +7,7 @@ package frc.robot;
 import com.choreo.lib.Choreo;
 import com.choreo.lib.ChoreoTrajectory;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -29,25 +30,17 @@ import frc.robot.lib.AutoCommandFactory;
 import frc.robot.lib.FFCalculator;
 import frc.robot.lib.StructureStates;
 import frc.robot.lib.StructureStates.structureState;
+import frc.robot.lib.util.ShooterInterpolationHelper;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.SwerveSubsystem;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import java.io.File;
-import com.choreo.lib.Choreo;
-import com.choreo.lib.ChoreoTrajectory;
+import java.util.function.DoubleSupplier;
+
+import frc.robot.subsystems.Vision.Vision;
+
 import com.pathplanner.lib.path.PathPlannerPath;
-
-import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import frc.robot.Constants.FieldConstants;
-import frc.robot.Constants.VisionConstants;
-import frc.robot.subsystems.Vision.Vision;
-
-import frc.robot.subsystems.Vision.Vision;
-
-import java.io.File;
 
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
@@ -99,9 +92,6 @@ public class RobotContainer {
         () -> -m_driverController.getLeftX(),
         () -> -m_driverController.getRightX());
 
-    // Pose2d speaker = new Pose2d(0.0, 0.0, new Rotation2d());
-    // Pose2d speaker = FieldConstants.Speaker.centerSpeakerOpening;
-
     Pose2d speaker = FieldConstants.Speaker.centerSpeakerOpening;
     speakerTargetSteeringCommand = swerveSubsystem.driveTranslationAndPointAtTarget(
         () -> -m_driverController.getLeftY(),
@@ -130,7 +120,6 @@ public class RobotContainer {
     // Swerve
     m_driverController.start().onTrue(new DisabledInstantCommand(swerveSubsystem::zeroGyro));
 
-    m_driverController.a().whileTrue(speakerTargetSteeringCommand);
     Command driveCommand = driveModeChooser.getSelected();
     swerveSubsystem.setDefaultCommand(driveCommand);
     driveModeChooser.onChange(command -> {
@@ -154,6 +143,53 @@ public class RobotContainer {
     Command idleIndexerCommand = shooter.spinIndexerCommand(RobotConstants.INDEXER_IDLE_SPEED);
     Command shootIndexerCommand = shooter.spinIndexerCommand(RobotConstants.INDEXER_SHOOT_SPEED);
     Command AmpShootIntake = intake.spinIntakeCommand(RobotConstants.NEWAMP_IntakeSpeed_ShootOut);
+
+    // upgraded point and aim at speaker
+    DoubleSupplier distanceSupplier = (() -> swerveSubsystem.getPose().getTranslation()
+        .getDistance(FieldConstants.allianceFlipper(new Pose3d(FieldConstants.Speaker.centerSpeakerOpening),
+            DriverStation.getAlliance().get()).toPose2d().getTranslation()));
+
+    // m_driverController.a().whileTrue(speakerTargetSteeringCommand.alongWith(Commands.run(()
+    // -> {
+    // double shooteranglee =
+    // ShooterInterpolationHelper.getShooterAngle(distanceSupplier.getAsDouble());
+    // double shooterrpmm =
+    // ShooterInterpolationHelper.getShooterRPM(distanceSupplier.getAsDouble());
+    // System.out.println("Distance to speaker is: " +
+    // distanceSupplier.getAsDouble());
+    // System.out.println("Interpolated angle is: " + shooteranglee);
+    // System.out.println("RPM is: " + shooterrpmm);
+    // new CommonSpeakerCommand(shooter, intake, shooteranglee,
+    // shooterrpmm).schedule();
+    // })));
+
+    // m_driverController.a().whileTrue(speakerTargetSteeringCommand.alongWith(new
+    // RepeatCommand(Commands.runOnce(() -> {
+    // double shooteranglee =
+    // ShooterInterpolationHelper.getShooterAngle(distanceSupplier.getAsDouble());
+    // double shooterrpmm =
+    // ShooterInterpolationHelper.getShooterRPM(distanceSupplier.getAsDouble());
+    // System.out.println("Distance to speaker is: " +
+    // distanceSupplier.getAsDouble());
+    // System.out.println("Interpolated angle is: " + shooteranglee);
+    // System.out.println("RPM is: " + shooterrpmm);
+    // new CommonSpeakerCommand(shooter, intake, shooteranglee,
+    // shooterrpmm).schedule();
+    // }))));
+
+    m_driverController.a().whileTrue(speakerTargetSteeringCommand.alongWith(new RepeatCommand(
+        new CommonSpeakerCommand(shooter, intake,
+            ShooterInterpolationHelper.getShooterAngle(distanceSupplier),
+            ShooterInterpolationHelper.getShooterRPM(distanceSupplier)))));
+
+    m_driverController.a().onFalse(new SequentialCommandGroup(
+        shooter.spinIndexerCommand(RobotConstants.INDEXER_SHOOT_SPEED),
+        new WaitCommand(.5),
+        shooter.spinIndexerCommand(RobotConstants.INDEXER_IDLE_SPEED),
+        new StoredCommand(shooter, intake)));
+
+    // old point at speaker
+    // m_driverController.a().whileTrue(speakerTargetSteeringCommand);
 
     // Runs the indexer while the right bumper is held -- essentally a shoot command
     m_driverController.rightBumper().onTrue(shootIndexerCommand);
@@ -184,7 +220,10 @@ public class RobotContainer {
             new WaitCommand(.75),
             new StoredCommand(shooter, intake)));
 
-    // Old amp scoring approach -- still in just in bc above is untested
+    m_driverController.b().onTrue(Commands.runOnce(() -> swerveSubsystem.setTargetAngle(
+        getAllianceDefaultBlue().equals(Alliance.Red) ? Rotation2d.fromDegrees(90) : Rotation2d.fromDegrees(-90))));
+
+    // Old amp scoring approach
     // Runs the intake on left bummper true
     m_driverController.leftBumper().onTrue(intake.spinIntakeCommand(RobotConstants.NEWAMP_IntakeSpeed_ShootOut));
     m_driverController.leftBumper().onFalse(storedCommand);
@@ -204,8 +243,7 @@ public class RobotContainer {
 
     m_operatorController.rightBumper().onTrue(climber.setSpeedCommand(1));
     m_operatorController.rightBumper().onFalse(climber.setSpeedCommand(-1));
-    m_driverController.b().onTrue(Commands.runOnce(() -> swerveSubsystem.setTargetAngle(
-        getAllianceDefaultBlue().equals(Alliance.Red) ? Rotation2d.fromDegrees(90) : Rotation2d.fromDegrees(-90))));
+
   }
 
   private void configure_TEST_Bindings() {
