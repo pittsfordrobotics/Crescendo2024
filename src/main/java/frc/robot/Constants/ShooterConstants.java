@@ -38,7 +38,7 @@ public final class ShooterConstants {
         DISTANCE_ANGLE_MAP.put(Units.inchesToMeters(54.5), 55.0); // Source (4.5ft)
         DISTANCE_ANGLE_MAP.put(Units.inchesToMeters(66.0), 52.0); // Tested distance (5.5ft)
         DISTANCE_ANGLE_MAP.put(Units.inchesToMeters(78.0), 48.0); // Tested distance (6.5ft)
-        DISTANCE_ANGLE_MAP.put(Units.inchesToMeters(78.0), 46.25); // Tested distance (6.5ft)
+        DISTANCE_ANGLE_MAP.put(Units.inchesToMeters(87), 46.25); // Tested distance (6.5ft)
         DISTANCE_ANGLE_MAP.put(Units.inchesToMeters(96.0), 45.25); // Tested distance (8ft)
         DISTANCE_ANGLE_MAP.put(Units.inchesToMeters(115.0), 43.0); // Podium (9.5ft)
         DISTANCE_ANGLE_MAP.put(Units.inchesToMeters(132.0), 40.0); // Tested distance (11ft)
