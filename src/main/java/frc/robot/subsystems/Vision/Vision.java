@@ -130,7 +130,7 @@ public class Vision extends SubsystemBase {
                     num++;
                 }
                 double avgDistance = totalDistance / tagPoses.size();
-                SmartDashboard.putNumber("Vision/AvgDist", avgDistance);
+                // SmartDashboard.putNumber("Vision/AvgDist", avgDistance);
 
                 // Calculate standard deviation to give to the .addVisionData() swerve method
                 // The larger the STD the less the data is trusted, here the STD is proportional
@@ -141,8 +141,8 @@ public class Vision extends SubsystemBase {
                 double xyStdDev = VisionConstants.XY_STD_DEV_COEF * Math.pow(avgDistance, 2.0) / tagPoses.size();
                 double thetaStdDev = VisionConstants.THETA_STD_DEV_COEF * Math.pow(avgDistance, 2.0) / tagPoses.size();
 
-                SmartDashboard.putNumber("Vision/XYstd", xyStdDev);
-                SmartDashboard.putNumber("Vision/ThetaStd", thetaStdDev);
+                // SmartDashboard.putNumber("Vision/XYstd", xyStdDev);
+                // SmartDashboard.putNumber("Vision/ThetaStd", thetaStdDev);
 
                 // Add vision data to swerve pose estimator -- will depend on swerve
                 VisionData visionData = new VisionData(visionCalcPose, inputs[i].captureTimestamp,
