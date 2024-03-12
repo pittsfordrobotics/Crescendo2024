@@ -147,8 +147,8 @@ public class Shooter extends SubsystemBase {
 
     Shuffleboard.getTab("SHOOTER").add(this);
 
-    Shuffleboard.getTab("SHOOTER").addDouble("Shooter RPM R", this::getShooterRRPM);
-    Shuffleboard.getTab("SHOOTER").addDouble("Shooter RPM L", this::getShooterLRPM);
+    Shuffleboard.getTab("COMP").addDouble("Shooter RPM R", this::getShooterRRPM);
+    Shuffleboard.getTab("COMP").addDouble("Shooter RPM L", this::getShooterLRPM);
 
     Shuffleboard.getTab("SHOOTER").addDouble("Shooter Angle", this::getPivotAngleDeg);
     Shuffleboard.getTab("COMP").addBoolean("Shooter Limit Switch", this::getLimitSwitch);
