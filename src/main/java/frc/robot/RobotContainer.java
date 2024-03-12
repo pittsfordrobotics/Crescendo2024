@@ -36,6 +36,7 @@ import frc.robot.lib.AutoCommandFactory;
 import frc.robot.lib.FFCalculator;
 import frc.robot.lib.StructureStates;
 import frc.robot.lib.StructureStates.structureState;
+import frc.robot.lib.util.AllianceFlipUtil;
 import frc.robot.lib.util.ShooterInterpolationHelper;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Intake;
@@ -77,11 +78,10 @@ public class RobotContainer {
     vision = new Vision(VisionConstants.LIMELIGHT1,  VisionConstants.LIMELIGHT2, swerveSubsystem::addVisionData);
       pathPlannerTargetPose = new Pose2d();
 
-        DoubleSupplier distanceSupplier = (() -> swerveSubsystem.getPose().getTranslation()
-        .getDistance(FieldConstants.Speaker.centerSpeakerOpening.getTranslation()));
+        DoubleSupplier distanceSupplier = (() -> swerveSubsystem.getPose().getTranslation().getDistance(AllianceFlipUtil.apply(FieldConstants.Speaker.centerSpeakerOpening.getTranslation())));
 
-        DoubleSupplier angleSupplier = (() -> ShooterInterpolationHelper.getShooterAngle(distanceSupplier.getAsDouble()));
-        DoubleSupplier RPMSupplier = (() -> ShooterInterpolationHelper.getShooterRPM(distanceSupplier.getAsDouble()));
+        DoubleSupplier angleSupplier = ShooterInterpolationHelper.getShooterAngle(distanceSupplier);
+        DoubleSupplier RPMSupplier = ShooterInterpolationHelper.getShooterRPM(distanceSupplier);
         Supplier<Pose2d> pathPlannerTargetPoseSupplier = (() -> pathPlannerTargetPose);
 
         NamedCommands.registerCommand("StartIntakeNoDelaysCommand", new SequentialCommandGroup(
