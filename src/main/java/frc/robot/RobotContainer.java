@@ -98,6 +98,11 @@ public class RobotContainer {
           new AutoFireNote(shooter),
           new StoredCommand(shooter, intake)
         ));
+        NamedCommands.registerCommand("ShootSubwoofSide", new SequentialCommandGroup(
+          new SUBWOOFCommandSide(shooter, intake),
+          new AutoFireNote(shooter),
+          new StoredCommand(shooter, intake)
+        ));
         NamedCommands.registerCommand("CorrectHeading", swerveSubsystem.correctHeading(pathPlannerTargetPoseSupplier).withTimeout(1.5));
         NamedCommands.registerCommand("AlignStuffOnStart", new SequentialCommandGroup(setGyroBasedOnPathPlannerTrajectory(), swerveSubsystem.resetOdometry(pathPlannerTargetPoseSupplier)));
         // instantiates autoChooser based on PathPlanner files (exists at code deploy, no need to wait)

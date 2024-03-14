@@ -14,7 +14,7 @@
         {
           "type": "named",
           "data": {
-            "name": "ShootSubwoof"
+            "name": "ShootSubwoofSide"
           }
         },
         {
@@ -26,7 +26,7 @@
         {
           "type": "wait",
           "data": {
-            "waitTime": 0.25
+            "waitTime": 0.75
           }
         },
         {
@@ -64,6 +64,12 @@
           "type": "named",
           "data": {
             "name": "StoredCommand"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "twonoteampsidenewinitialleave"
           }
         }
       ]
