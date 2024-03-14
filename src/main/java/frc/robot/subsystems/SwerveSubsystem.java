@@ -71,7 +71,7 @@ public class SwerveSubsystem extends SubsystemBase {
      */
     public double maximumSpeed = Units.feetToMeters(14.5);
 
-  private boolean hadbadreading = false;
+    private boolean hadbadreading = false;
 
     private SimpleWidget velocityP;
     private SimpleWidget angleP;
@@ -146,7 +146,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
         Shuffleboard.getTab("CONFIG").add(this); // for debug
 
-    Shuffleboard.getTab("Vision").addBoolean("Vision Ok", this::isvisionOk);
+        Shuffleboard.getTab("COMP").addBoolean("Vision Ok", this::isvisionOk);
     }
 
     /**
@@ -265,10 +265,21 @@ public class SwerveSubsystem extends SubsystemBase {
      * is low (Autonomous only)
      * 
      * @return A command to drive to that heading angle between path segments
-     * 
      */
-    public Command correctHeading(ChoreoTrajectory traj) {
-        return correctHeading(traj.getFinalPose().getRotation());
+   public Command correctHeading(ChoreoTrajectory traj) {
+        return this.run(() -> 
+        {
+        swerveDrive.drive(swerveDrive.swerveController.getTargetSpeeds(0, 0, currentTargetAngle.getRadians(),
+                getHeading().getRadians(), swerveDrive.getMaximumVelocity()));
+        })
+                .beforeStarting(() -> {
+                    swerveDrive.setHeadingCorrection(true);
+                    // currentTargetAngle = (DriverStation.getAlliance().get() == Alliance.Blue) ?
+                    // traj.getFinalPose().getRotation() :
+                    // traj.flipped().getFinalPose().getRotation();
+                    currentTargetAngle = AllianceFlipUtil.apply(traj.getFinalPose()).getRotation();
+                })
+                .until(() -> Math.abs(currentTargetAngle.getDegrees() - getHeading().getDegrees()) < 4);
     }
     public Command correctHeading(Supplier<Pose2d> targetPoseSupplier) {
         return Commands.run(() -> 
@@ -336,23 +347,26 @@ public class SwerveSubsystem extends SubsystemBase {
                     swerveDrive.getMaximumVelocity()));
         });
     }
-  public Command headingDriveCommand(DoubleSupplier translationX, DoubleSupplier translationY, Supplier<Rotation2d> headingAngle) {
-    return run(() -> {
-      swerveDrive.setHeadingCorrection(true);
-      double rawXInput = translationX.getAsDouble();
-      double rawYInput = translationY.getAsDouble();
-      double[] scaledDeadbandTranslationInputs = AllDeadbands.applyScaledSquaredCircularDeadband(new double[]{rawXInput, rawYInput}, 0.1);
-      double xInput = scaledDeadbandTranslationInputs[0];
-      double yInput = scaledDeadbandTranslationInputs[1];
-      // Make the robot move
-      driveFieldOriented(swerveDrive.swerveController.getTargetSpeeds(
-              xInput * speedFactor,
-              yInput * speedFactor,
-              headingAngle.get().getDegrees(),
-              swerveDrive.getYaw().getRadians(),
-              swerveDrive.getMaximumVelocity()));
-    });
-  }
+
+    public Command headingDriveCommand(DoubleSupplier translationX, DoubleSupplier translationY,
+            Supplier<Rotation2d> headingAngle) {
+        return run(() -> {
+            swerveDrive.setHeadingCorrection(true);
+            double rawXInput = translationX.getAsDouble();
+            double rawYInput = translationY.getAsDouble();
+            double[] scaledDeadbandTranslationInputs = AllDeadbands
+                    .applyScaledSquaredCircularDeadband(new double[] { rawXInput, rawYInput }, 0.1);
+            double xInput = scaledDeadbandTranslationInputs[0];
+            double yInput = scaledDeadbandTranslationInputs[1];
+            // Make the robot move
+            driveFieldOriented(swerveDrive.swerveController.getTargetSpeeds(
+                    xInput * speedFactor,
+                    yInput * speedFactor,
+                    headingAngle.get().getDegrees(),
+                    swerveDrive.getYaw().getRadians(),
+                    swerveDrive.getMaximumVelocity()));
+        });
+    }
 
     /**
      * <h2>More features</h2>
@@ -399,7 +413,8 @@ public class SwerveSubsystem extends SubsystemBase {
             // trigger input
             else if (rightRotationInput != 0 && leftRotationInput == 0) {
                 swerveDrive.setHeadingCorrection(false);
-                double rightRotationOutput = -Math.pow(rightRotationInput, 3) * swerveDrive.getMaximumAngularVelocity() * 2 //For some reason max angular velocity is too low
+                double rightRotationOutput = -Math.pow(rightRotationInput, 3) * swerveDrive.getMaximumAngularVelocity()
+                        * 2 // For some reason max angular velocity is too low
                         * speedFactor;
                 swerveDrive.drive(new Translation2d(
                         xInput * swerveDrive.getMaximumVelocity() * speedFactor,
@@ -411,7 +426,8 @@ public class SwerveSubsystem extends SubsystemBase {
             // If no triggers are pressed or both are pressed, use the right stick for
             // heading angle steering
             else {
-        // If there is no current target angle (last action was spin), then don't command the angle
+                // If there is no current target angle (last action was spin), then don't
+                // command the angle
 
                 swerveDrive.setHeadingCorrection(currentTargetAngle != null);
                 if (currentTargetAngle != null) {
@@ -566,6 +582,7 @@ public class SwerveSubsystem extends SubsystemBase {
     }
     /**
      * Sets the odometry angle to the current gyro angle.
+     * 
      * @return A command to reset the angle offset of the odometry to zero.
      */
     public Command zeroOdometryAngleOffset() {
@@ -615,9 +632,10 @@ public class SwerveSubsystem extends SubsystemBase {
         currentTargetAngle = new Rotation2d();
     }
 
-
     /**
-     * Sets the current angle of the gyro. If the robot reaches the same angle, the gyro will report this angle.
+     * Sets the current angle of the gyro. If the robot reaches the same angle, the
+     * gyro will report this angle.
+     * 
      * @param currentAngle The angle that the gyro should read in its current state.
      */
     public void setGyroAngle(Rotation2d currentAngle) {
@@ -644,6 +662,7 @@ public class SwerveSubsystem extends SubsystemBase {
     public Rotation2d getHeading() {
         return getPose().getRotation();
     }
+
     /**
      * Gets the current yaw angle of the robot, as reported by the gyro
      * Note, this is the raw gyro reading, this may not be corrected from calls to
@@ -651,7 +670,9 @@ public class SwerveSubsystem extends SubsystemBase {
      *
      * @return The yaw angle
      */
-    public Rotation2d getGyroYaw() {return swerveDrive.getYaw();}
+    public Rotation2d getGyroYaw() {
+        return swerveDrive.getYaw();
+    }
 
     public Rotation2d getCurrentTargetAngle() {
         return currentTargetAngle;
@@ -721,42 +742,43 @@ public class SwerveSubsystem extends SubsystemBase {
         return swerveDrive.getPitch();
     }
 
-  //  * Adds vision measurement from vision object to swerve
-  public void addVisionData(VisionData visionData) {
-    Pose2d swervePose = this.getPose();
-    double previousx = swervePose.getX();
-    double previousy = swervePose.getY();
-    Rotation2d previousTheta = swervePose.getRotation();
-    if (Double.isNaN(previousy) || Double.isNaN(previousx)) {
-      hadbadreading = true;
-      previousx = 0;
-      previousy = 0;
-      System.out.println("Swerve Pose is NaN comeing in ");
+    // * Adds vision measurement from vision object to swerve
+    public void addVisionData(VisionData visionData) {
+        Pose2d swervePose = this.getPose();
+        double previousx = swervePose.getX();
+        double previousy = swervePose.getY();
+        Rotation2d previousTheta = swervePose.getRotation();
+        if (Double.isNaN(previousy) || Double.isNaN(previousx)) {
+            hadbadreading = true;
+            previousx = 0;
+            previousy = 0;
+            System.out.println("Swerve Pose is NaN comeing in ");
+        }
+
+        if (Double.isNaN(visionData.getVisionPose().getX()) || Double.isNaN(visionData.getVisionPose().getY())) {
+            System.out.println("Recived a bad vision pose");
+            return;
+        }
+
+        if (hadbadreading) {
+            resetOdometry(new Pose2d(0.0, 0.0, new Rotation2d()));
+            return;
+        }
+
+        swerveDrive.addVisionMeasurement(visionData.getVisionPose(), visionData.getTime(),
+                visionData.getVisionReliability());
+        Pose2d newPose = this.getPose();
+        if (Double.isNaN(newPose.getX()) || Double.isNaN(newPose.getY())) {
+            // hadbadreading = true;
+            Pose2d pose = new Pose2d(previousx, previousy, previousTheta);
+            swerveDrive.resetOdometry(pose);
+            System.out.println("SwerveDrive is nan after vision");
+        }
     }
 
-    if (Double.isNaN(visionData.getVisionPose().getX()) || Double.isNaN(visionData.getVisionPose().getY())) {
-      System.out.println("Recived a bad vision pose");
-      return;
+    public boolean isvisionOk() {
+        return !hadbadreading;
     }
-
-    if (hadbadreading) {
-      resetOdometry(new Pose2d(0.0,0.0,new Rotation2d()));
-      return;
-    }
-
-    swerveDrive.addVisionMeasurement(visionData.getVisionPose(), visionData.getTime(), visionData.getVisionReliability());
-    Pose2d newPose = this.getPose();
-    if (Double.isNaN(newPose.getX()) || Double.isNaN(newPose.getY())) {
-      // hadbadreading = true;
-      Pose2d pose = new Pose2d(previousx, previousy, previousTheta);
-      swerveDrive.resetOdometry(pose);
-      System.out.println("SwerveDrive is nan after vision");
-    }
-  }
-
-  public boolean isvisionOk() {
-    return !hadbadreading;
-  }
 
     /**
      * Add a fake vision reading for testing purposes.
@@ -820,11 +842,11 @@ public class SwerveSubsystem extends SubsystemBase {
             configureHeadingPID(headingP.getEntry().getDouble(0), headingD.getEntry().getDouble(0));
         }
 
-    swerveDrive.updateOdometry();
+        swerveDrive.updateOdometry();
 
-    SmartDashboard.putNumber("Vision-Swerve-PoseX", this.getPose().getX());
-    SmartDashboard.putNumber("Vision-Swerve-PoseY", this.getPose().getY());
-    SmartDashboard.putNumber("Vision-Swerve-PoseTheta", this.getPose().getRotation().getDegrees());
+        SmartDashboard.putNumber("Vision-Swerve-PoseX", this.getPose().getX());
+        SmartDashboard.putNumber("Vision-Swerve-PoseY", this.getPose().getY());
+        SmartDashboard.putNumber("Vision-Swerve-PoseTheta", this.getPose().getRotation().getDegrees());
     }
 
     public void setSwerveOffsets() {
@@ -863,52 +885,63 @@ public class SwerveSubsystem extends SubsystemBase {
         return temp.strip();
     }
 
-  // Vision Stuff
+    // Vision Stuff
 
-  // Takes a point and returns the desired heading for the swerve to be pointing at the given point using the curent pose
-  private double getAngleToPoint(Pose2d targetPoint) {      
-    Pose2d currentPose = this.getPose();
-    double desired_heading_rad = Math.atan2(targetPoint.getY() - currentPose.getY(), targetPoint.getX() - currentPose.getX());
-    return desired_heading_rad;
-  }
+    // Takes a point and returns the desired heading for the swerve to be pointing
+    // at the given point using the curent pose
+    private double getAngleToPoint(Pose2d targetPoint) {
+        Pose2d currentPose = this.getPose();
+        double desired_heading_rad = Math.atan2(targetPoint.getY() - currentPose.getY(),
+                targetPoint.getX() - currentPose.getX());
+        return desired_heading_rad;
+    }
 
-  // needs tp be called repeadatly
-  public Command pointAtVisionTarget(Pose2d targetPoint) {
-    return new InstantCommand(() -> {
-      double desired_heading_deg = getAngleToPoint(targetPoint);
-      Rotation2d desired_heading = Rotation2d.fromDegrees(desired_heading_deg);
-      swerveDrive.setHeadingCorrection(true);
-      setTargetAngle(desired_heading);
-    });
-  }
+    // needs tp be called repeadatly
+    public Command pointAtVisionTarget(Pose2d targetPoint) {
+        return new InstantCommand(() -> {
+            double desired_heading_deg = getAngleToPoint(targetPoint);
+            Rotation2d desired_heading = Rotation2d.fromDegrees(desired_heading_deg);
+            swerveDrive.setHeadingCorrection(true);
+            setTargetAngle(desired_heading);
+        });
+    }
 
-  /**<h2>Vision Targeting</h2>
-   * Drives field oriented with translation X, Y, and points at the given target point
-   * @param translationX Supplier of translation in X axis
-   * @param translationY Supplier of translation in Y axis
-   * @param targetPoint Supplier of target point
-   * @return A RunCommand that drives the swerve drive with given translation and rotation
-   */
-  public Command driveTranslationAndPointAtTarget(DoubleSupplier translationX, DoubleSupplier translationY, Pose2d targetPoint){
-    return run(() -> {
-      // Pose2d flippedTargetPoint = AllianceFlipUtil.apply(targetPoint);
-        DriverStation.Alliance alliance = DriverStation.getAlliance().isPresent() ? DriverStation.getAlliance().get() : DriverStation.Alliance.Blue;
-      double desiredHeadingRad = getAngleToPoint(FieldConstants.allianceFlipper(new Pose3d(targetPoint), alliance).toPose2d());
-      Rotation2d desired_heading = Rotation2d.fromRadians(desiredHeadingRad);
-      swerveDrive.setHeadingCorrection(true);
-      double rawXInput = translationX.getAsDouble();
-      double rawYInput = translationY.getAsDouble();
-      double[] scaledDeadbandTranslationInputs = AllDeadbands.applyScaledSquaredCircularDeadband(new double[]{rawXInput, rawYInput}, 0.1);
-      double xInput = scaledDeadbandTranslationInputs[0];
-      double yInput = scaledDeadbandTranslationInputs[1];
-      // Make the robot move
-      setTargetAngle(desired_heading);
-      driveFieldOriented(swerveDrive.swerveController.getTargetSpeeds(
-              xInput * speedFactor,
-              yInput * speedFactor,
-              desiredHeadingRad,
-              swerveDrive.getYaw().getRadians(),
-              swerveDrive.getMaximumVelocity()));
-    });
-  }
+    /**
+     * <h2>Vision Targeting</h2>
+     * Drives field oriented with translation X, Y, and points at the given target
+     * point
+     * 
+     * @param translationX Supplier of translation in X axis
+     * @param translationY Supplier of translation in Y axis
+     * @param targetPoint  Supplier of target point
+     * @return A RunCommand that drives the swerve drive with given translation and
+     *         rotation
+     */
+    public Command driveTranslationAndPointAtTarget(DoubleSupplier translationX, DoubleSupplier translationY,
+            Pose2d targetPoint) {
+        return run(() -> {
+            // Pose2d flippedTargetPoint = AllianceFlipUtil.apply(targetPoint);
+            DriverStation.Alliance alliance = DriverStation.getAlliance().isPresent()
+                    ? DriverStation.getAlliance().get()
+                    : DriverStation.Alliance.Blue;
+            double desiredHeadingRad = getAngleToPoint(
+                    FieldConstants.allianceFlipper(new Pose3d(targetPoint), alliance).toPose2d());
+            Rotation2d desired_heading = Rotation2d.fromRadians(desiredHeadingRad);
+            swerveDrive.setHeadingCorrection(true);
+            double rawXInput = translationX.getAsDouble();
+            double rawYInput = translationY.getAsDouble();
+            double[] scaledDeadbandTranslationInputs = AllDeadbands
+                    .applyScaledSquaredCircularDeadband(new double[] { rawXInput, rawYInput }, 0.1);
+            double xInput = scaledDeadbandTranslationInputs[0];
+            double yInput = scaledDeadbandTranslationInputs[1];
+            // Make the robot move
+            setTargetAngle(desired_heading);
+            driveFieldOriented(swerveDrive.swerveController.getTargetSpeeds(
+                    xInput * speedFactor,
+                    yInput * speedFactor,
+                    desiredHeadingRad,
+                    swerveDrive.getYaw().getRadians(),
+                    swerveDrive.getMaximumVelocity()));
+        });
+    }
 }

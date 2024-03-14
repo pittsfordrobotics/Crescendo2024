@@ -10,6 +10,8 @@ import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.net.PortForwarder;
 import edu.wpi.first.util.PixelFormat;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
@@ -117,6 +119,14 @@ public class Robot extends LoggedRobot {
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
+    // double matchtime = DriverStation.getMatchTime();
+    // if (matchtime < 60.0 && matchtime > 59.9
+    //     || matchtime < 30.0 && matchtime > 29.9) {
+    //   m_robotContainer.buzz_timed(1, .5).schedule();
+    // }
+    // if (matchtime < 21 && matchtime > 20.9) {
+    //   m_robotContainer.buzz_timed(1, 1.5).schedule();
+    // }
   }
 
   @Override

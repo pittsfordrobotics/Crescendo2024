@@ -22,12 +22,12 @@ public final class ShooterConstants {
     public static final double SHOOTER_I = 0;
     public static final double SHOOTER_D = 0.01;
 
-    public static final double SHOOTER_Pivot_P = 0.026;// was .03 before 2/21 (evan changed)
+    public static final double SHOOTER_Pivot_P = 0.025;// was .03 before 2/21 (evan changed)
     public static final double SHOOTER_Pivot_I = 0;
     public static final double SHOOTER_Pivot_D = 0.35;// was .3 before 2/21 (evan changed)
 
     public static final double SHOOTER_L_FFGain = 0.000168;
-    public static final double SHOOTER_R_FFGain = 0.000167;
+    public static final double SHOOTER_R_FFGain = 0.000169;
 
 
 
@@ -38,7 +38,7 @@ public final class ShooterConstants {
         DISTANCE_ANGLE_MAP.put(Units.inchesToMeters(54.5), 55.0); // Source (4.5ft)
         DISTANCE_ANGLE_MAP.put(Units.inchesToMeters(66.0), 52.0); // Tested distance (5.5ft)
         DISTANCE_ANGLE_MAP.put(Units.inchesToMeters(78.0), 48.0); // Tested distance (6.5ft)
-        DISTANCE_ANGLE_MAP.put(Units.inchesToMeters(87.0), 46.25);
+        DISTANCE_ANGLE_MAP.put(Units.inchesToMeters(87), 46.25); // Tested distance (6.5ft)
         DISTANCE_ANGLE_MAP.put(Units.inchesToMeters(96.0), 45.25); // Tested distance (8ft)
         DISTANCE_ANGLE_MAP.put(Units.inchesToMeters(115.0), 43.0); // Podium (9.5ft)
         DISTANCE_ANGLE_MAP.put(Units.inchesToMeters(132.0), 40.0); // Tested distance (11ft)

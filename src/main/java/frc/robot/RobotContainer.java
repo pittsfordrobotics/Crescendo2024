@@ -13,9 +13,11 @@ import com.pathplanner.lib.util.PathPlannerLogging;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.units.Time;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Filesystem;
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -58,6 +60,7 @@ public class RobotContainer {
   private final Shooter shooter;
   private final Intake intake;
   private final Vision vision;
+  private double previousRumblePower = 0;
 
   private final AutoCommandFactory autoCommandFactory;
 
@@ -191,36 +194,8 @@ public class RobotContainer {
 
     // upgraded point and aim at speaker
     DoubleSupplier distanceSupplier = (() -> swerveSubsystem.getPose().getTranslation()
-        .getDistance(FieldConstants.allianceFlipper(new Pose3d(FieldConstants.Speaker.centerSpeakerOpening),
+        .getDistance(FieldConstants.allianceFlipper(new Pose3d(FieldConstants.Speaker.centerSpeakerOpeningZeroX),
             DriverStation.getAlliance().get()).toPose2d().getTranslation()));
-
-    // m_driverController.a().whileTrue(speakerTargetSteeringCommand.alongWith(Commands.run(()
-    // -> {
-    // double shooteranglee =
-    // ShooterInterpolationHelper.getShooterAngle(distanceSupplier.getAsDouble());
-    // double shooterrpmm =
-    // ShooterInterpolationHelper.getShooterRPM(distanceSupplier.getAsDouble());
-    // System.out.println("Distance to speaker is: " +
-    // distanceSupplier.getAsDouble());
-    // System.out.println("Interpolated angle is: " + shooteranglee);
-    // System.out.println("RPM is: " + shooterrpmm);
-    // new CommonSpeakerCommand(shooter, intake, shooteranglee,
-    // shooterrpmm).schedule();
-    // })));
-
-    // m_driverController.a().whileTrue(speakerTargetSteeringCommand.alongWith(new
-    // RepeatCommand(Commands.runOnce(() -> {
-    // double shooteranglee =
-    // ShooterInterpolationHelper.getShooterAngle(distanceSupplier.getAsDouble());
-    // double shooterrpmm =
-    // ShooterInterpolationHelper.getShooterRPM(distanceSupplier.getAsDouble());
-    // System.out.println("Distance to speaker is: " +
-    // distanceSupplier.getAsDouble());
-    // System.out.println("Interpolated angle is: " + shooteranglee);
-    // System.out.println("RPM is: " + shooterrpmm);
-    // new CommonSpeakerCommand(shooter, intake, shooteranglee,
-    // shooterrpmm).schedule();
-    // }))));
 
     m_driverController.a().whileTrue(speakerTargetSteeringCommand.alongWith(new RepeatCommand(
         new CommonSpeakerCommand(shooter, intake,
@@ -229,7 +204,7 @@ public class RobotContainer {
 
     m_driverController.a().onFalse(new SequentialCommandGroup(
         shooter.spinIndexerCommand(RobotConstants.INDEXER_SHOOT_SPEED),
-        new WaitCommand(.5),
+        new WaitCommand(.25),
         shooter.spinIndexerCommand(RobotConstants.INDEXER_IDLE_SPEED),
         new StoredCommand(shooter, intake)));
 
@@ -284,7 +259,6 @@ public class RobotContainer {
         storedCommand.schedule();
       }
     }));
-    // m_driverController.y().onTrue(storedCommand);
 
     m_operatorController.rightBumper().onTrue(climber.setSpeedCommand(1));
     m_operatorController.rightBumper().onFalse(climber.setSpeedCommand(-1));
@@ -336,7 +310,7 @@ public class RobotContainer {
     m_operatorController.rightTrigger().whileTrue(intake.setPivotAngleSupplierCommand());
 
     // A -> Shooter RPM (X for supplier) -- Works
-    m_operatorController.a().onTrue(shooter.setShooterRPMCommand(4000));
+    m_operatorController.a().onTrue(shooter.setShooterRPMCommand(5400));
     m_operatorController.a().onFalse(shooter.setShooterRPMCommand(-2500));
     m_operatorController.x().whileTrue(shooter.setShooterRPMSupplierCommand());
 
@@ -423,6 +397,18 @@ public class RobotContainer {
       System.out.println("No alliance, setting to blue");
     }
     return currentAlliance;
+  }
+
+  public void buzz_controllers(double power) {
+    if (Math.abs(power - previousRumblePower) < .1) {
+      return;
+    }
+    m_driverController.getHID().setRumble(RumbleType.kBothRumble, power);
+    m_operatorController.getHID().setRumble(RumbleType.kBothRumble, power);
+  }
+
+  public Command buzz_timed (double power, double time) {
+    return Commands.run(() -> buzz_controllers(power)).withTimeout(time).andThen(() -> buzz_controllers(0));
   }
 
   /**

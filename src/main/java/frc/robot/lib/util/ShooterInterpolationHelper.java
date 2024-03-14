@@ -20,11 +20,11 @@ public class ShooterInterpolationHelper {
     * and returns an angle to set the shooter to
     */
     public static double getShooterAngle(double distance) {
-        if(Units.metersToInches(distance) < 55) {
+        if(Units.metersToInches(distance) < 56) {
             return RobotConstants.SUBWOOF_ShooterPivotAngle; // TODO: change to distanceanglemap when the subwoofangle and the subwoofangle in the distance map are the same
         }
-        if(Units.metersToInches(distance) > 154.0) {
-            return ShooterConstants.DISTANCE_ANGLE_MAP.get(Units.inchesToMeters(154));
+        if(Units.metersToInches(distance) > 130.0) {
+            return ShooterConstants.DISTANCE_ANGLE_MAP.get(Units.inchesToMeters(130));
         }
         return ShooterConstants.DISTANCE_ANGLE_MAP.get(distance);
     }
