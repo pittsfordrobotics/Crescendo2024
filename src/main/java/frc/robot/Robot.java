@@ -45,8 +45,8 @@ public class Robot extends LoggedRobot {
     // Instantiate our RobotContainer. This will perform all our button bindings,
     // and put our
     // autonomous chooser on the dashboard.
-    // UsbCamera camera = CameraServer.startAutomaticCapture();
-    // camera.setVideoMode(PixelFormat.kYUYV, 640, 480, 10);
+    UsbCamera camera = CameraServer.startAutomaticCapture();
+    camera.setVideoMode(PixelFormat.kYUYV, 640, 480, 10);
     m_robotContainer = new RobotContainer();
   }
 
