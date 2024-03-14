@@ -120,14 +120,14 @@ public class Robot extends LoggedRobot {
   @Override
   public void teleopPeriodic() {
     double matchtime = DriverStation.getMatchTime();
-    if (matchtime < 60.0 && matchtime > 59.7
-        || matchtime < 30.0 && matchtime > 29.7
-        || matchtime < 21.5 && matchtime > 21.2) {
+    if ((matchtime < 60.0 && matchtime > 59.7)
+        || (matchtime < 30.0 && matchtime > 29.7)
+        || (matchtime < 21.5 && matchtime > 21.2)) {
       m_robotContainer.buzz_controllers_command(1);
     }
-    if (matchtime < 59.0 && matchtime > 58.7
-        || matchtime < 29.0 && matchtime > 28.7
-        || matchtime < 19 && matchtime > 18.7) {
+    if ((matchtime < 59.0 && matchtime > 58.7)
+        || (matchtime < 29.0 && matchtime > 28.7)
+        || (matchtime < 19 && matchtime > 18.7)) {
       m_robotContainer.buzz_controllers_command(0);
     }
   }
