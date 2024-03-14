@@ -29,7 +29,11 @@ public class ShooterInterpolationHelper {
         return ShooterConstants.DISTANCE_ANGLE_MAP.get(distance);
     }
     public static DoubleSupplier getShooterAngle (DoubleSupplier distance){
-        return () -> getShooterAngle(distance.getAsDouble());
+        // try{ 
+        //     System.out.println("Perceived distance to speaker opening:" + distance.getAsDouble());
+        // } catch (Exception e) {
+        // }
+        return (() -> getShooterAngle(distance.getAsDouble()));
     }
 
     /** Takes a distance from the cetner of the robot to the subwoof apriltag (meters)
