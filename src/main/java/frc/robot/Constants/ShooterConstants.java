@@ -55,4 +55,5 @@ public final class ShooterConstants {
     public static final double L1CM1_SpivtoCM1 = 7.387 * 0.0254;
     public static final double M1_Total_Mass_of_Shooter = 23 * 0.453592;
     public static final double SHOOTER_Pivot_FF_Multiplier = 0.018;//.83 for the basic ff
+
 }

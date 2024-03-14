@@ -1,0 +1,37 @@
+{
+  "version": 1.0,
+  "startingPose": {
+    "position": {
+      "x": 0.753,
+      "y": 6.669
+    },
+    "rotation": -119.97736230039438
+  },
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "named",
+          "data": {
+            "name": "ShootSubwoof"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 9.0
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "onenoteampsideleavenew"
+          }
+        }
+      ]
+    }
+  },
+  "folder": null,
+  "choreoAuto": true
+}

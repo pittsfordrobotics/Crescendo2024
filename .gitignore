@@ -181,3 +181,4 @@ ctre_sim/
 simgui-ds.json
 simgui-window.json
 simgui.json
+*.orig
