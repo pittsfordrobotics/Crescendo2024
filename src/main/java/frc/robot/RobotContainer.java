@@ -402,7 +402,8 @@ public class RobotContainer {
   public void buzz_controllers(double power) {
     if (Math.abs(power - previousRumblePower) < .1) {
       return;
-    }
+    }    
+    previousRumblePower = power;
     m_driverController.getHID().setRumble(RumbleType.kBothRumble, power);
     m_operatorController.getHID().setRumble(RumbleType.kBothRumble, power);
   }
