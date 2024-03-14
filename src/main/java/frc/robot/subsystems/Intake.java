@@ -18,6 +18,7 @@ import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.RobotConstants;
 import frc.robot.commands.DisabledInstantCommand;
 import frc.robot.lib.FFCalculator;
+import frc.robot.lib.util.SmartDashboardHelper;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
@@ -87,8 +88,8 @@ public class Intake extends SubsystemBase {
     // SmartDashboard.putNumber("Intake D", pivotRPID.getD());
 
     
-    Shuffleboard.getTab("Intake").addDouble("Intake RPM", this::getIntakeRPM);
-    Shuffleboard.getTab("Intake").addDouble("Intake Pivot Angle", this::getPivotAngleDeg);
+    Shuffleboard.getTab("Intake").addDouble("Intake RPM", SmartDashboardHelper.truncatedDoubleSupplier(this::getIntakeRPM, 2));
+    Shuffleboard.getTab("Intake").addDouble("Intake Pivot Angle", SmartDashboardHelper.truncatedDoubleSupplier(this::getPivotAngleDeg, 2));
 
     Shuffleboard.getTab("Intake").add("Zero Intake Pivot", new DisabledInstantCommand(this::zeroIntakePivot));
     Shuffleboard.getTab("COMP").add("Reset Intake Motor", new DisabledInstantCommand(this::resetintakemotor));

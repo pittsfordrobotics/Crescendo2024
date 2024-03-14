@@ -28,8 +28,8 @@ public class FFCalculator {
     private DoubleSupplier intakePivotAngle = () -> 0.0;
 
     private FFCalculator() {
-        Shuffleboard.getTab("FFcalc").addDouble("ShoulderFF", this::calculateShooterFF);
-        Shuffleboard.getTab("FFcalc").addDouble("IntakeFF", this::calculateIntakeFF);        
+        // Shuffleboard.getTab("FFcalc").addDouble("ShoulderFF", this::calculateShooterFF);
+        // Shuffleboard.getTab("FFcalc").addDouble("IntakeFF", this::calculateIntakeFF);        
         SmartDashboard.putNumber("Shooter FF Mult", ShooterConstants.SHOOTER_Pivot_FF_Multiplier);
         SmartDashboard.putNumber("Intake FF Mult", IntakeConstants.INTAKE_Pivot_FF_Multiplier);
     }

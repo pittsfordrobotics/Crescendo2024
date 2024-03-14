@@ -30,6 +30,7 @@ import frc.robot.Constants.ShooterConstants;
 import frc.robot.commands.DisabledInstantCommand;
 import frc.robot.lib.FFCalculator;
 import frc.robot.lib.util.ShooterInterpolationHelper;
+import frc.robot.lib.util.SmartDashboardHelper;
 
 public class Shooter extends SubsystemBase {
   private CANSparkMax shooterMotorL;
@@ -147,10 +148,10 @@ public class Shooter extends SubsystemBase {
 
     Shuffleboard.getTab("SHOOTER").add(this);
 
-    Shuffleboard.getTab("COMP").addDouble("Shooter RPM R", this::getShooterRRPM);
-    Shuffleboard.getTab("COMP").addDouble("Shooter RPM L", this::getShooterLRPM);
+    Shuffleboard.getTab("COMP").addDouble("Shooter RPM R", SmartDashboardHelper.truncatedDoubleSupplier(this::getShooterRRPM, 0));
+    Shuffleboard.getTab("COMP").addDouble("Shooter RPM L", SmartDashboardHelper.truncatedDoubleSupplier(this::getShooterLRPM, 0));
 
-    Shuffleboard.getTab("SHOOTER").addDouble("Shooter Angle", this::getPivotAngleDeg);
+    Shuffleboard.getTab("SHOOTER").addDouble("Shooter Angle", SmartDashboardHelper.truncatedDoubleSupplier(this::getPivotAngleDeg, 2));
     Shuffleboard.getTab("COMP").addBoolean("Shooter Limit Switch", this::getLimitSwitch);
 
     // Shuffleboard.getTab("SHOOTER").add("Shooter Pivot Set Coast", new

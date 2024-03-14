@@ -733,11 +733,11 @@ public class SwerveSubsystem extends SubsystemBase {
             hadbadreading = true;
             previousx = 0;
             previousy = 0;
-            System.out.println("Swerve Pose is NaN comeing in ");
+            // System.out.println("Swerve Pose is NaN comeing in ");
         }
 
         if (Double.isNaN(visionData.getVisionPose().getX()) || Double.isNaN(visionData.getVisionPose().getY())) {
-            System.out.println("Recived a bad vision pose");
+            // System.out.println("Recived a bad vision pose");
             return;
         }
 
@@ -753,7 +753,7 @@ public class SwerveSubsystem extends SubsystemBase {
             // hadbadreading = true;
             Pose2d pose = new Pose2d(previousx, previousy, previousTheta);
             swerveDrive.resetOdometry(pose);
-            System.out.println("SwerveDrive is nan after vision");
+            // System.out.println("SwerveDrive is nan after vision");
         }
     }
 
