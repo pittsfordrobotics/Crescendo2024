@@ -3,6 +3,7 @@
     "types": {
       "/FMSInfo": "FMSInfo",
       "/Shuffleboard/CONFIG/SendableChooser[1]": "String Chooser",
+      "/Shuffleboard/CONFIG/SendableChooser[2]": "String Chooser",
       "/Shuffleboard/CONFIG/SwerveSubsystem": "Subsystem",
       "/Shuffleboard/CONFIG/Zero Swerve Module Offsets": "Command",
       "/Shuffleboard/Intake/Intake Pivot Brake": "Command",
@@ -12,11 +13,18 @@
       "/Shuffleboard/SHOOTER/Shooter Pivot Set Brake": "Command",
       "/Shuffleboard/SHOOTER/Shooter Pivot Set Coast": "Command",
       "/Shuffleboard/SHOOTER/Shooter Pivot Zero": "Command",
+      "/SmartDashboard/Auto Chooser": "String Chooser",
+      "/SmartDashboard/Choreo Auto Chooser": "String Chooser",
       "/SmartDashboard/Field": "Field2d",
       "/SmartDashboard/Pigeon 2 (v6) [0]": "Gyro",
       "/SmartDashboard/SendableChooser[0]": "String Chooser"
     },
     "windows": {
+      "/SmartDashboard/Choreo Auto Chooser": {
+        "window": {
+          "visible": true
+        }
+      },
       "/SmartDashboard/Field": {
         "bottom": 1476,
         "height": 8.210550308227539,
@@ -29,11 +37,21 @@
         }
       }
     }
+      "/SmartDashboard/SendableChooser[0]": {
+        "window": {
+      "SmartDashboard": {
+          "visible": true
+    },
+    "transitory": {
+      "SmartDashboard": {
+        "open": true
+      }
+    }
   },
   "NetworkTables Info": {
+    "Connections": {
+      "open": true
+    },
     "visible": true
-  },
-  "NetworkTables View": {
-    "visible": false
   }
 }

@@ -1,5 +1,5 @@
 {
-    "version": "v0.2.2",
+    "version": "v0.3",
     "robotConfiguration": {
         "mass": 74.08797700309194,
         "rotationalInertia": 6,
@@ -16,8 +16,8 @@
         "twonotebottom": {
             "waypoints": [
                 {
-                    "x": 0.7599948644638062,
-                    "y": 4.449397087097168,
+                    "x": 0.7519434690475464,
+                    "y": 4.377212047576904,
                     "heading": 2.094,
                     "isInitialGuess": false,
                     "translationConstrained": true,
@@ -52,8 +52,8 @@
                     "controlIntervalCount": 15
                 },
                 {
-                    "x": 2.1,
-                    "y": 4.1,
+                    "x": 2.113929271697998,
+                    "y": 4.112381458282471,
                     "heading": 2.527177993149026,
                     "isInitialGuess": false,
                     "translationConstrained": true,
@@ -729,6 +729,7 @@
                     "timestamp": 4.8027341828477095
                 }
             ],
+            "trajectoryWaypoints": [],
             "constraints": [
                 {
                     "scope": [
@@ -779,7 +780,22 @@
             "usesControlIntervalGuessing": true,
             "defaultControlIntervalCount": 40,
             "usesDefaultFieldObstacles": true,
-            "circleObstacles": []
+            "circleObstacles": [],
+            "eventMarkers": [
+                {
+                    "name": "Marker",
+                    "target": 4,
+                    "targetTimestamp": null,
+                    "offset": 0,
+                    "command": {
+                        "type": "named",
+                        "data": {
+                            "name": ""
+                        }
+                    }
+                }
+            ],
+            "isTrajectoryStale": true
         }
     },
     "splitTrajectoriesAtStopPoints": true,
