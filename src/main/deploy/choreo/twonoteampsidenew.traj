@@ -523,33 +523,5 @@
       "timestamp": 4.3088322604652385
     }
   ],
-  "eventMarkers": [
-    {
-      "timestamp": 0.222958295312447,
-      "command": {
-        "type": "named",
-        "data": {
-          "name": "StartIntakeNoDelaysCommand"
-        }
-      }
-    },
-    {
-      "timestamp": 3.219249698661697,
-      "command": {
-        "type": "named",
-        "data": {
-          "name": "AimSpeaker"
-        }
-      }
-    },
-    {
-      "timestamp": 0,
-      "command": {
-        "type": "named",
-        "data": {
-          "name": "AlignStuffOnStart"
-        }
-      }
-    }
-  ]
+  "eventMarkers": []
 }
