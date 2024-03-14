@@ -2144,9 +2144,9 @@
                 },
                 {
                     "name": "AimSpeaker",
-                    "target": 3,
-                    "targetTimestamp": 3.6991885274936784,
-                    "offset": 1,
+                    "target": 5,
+                    "targetTimestamp": 6.619874322074139,
+                    "offset": -1.5,
                     "command": {
                         "type": "named",
                         "data": {
