@@ -26,7 +26,7 @@ public final class ShooterConstants {
     public static final double SHOOTER_Pivot_I = 0;
     public static final double SHOOTER_Pivot_D = 0.35;// was .3 before 2/21 (evan changed)
 
-    public static final double SHOOTER_L_FFGain = 0.000168;
+    public static final double SHOOTER_L_FFGain = 0.0001688;
     public static final double SHOOTER_R_FFGain = 0.000169;
 
 
