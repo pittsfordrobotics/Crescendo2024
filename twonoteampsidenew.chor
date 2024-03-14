@@ -1382,7 +1382,7 @@
                     }
                 }
             ],
-            "isTrajectoryStale": true
+            "isTrajectoryStale": false
         },
         "twonoteampsidenewinitialleave": {
             "waypoints": [
