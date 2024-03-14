@@ -343,8 +343,8 @@ public class RobotContainer {
     m_operatorController.getHID().setRumble(RumbleType.kBothRumble, power);
   }
 
-  public Command buzz_timed (double power, double time) {
-    return Commands.run(() -> buzz_controllers(power)).withTimeout(time).andThen(() -> buzz_controllers(0));
+  public Command buzz_controllers_command (double power) {
+    return Commands.run(() -> buzz_controllers(power));
   }
 
   /**
