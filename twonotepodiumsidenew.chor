@@ -750,7 +750,7 @@
                     }
                 }
             ],
-            "isTrajectoryStale": false
+            "isTrajectoryStale": true
         },
         "twonotepodiumsidemoveoutoftheway": {
             "waypoints": [
@@ -2283,7 +2283,7 @@
                     }
                 }
             ],
-            "isTrajectoryStale": true
+            "isTrajectoryStale": false
         },
         "thirdnotecenterfrompodiumside": {
             "waypoints": [
@@ -2892,18 +2892,6 @@
             "usesDefaultFieldObstacles": true,
             "circleObstacles": [],
             "eventMarkers": [
-                {
-                    "name": "StartIntakeNoDelaysCommand",
-                    "target": 1,
-                    "targetTimestamp": 0.7540868577826375,
-                    "offset": 0,
-                    "command": {
-                        "type": "named",
-                        "data": {
-                            "name": "StartIntakeNoDelaysCommand"
-                        }
-                    }
-                },
                 {
                     "name": "AimSpeaker",
                     "target": 2,

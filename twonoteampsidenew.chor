@@ -733,7 +733,7 @@
                     }
                 }
             ],
-            "isTrajectoryStale": true
+            "isTrajectoryStale": false
         },
         "thirdnotecenterfromampside": {
             "waypoints": [
@@ -1358,18 +1358,6 @@
             "circleObstacles": [],
             "eventMarkers": [
                 {
-                    "name": "StartIntakeNoDelaysCommand",
-                    "target": 1,
-                    "targetTimestamp": 0.6255254047802411,
-                    "offset": 0,
-                    "command": {
-                        "type": "named",
-                        "data": {
-                            "name": "StartIntakeNoDelaysCommand"
-                        }
-                    }
-                },
-                {
                     "name": "AimSpeaker",
                     "target": 2,
                     "targetTimestamp": 2.5363306407035244,
@@ -1990,4 +1978,4 @@
     },
     "splitTrajectoriesAtStopPoints": false,
     "usesObstacles": true
-}}
+}

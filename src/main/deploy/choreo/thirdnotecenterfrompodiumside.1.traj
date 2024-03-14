@@ -489,15 +489,6 @@
   ],
   "eventMarkers": [
     {
-      "timestamp": 0.7540868577826375,
-      "command": {
-        "type": "named",
-        "data": {
-          "name": "StartIntakeNoDelaysCommand"
-        }
-      }
-    },
-    {
       "timestamp": 3.014986861975532,
       "command": {
         "type": "named",
