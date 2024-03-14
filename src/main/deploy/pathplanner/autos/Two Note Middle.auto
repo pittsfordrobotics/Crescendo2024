@@ -1,0 +1,80 @@
+{
+  "version": 1.0,
+  "startingPose": {
+    "position": {
+      "x": 1.343,
+      "y": 5.55
+    },
+    "rotation": 179.99984796050427
+  },
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "named",
+          "data": {
+            "name": "ShootSubwoof"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "twonotemiddlenew"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.35
+          }
+        },
+        {
+          "type": "sequential",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "CorrectHeading"
+                }
+              },
+              {
+                "type": "wait",
+                "data": {
+                  "waitTime": 0.5
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "AutoFireNote"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.2
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "StoredCommand"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "twonotemiddlenewleave"
+          }
+        }
+      ]
+    }
+  },
+  "folder": null,
+  "choreoAuto": true
+}
