@@ -2744,9 +2744,9 @@
                     }
                 }
             ],
-            "isTrajectoryStale": true
+            "isTrajectoryStale": false
         }
     },
     "splitTrajectoriesAtStopPoints": false,
     "usesObstacles": true
-}}
+}
