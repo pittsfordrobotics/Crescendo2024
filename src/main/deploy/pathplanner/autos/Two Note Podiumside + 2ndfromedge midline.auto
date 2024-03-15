@@ -85,7 +85,7 @@
               {
                 "type": "named",
                 "data": {
-                  "name": "CorrectHeading"
+                  "name": "CorrectHeadingShortTimeout"
                 }
               },
               {

@@ -107,6 +107,7 @@ public class RobotContainer {
           new StoredCommand(shooter, intake)
         ));
         NamedCommands.registerCommand("CorrectHeading", swerveSubsystem.correctHeading(pathPlannerTargetPoseSupplier).withTimeout(1.5));
+        NamedCommands.registerCommand("CorrectHeadingShortTimeout", swerveSubsystem.correctHeading(pathPlannerTargetPoseSupplier).withTimeout(0.5));
         NamedCommands.registerCommand("AlignStuffOnStart", new SequentialCommandGroup(setGyroBasedOnPathPlannerTrajectory(), swerveSubsystem.resetOdometry(pathPlannerTargetPoseSupplier)));
         // instantiates autoChooser based on PathPlanner files (exists at code deploy, no need to wait)
         autoChooser = AutoBuilder.buildAutoChooser();
