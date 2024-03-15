@@ -1012,8 +1012,8 @@
                     "controlIntervalCount": 26
                 },
                 {
-                    "x": 1.7547004222869873,
-                    "y": 4.420882225036621,
+                    "x": 1.679796576499939,
+                    "y": 4.146183490753174,
                     "heading": 2.6,
                     "isInitialGuess": false,
                     "translationConstrained": true,
@@ -2283,7 +2283,7 @@
                     }
                 }
             ],
-            "isTrajectoryStale": true
+            "isTrajectoryStale": false
         },
         "thirdnotecenterfrompodiumside": {
             "waypoints": [
