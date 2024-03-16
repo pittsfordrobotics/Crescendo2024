@@ -8,6 +8,7 @@ import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.SparkPIDController;
 import com.revrobotics.CANSparkBase.ControlType;
+import com.revrobotics.CANSparkBase.SoftLimitDirection;
 
 import frc.robot.Constants.ClimberConstants;
 
@@ -59,6 +60,7 @@ public class Climber extends SubsystemBase {
         // Zero encoder (assumed zero at startup)
         rightEncoder.setPosition(0);
         leftEncoder.setPosition(0);
+        // rightMotor.setSoftLimit(SoftLimitDirection.kReverse, 0); TODO: Put back if needed (keep removed if climber gets successfully straightened)
     }
 
     /**
