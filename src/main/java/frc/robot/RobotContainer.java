@@ -240,14 +240,17 @@ public class RobotContainer {
             AmpShootIntake,
             new WaitCommand(.75),
             new StoredCommand(shooter, intake)));
-
-    m_driverController.b().onTrue(Commands.runOnce(() -> swerveSubsystem.setTargetAngle(
-        getAllianceDefaultBlue().equals(Alliance.Red) ? Rotation2d.fromDegrees(90) : Rotation2d.fromDegrees(-90))));
+//
+//    m_driverController.b().onTrue(Commands.runOnce(() -> swerveSubsystem.setTargetAngle(
+//        getAllianceDefaultBlue().equals(Alliance.Red) ? Rotation2d.fromDegrees(90) : Rotation2d.fromDegrees(-90))));
 
     // Old amp scoring approach
     // Runs the intake on left bummper true
     m_driverController.leftBumper().onTrue(intake.spinIntakeCommand(RobotConstants.NEWAMP_IntakeSpeed_ShootOut));
     m_driverController.leftBumper().onFalse(storedCommand);
+    m_driverController.povRight().onTrue(Commands.runOnce(
+            () -> swerveSubsystem.setTargetAngle(
+                    getAllianceDefaultBlue().equals(Alliance.Red) ? Rotation2d.fromDegrees(90) : Rotation2d.fromDegrees(-90))));
     m_operatorController.x().onTrue(betterAmpCommand);
 
     m_operatorController.b().onTrue(subwoofCommand);
