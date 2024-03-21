@@ -158,7 +158,7 @@ public class RobotContainer {
     StructureStates.setCurrentState(StructureStates.structureState.startup);
     // Configure the trigger bindings
     configure_COMP_Bindings();
-    // configure_TEST_Bindings();
+    //configure_TEST_Bindings();
     autoConfig();
   }
 
@@ -228,15 +228,16 @@ public class RobotContainer {
 
     m_driverController.b().onTrue(
         new ParallelCommandGroup(
-            new BetterAMPCommand(shooter, intake),
-            new ConditionalCommand(swerveSubsystem.pathToPath(blueampPath), swerveSubsystem.pathToPath(redampPath),
-                () -> DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == Alliance.Blue))
-            .beforeStarting(new ConditionalCommand(blueampheadingcommand, redampheadingcommand,
-                () -> DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == Alliance.Blue)
-                .withTimeout(1)));
+            new BetterAMPCommand(shooter, intake)
+            // new ConditionalCommand(swerveSubsystem.pathToPath(blueampPath), swerveSubsystem.pathToPath(redampPath),
+            //     () -> DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == Alliance.Blue))
+            // .beforeStarting(new ConditionalCommand(blueampheadingcommand, redampheadingcommand,
+            //     () -> DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == Alliance.Blue)
+            //     .withTimeout(1)
+            ));
     m_driverController.b().onFalse(
         new SequentialCommandGroup(
-            Commands.runOnce(() -> vision.useVision(true)),
+            //Commands.runOnce(() -> vision.useVision(true)),
             AmpShootIntake,
             new WaitCommand(.75),
             new StoredCommand(shooter, intake)));
@@ -261,8 +262,8 @@ public class RobotContainer {
       }
     }));
 
-    m_operatorController.rightBumper().onTrue(climber.setSpeedCommand(1));
-    m_operatorController.rightBumper().onFalse(climber.setSpeedCommand(-1));
+    m_operatorController.rightBumper().onTrue(climber.setSpeedCommand(0.5));
+    m_operatorController.rightBumper().onFalse(climber.setSpeedCommand(-0.5));
   }
 
 
