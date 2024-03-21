@@ -360,10 +360,23 @@
                     "radius": 0.5
                 }
             ],
-            "eventMarkers": [],
-            "isTrajectoryStale": true
+            "eventMarkers": [
+                {
+                    "name": "AlignStuffOnStart",
+                    "target": 0,
+                    "targetTimestamp": 0,
+                    "offset": 0,
+                    "command": {
+                        "type": "named",
+                        "data": {
+                            "name": "AlignStuffOnStart"
+                        }
+                    }
+                }
+            ],
+            "isTrajectoryStale": false
         }
     },
     "splitTrajectoriesAtStopPoints": false,
     "usesObstacles": true
-}}
+}
