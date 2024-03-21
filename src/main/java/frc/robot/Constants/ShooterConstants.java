@@ -35,13 +35,12 @@ public final class ShooterConstants {
     // (inches); value: shooter angle (degrees)
     public static final InterpolatingDoubleTreeMap DISTANCE_ANGLE_MAP = new InterpolatingDoubleTreeMap();
     static {
-        DISTANCE_ANGLE_MAP.put(Units.inchesToMeters(54.5), 55.0); // Source (4.5ft)
-        DISTANCE_ANGLE_MAP.put(Units.inchesToMeters(65.0), 52.0); // Tested distance (5.5ft)
-        DISTANCE_ANGLE_MAP.put(Units.inchesToMeters(75.0), 49.0); // Tested distance (6.5ft)
-        DISTANCE_ANGLE_MAP.put(Units.inchesToMeters(85), 46.0); // Tested distance (6.5ft)
-        DISTANCE_ANGLE_MAP.put(Units.inchesToMeters(95.0), 45.0); // Tested distance (8ft)
-        DISTANCE_ANGLE_MAP.put(Units.inchesToMeters(115.0), 42.0); // Podium (9.5ft)
-        DISTANCE_ANGLE_MAP.put(Units.inchesToMeters(132.0), 40.0); // Tested distance (11ft)
+        DISTANCE_ANGLE_MAP.put(Units.inchesToMeters(54.5), 55.0); // Speaker
+        DISTANCE_ANGLE_MAP.put(Units.inchesToMeters(70.0), 51.0); // Tested distance 
+        DISTANCE_ANGLE_MAP.put(Units.inchesToMeters(85.0), 48.0); // Tested distance 
+        DISTANCE_ANGLE_MAP.put(Units.inchesToMeters(100.0), 45.0); // Tested distance 
+        DISTANCE_ANGLE_MAP.put(Units.inchesToMeters(115.0), 42.0); // Podium
+        DISTANCE_ANGLE_MAP.put(Units.inchesToMeters(130.0), 40.5); // Tested distance
     }
 
 
