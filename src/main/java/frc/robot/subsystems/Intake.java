@@ -76,7 +76,7 @@ public class Intake extends SubsystemBase {
 
     // Intake Motor
     intakeMotor = new CANSparkMax(IntakeConstants.CAN_INTAKE, MotorType.kBrushless);
-    resetintakemotor(); // TODO: Test
+    resetintakemotor();
     try {
       Thread.sleep(200);
     } catch (InterruptedException e) {
