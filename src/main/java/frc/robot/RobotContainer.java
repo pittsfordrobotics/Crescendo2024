@@ -191,7 +191,7 @@ public class RobotContainer {
     PODIUMCommand podiumCommand = new PODIUMCommand(shooter, intake);
     Command idleIndexerCommand = shooter.spinIndexerCommand(RobotConstants.INDEXER_IDLE_SPEED);
     Command shootIndexerCommand = shooter.spinIndexerCommand(RobotConstants.INDEXER_SHOOT_SPEED);
-    Command AmpShootIntake = intake.spinIntakeCommand(RobotConstants.NEWAMP_IntakeSpeed_ShootOut);
+    Command AmpShootIntake = intake.spinIntakeCommand(0.7);
 
     // upgraded point and aim at speaker
     DoubleSupplier distanceSupplier = (() -> swerveSubsystem.getPose().getTranslation()
@@ -247,7 +247,7 @@ public class RobotContainer {
 
     // Old amp scoring approach
     // Runs the intake on left bummper true
-    m_driverController.leftBumper().onTrue(intake.spinIntakeCommand(RobotConstants.NEWAMP_IntakeSpeed_ShootOut));
+    m_driverController.leftBumper().onTrue(intake.spinIntakeCommand(0.7));
     m_driverController.leftBumper().onFalse(storedCommand);
     m_operatorController.x().onTrue(betterAmpCommand);
 
