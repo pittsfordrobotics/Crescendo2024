@@ -172,7 +172,7 @@ public class Climber extends SubsystemBase {
     }
 
     public boolean detectChain() {
-        //if we're on a chain, output current should be < usual; 3 is a somewhat arbitrary deadband--todo: test it
-        return leftMotor.getOutputCurrent() < currentAverage - 3;
+        //if we're on a chain, output current should be < usual; 3 is a somewhat arbitrary deadband--todo: test this
+        return leftMotor.getOutputCurrent() < currentAverage - ClimberConstants.CLIMBER_OFFSET;
     }
 }
