@@ -11,6 +11,8 @@ import com.revrobotics.CANSparkBase.ControlType;
 
 import frc.robot.Constants.ClimberConstants;
 
+import java.util.ArrayList;
+
 public class Climber extends SubsystemBase {
 
     private CANSparkMax leftMotor;
@@ -22,6 +24,8 @@ public class Climber extends SubsystemBase {
     private RelativeEncoder rightEncoder;
     private boolean leftZeroReached; // Eventually use the limit switch to determine this
     private boolean rightZeroReached; // Eventually use the limit switch to determine this
+    private ArrayList<Double> recentCurrents = new ArrayList<>();
+    private double currentAverage;
 
     public Climber() {
         // Initialize the left motor.
@@ -66,6 +70,15 @@ public class Climber extends SubsystemBase {
      */
     @Override
     public void periodic() {
+        //moving average of the current applied to the motors
+        recentCurrents.add(leftMotor.getOutputCurrent());
+        if(recentCurrents.size()>15) recentCurrents.remove(0);
+        currentAverage = recentCurrents
+                .stream()
+                .mapToDouble(a -> a)
+                .average()
+                .orElse(0); //averages all elements in recentCurrents
+
         // SmartDashboard.putNumber("Motor Rotations",
         // rightMotor.getEncoder().getPosition());
 
@@ -156,5 +169,10 @@ public class Climber extends SubsystemBase {
             rightMotor.set(speed);
             leftMotor.set(speed);
         });
+    }
+
+    public boolean detectChain() {
+        //if we're on a chain, output current should be < usual; 3 is a somewhat arbitrary deadband--todo: test it
+        return leftMotor.getOutputCurrent() < currentAverage - 3;
     }
 }
