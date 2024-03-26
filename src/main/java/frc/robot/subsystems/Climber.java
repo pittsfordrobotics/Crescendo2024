@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import com.revrobotics.CANSparkBase;
 import com.revrobotics.RelativeEncoder;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -59,6 +60,9 @@ public class Climber extends SubsystemBase {
         // Zero encoder (assumed zero at startup)
         rightEncoder.setPosition(0);
         leftEncoder.setPosition(0);
+
+        leftMotor.setSoftLimit(CANSparkBase.SoftLimitDirection.kReverse, 0);
+        rightMotor.setSoftLimit(CANSparkBase.SoftLimitDirection.kReverse, 0);
     }
 
     /**
