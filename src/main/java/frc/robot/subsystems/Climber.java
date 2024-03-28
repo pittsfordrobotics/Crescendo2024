@@ -173,7 +173,9 @@ public class Climber extends SubsystemBase {
         });
     }
 
-    // set voltage for both motors command
+    /**
+     * Sets the voltage for both motors.
+     */
     public Command setSpeedCommand(double speed) {
         return this.runOnce(() -> {
             rightMotor.set(speed);
@@ -192,12 +194,15 @@ public class Climber extends SubsystemBase {
         };
     }
 
+    /**
+     * Moves both motors down until one hits the chain, then stops that one and moves the other until
+     * both are on the chain.
+     */
     public Command downUntilChain() {
         return this.run(() -> {
-            leftMotor.set(-.5);
-            rightMotor.set(-.5);
-            if(detectChain()[0]) leftMotor.set(0);
-            if(detectChain()[1]) rightMotor.set(0);
+            boolean[] chain = detectChain();
+            leftMotor.set(chain[0] ? 0 : -0.5);
+            rightMotor.set(chain[1] ? 0 : -0.5);
         }).until(() -> {
             boolean[] chain = detectChain();
             return chain[0] && chain[1];
