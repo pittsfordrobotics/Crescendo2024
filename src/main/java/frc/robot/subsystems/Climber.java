@@ -194,7 +194,8 @@ public class Climber extends SubsystemBase {
 
     public Command downUntilChain() {
         return this.run(() -> {
-            leftMotor.set(-.1); rightMotor.set(-.1);
+            leftMotor.set(-.5);
+            rightMotor.set(-.5);
             if(detectChain()[0]) leftMotor.set(0);
             if(detectChain()[1]) rightMotor.set(0);
         }).until(() -> {
