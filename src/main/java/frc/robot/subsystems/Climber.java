@@ -24,8 +24,10 @@ public class Climber extends SubsystemBase {
     private RelativeEncoder rightEncoder;
     private boolean leftZeroReached; // Eventually use the limit switch to determine this
     private boolean rightZeroReached; // Eventually use the limit switch to determine this
-    private ArrayList<Double> recentCurrents = new ArrayList<>();
-    private double currentAverage;
+    private ArrayList<Double> recentCurrentsLeft = new ArrayList<>();
+    private double currentAverageLeft;
+    private ArrayList<Double> recentCurrentsRight = new ArrayList<>();
+    private double currentAverageRight;
 
     public Climber() {
         // Initialize the left motor.
@@ -71,13 +73,21 @@ public class Climber extends SubsystemBase {
     @Override
     public void periodic() {
         //moving average of the current applied to the motors
-        recentCurrents.add(leftMotor.getOutputCurrent());
-        if(recentCurrents.size()>15) recentCurrents.remove(0);
-        currentAverage = recentCurrents
+        recentCurrentsLeft.add(leftMotor.getOutputCurrent());
+        if(recentCurrentsLeft.size()>5) recentCurrentsLeft.remove(0);
+        currentAverageLeft = recentCurrentsLeft
                 .stream()
                 .mapToDouble(a -> a)
                 .average()
                 .orElse(0); //averages all elements in recentCurrents
+
+        recentCurrentsRight.add(rightMotor.getOutputCurrent());
+        if(recentCurrentsRight.size()>5) recentCurrentsRight.remove(0);
+        currentAverageRight = recentCurrentsRight
+                .stream()
+                .mapToDouble(a -> a)
+                .average()
+                .orElse(0);
 
         // SmartDashboard.putNumber("Motor Rotations",
         // rightMotor.getEncoder().getPosition());
@@ -171,8 +181,25 @@ public class Climber extends SubsystemBase {
         });
     }
 
-    public boolean detectChain() {
-        //if we're on a chain, output current should be < usual; 3 is a somewhat arbitrary deadband--todo: test this
-        return leftMotor.getOutputCurrent() < currentAverage - ClimberConstants.CLIMBER_OFFSET;
+    /**
+     * Detects a chain, based on the principle that if we're on a chain the average current should be > usual
+     * @return a new boolean: {left chain, right chain}
+     */
+    public boolean[] detectChain() {
+        return new boolean[] {
+                currentAverageLeft > ClimberConstants.CLIMBER_OFFSET,
+                currentAverageRight > ClimberConstants.CLIMBER_OFFSET
+        };
+    }
+
+    public Command downUntilChain() {
+        return this.run(() -> {
+            leftMotor.set(-.1); rightMotor.set(-.1);
+            if(detectChain()[0]) leftMotor.set(0);
+            if(detectChain()[1]) rightMotor.set(0);
+        }).until(() -> {
+            boolean[] chain = detectChain();
+            return chain[0] && chain[1];
+        });
     }
 }
