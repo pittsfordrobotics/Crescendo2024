@@ -26,6 +26,7 @@ import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 public class Intake extends SubsystemBase {
 
   private CANSparkMax intakeMotor;
+  private CANSparkMax secondaryIntakeMotor;
   private CANSparkMax pivotMotorL;
   private CANSparkMax pivotMotorR;
 
@@ -74,42 +75,38 @@ public class Intake extends SubsystemBase {
     } catch (InterruptedException e) {
     }
 
-    // Intake Motor
-    intakeMotor = new CANSparkMax(IntakeConstants.CAN_INTAKE, MotorType.kBrushless);
-    resetintakemotor();
+    // Intake Motors
+    intakeMotor = new CANSparkMax(IntakeConstants.CAN_INTAKE_1, MotorType.kBrushless);
+    resetIntakeMotor();
     try {
       Thread.sleep(200);
     } catch (InterruptedException e) {
     }
-    resetintakemotor();
+    resetIntakeMotor();
     try {
       Thread.sleep(200);
     } catch (InterruptedException e) {
     }
-    resetintakemotor();
-    try {
-      Thread.sleep(200);
-    } catch (InterruptedException e) {
-    }
-    // intakeMotor.setOpenLoopRampRate(2); // sets minimum time in seconds that the motor takes to go from 0 to full throttle
-    // TODO: Tune this ramp rate
+    resetIntakeMotor();
 
+    secondaryIntakeMotor = new CANSparkMax(IntakeConstants.CAN_INTAKE_2, MotorType.kBrushless);
+    secondaryIntakeMotor.follow(intakeMotor, true);
+    
     // For PidTuningOnly
     // SmartDashboard.putNumber("Intake P", pivotRPID.getP());
     // SmartDashboard.putNumber("Intake D", pivotRPID.getD());
-
     
     Shuffleboard.getTab("Intake").addDouble("Intake RPM", this::getIntakeRPM);
     Shuffleboard.getTab("Intake").addDouble("Intake Pivot Angle", this::getPivotAngleDeg);
 
     Shuffleboard.getTab("Intake").add("Zero Intake Pivot", new DisabledInstantCommand(this::zeroIntakePivot));
-    Shuffleboard.getTab("COMP").add("Reset Intake Motor", new DisabledInstantCommand(this::resetintakemotor));
+    Shuffleboard.getTab("COMP").add("Reset Intake Motor", new DisabledInstantCommand(this::resetIntakeMotor));
 
     // Shuffleboard.getTab("Intake").add("Intake Pivot Coast", new DisabledInstantCommand(this::setPivotCoastCommand));
     // Shuffleboard.getTab("Intake").add("Intake Pivot Brake", new DisabledInstantCommand(this::setPivotBrakeCommand));
   }
 
-  private void resetintakemotor() {
+  private void resetIntakeMotor() {
     intakeMotor.restoreFactoryDefaults();
     intakeMotor.setInverted(true);
     intakeMotor.setSmartCurrentLimit(20);
@@ -117,10 +114,6 @@ public class Intake extends SubsystemBase {
     intakeMotor.burnFlash();
   }
   
-  public Command resetIntakeMotor (){
-    return this.runOnce(() -> resetintakemotor());
-  }
-
   @Override
   public void periodic() {
     pivotRPID.setReference(pivotAngleSetpointDeg, ControlType.kPosition, 0, FFCalculator.getInstance().calculateIntakeFF());
