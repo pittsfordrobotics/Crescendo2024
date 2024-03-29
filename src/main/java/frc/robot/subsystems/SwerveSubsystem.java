@@ -24,14 +24,10 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
-import edu.wpi.first.math.numbers.N1;
-import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.SimpleWidget;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -39,6 +35,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import frc.robot.RobotContainer;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.RobotConstants;
@@ -52,6 +49,7 @@ import java.util.function.Supplier;
 
 import swervelib.SwerveController;
 import swervelib.SwerveDrive;
+import swervelib.SwerveDriveTest;
 import swervelib.SwerveModule;
 import swervelib.math.SwerveMath;
 import swervelib.parser.SwerveControllerConfiguration;
@@ -175,7 +173,7 @@ public class SwerveSubsystem extends SubsystemBase {
                         // Translation PID constants
                         new PIDConstants(2,
                                 0,
-                                0.05), // TODO: make 0.005 when not in sim
+                                0.05), // TODO: TUNE THIS, NOT SURE IF SHOULD BE 0.005 PER OLD COMMENT
                         // Rotation PID constants
                         4.5,
                         // Max module speed, in m/s
@@ -944,4 +942,32 @@ public class SwerveSubsystem extends SubsystemBase {
                     swerveDrive.getMaximumVelocity()));
         });
     }
+
+      /**
+   * Command to characterize the robot drive motors using SysId
+   *
+   * @return SysId Drive Command
+   */
+  public Command sysIdDriveMotorCommand()
+  {
+    return SwerveDriveTest.generateSysIdCommand(
+        SwerveDriveTest.setDriveSysIdRoutine(
+            new Config(),
+            this, swerveDrive, 12),
+        3.0, 5.0, 3.0); // TODO: Tweak if needed for running sysid characterization
+  }
+
+  /**
+   * Command to characterize the robot angle motors using SysId
+   *
+   * @return SysId Angle Command
+   */
+  public Command sysIdAngleMotorCommand()
+  {
+    return SwerveDriveTest.generateSysIdCommand(
+        SwerveDriveTest.setAngleSysIdRoutine(
+            new Config(),
+            this, swerveDrive),
+        3.0, 5.0, 3.0); // TODO: Tweak if needed for running sysid characterization
+  }
 }
