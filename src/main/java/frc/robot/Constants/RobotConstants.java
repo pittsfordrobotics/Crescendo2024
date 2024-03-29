@@ -47,7 +47,7 @@ public class RobotConstants {
     public static final double NEWAMP_IntakePivotAngle_STAGE1 = 0;
     public static final double NEWAMP_ShooterRPM_STAGE1 = 2000;
     public static final double NEWAMP_IntakeSpeed_STAGE1 = .7;
-    public static final double NEWAMP_WaitTime_STAGE1 = .28;
+    public static final double NEWAMP_WaitTime_STAGE1 = .18;
 
     public static final double NEWAMP_ShooterPivotAngle = 20;
     public static final double NEWAMP_IntakePivotAngle_STAGE2 = 160;

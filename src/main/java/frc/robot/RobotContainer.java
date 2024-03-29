@@ -107,6 +107,7 @@ public class RobotContainer {
           new StoredCommand(shooter, intake)
         ));
         NamedCommands.registerCommand("CorrectHeading", swerveSubsystem.correctHeading(pathPlannerTargetPoseSupplier).withTimeout(1.5));
+        NamedCommands.registerCommand("CorrectHeadingShortTimeout", swerveSubsystem.correctHeading(pathPlannerTargetPoseSupplier).withTimeout(0.5));
         NamedCommands.registerCommand("AlignStuffOnStart", new SequentialCommandGroup(setGyroBasedOnPathPlannerTrajectory(), swerveSubsystem.resetOdometry(pathPlannerTargetPoseSupplier)));
         // instantiates autoChooser based on PathPlanner files (exists at code deploy, no need to wait)
         autoChooser = AutoBuilder.buildAutoChooser();
@@ -157,7 +158,7 @@ public class RobotContainer {
     StructureStates.setCurrentState(StructureStates.structureState.startup);
     // Configure the trigger bindings
     configure_COMP_Bindings();
-    // configure_TEST_Bindings();
+    //configure_TEST_Bindings();
     autoConfig();
   }
 
@@ -190,7 +191,7 @@ public class RobotContainer {
     PODIUMCommand podiumCommand = new PODIUMCommand(shooter, intake);
     Command idleIndexerCommand = shooter.spinIndexerCommand(RobotConstants.INDEXER_IDLE_SPEED);
     Command shootIndexerCommand = shooter.spinIndexerCommand(RobotConstants.INDEXER_SHOOT_SPEED);
-    Command AmpShootIntake = intake.spinIntakeCommand(RobotConstants.NEWAMP_IntakeSpeed_ShootOut);
+    Command AmpShootIntake = intake.spinIntakeCommand(0.7);
 
     // upgraded point and aim at speaker
     DoubleSupplier distanceSupplier = (() -> swerveSubsystem.getPose().getTranslation()
@@ -227,15 +228,16 @@ public class RobotContainer {
 
     m_driverController.b().onTrue(
         new ParallelCommandGroup(
-            new BetterAMPCommand(shooter, intake),
-            new ConditionalCommand(swerveSubsystem.pathToPath(blueampPath), swerveSubsystem.pathToPath(redampPath),
-                () -> DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == Alliance.Blue))
-            .beforeStarting(new ConditionalCommand(blueampheadingcommand, redampheadingcommand,
-                () -> DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == Alliance.Blue)
-                .withTimeout(1)));
+            new BetterAMPCommand(shooter, intake)
+            // new ConditionalCommand(swerveSubsystem.pathToPath(blueampPath), swerveSubsystem.pathToPath(redampPath),
+            //     () -> DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == Alliance.Blue))
+            // .beforeStarting(new ConditionalCommand(blueampheadingcommand, redampheadingcommand,
+            //     () -> DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == Alliance.Blue)
+            //     .withTimeout(1)
+            ));
     m_driverController.b().onFalse(
         new SequentialCommandGroup(
-            Commands.runOnce(() -> vision.useVision(true)),
+            //Commands.runOnce(() -> vision.useVision(true)),
             AmpShootIntake,
             new WaitCommand(.75),
             new StoredCommand(shooter, intake)));
@@ -245,7 +247,7 @@ public class RobotContainer {
 
     // Old amp scoring approach
     // Runs the intake on left bummper true
-    m_driverController.leftBumper().onTrue(intake.spinIntakeCommand(RobotConstants.NEWAMP_IntakeSpeed_ShootOut));
+    m_driverController.leftBumper().onTrue(intake.spinIntakeCommand(0.7));
     m_driverController.leftBumper().onFalse(storedCommand);
     m_operatorController.x().onTrue(betterAmpCommand);
 
@@ -260,9 +262,8 @@ public class RobotContainer {
       }
     }));
 
-    m_operatorController.rightBumper().onTrue(climber.setSpeedCommand(1));
-    m_operatorController.rightBumper().onFalse(climber.setSpeedCommand(-1));
-
+    m_operatorController.rightBumper().onTrue(climber.setSpeedCommand(0.5));
+    m_operatorController.rightBumper().onFalse(climber.setSpeedCommand(-0.5));
   }
 
 

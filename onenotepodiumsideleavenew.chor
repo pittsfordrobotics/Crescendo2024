@@ -484,10 +484,23 @@
             "defaultControlIntervalCount": 40,
             "usesDefaultFieldObstacles": true,
             "circleObstacles": [],
-            "eventMarkers": [],
-            "isTrajectoryStale": false
+            "eventMarkers": [
+                {
+                    "name": "AlignStuffOnStart",
+                    "target": 0,
+                    "targetTimestamp": 0,
+                    "offset": 0,
+                    "command": {
+                        "type": "named",
+                        "data": {
+                            "name": "AlignStuffOnStart"
+                        }
+                    }
+                }
+            ],
+            "isTrajectoryStale": true
         }
     },
     "splitTrajectoriesAtStopPoints": false,
     "usesObstacles": false
-}
+}}

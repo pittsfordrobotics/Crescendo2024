@@ -34,6 +34,7 @@ public class BetterAMPCommand extends SequentialCommandGroup {
                         intake.setPivotAngleCommand(
                                 RobotConstants.NEWAMP_IntakePivotAngle_STAGE1),
                         intake.waitForPivotAngleCommand()),
+                new WaitCommand(.5),
                 shooter.spinIndexerCommand(RobotConstants.INDEXER_SHOOT_SPEED),
                 new WaitCommand(RobotConstants.NEWAMP_WaitTime_STAGE1),
                 intake.spinIntakeCommand(RobotConstants.NEWAMP_IntakeSpeed_STAGE2),
