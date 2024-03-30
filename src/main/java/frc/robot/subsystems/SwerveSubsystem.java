@@ -17,6 +17,7 @@ import com.revrobotics.AbsoluteEncoder;
 
 import com.revrobotics.CANSparkMax;
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -39,6 +40,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import frc.robot.RobotContainer;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.RobotConstants;
+import frc.robot.Constants.SwerveConstants;
 import frc.robot.lib.VisionData;
 import frc.robot.lib.util.AllianceFlipUtil;
 import frc.robot.lib.AllDeadbands;
@@ -123,6 +125,7 @@ public class SwerveSubsystem extends SubsystemBase {
         swerveDrive.setHeadingCorrection(false); // Heading correction should only be used while controlling the robot
                                                  // via angle.
 
+        swerveDrive.replaceSwerveModuleFeedforward(new SimpleMotorFeedforward(SwerveConstants.SWERVEMODULE_kS, SwerveConstants.SWERVEMODULE_kV, SwerveConstants.SWERVEMODULE_kA)); // remove kA for module maybe
         setupPathPlanner();
 
         prevVelocityP = getSwerveDriveConfiguration().modules[0].configuration.velocityPIDF.p;
@@ -954,7 +957,7 @@ public class SwerveSubsystem extends SubsystemBase {
         SwerveDriveTest.setDriveSysIdRoutine(
             new Config(),
             this, swerveDrive, 12),
-        3.0, 5.0, 3.0); // TODO: Tweak if needed for running sysid characterization
+        3.0, 5.0, 3.0); // TODO: Tweak (increase quasitimeout if possible) for running sysid characterization
   }
 
   /**
@@ -968,6 +971,6 @@ public class SwerveSubsystem extends SubsystemBase {
         SwerveDriveTest.setAngleSysIdRoutine(
             new Config(),
             this, swerveDrive),
-        3.0, 5.0, 3.0); // TODO: Tweak if needed for running sysid characterization
+        3.0, 5.0, 3.0); // TODO: Tweak (increase quasitimeout if possible) if needed for running sysid characterization
   }
 }
