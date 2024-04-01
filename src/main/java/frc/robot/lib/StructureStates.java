@@ -10,6 +10,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 /** Add your docs here. */
 public class StructureStates {
 
+    public static boolean ampIntake = false;
+
     public enum structureState {
         stored, intake, amp, subwoof, podium, commonSpeaker, startup
     }
@@ -25,5 +27,13 @@ public class StructureStates {
     // returns currentstate
     public static structureState getCurrentState() {
         return currentState;
+    }
+
+    public static void setAmpIntake(boolean ampintake) {
+        ampIntake = ampintake;
+    }
+
+    public static boolean getAmpIntake() {
+        return ampIntake;
     }
 }

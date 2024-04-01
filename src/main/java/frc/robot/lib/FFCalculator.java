@@ -97,7 +97,7 @@ public class FFCalculator {
 
         double TotalTorque_IntakePiv = (Math.cos(theta.plus(Alpha_CM).getRadians()) * 9.8 * (M2)) * L3;
 
-        if(alpha.getDegrees() < 5){
+        if(alpha.getDegrees() < 15){
             return 0;
         }
 

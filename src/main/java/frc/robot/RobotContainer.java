@@ -154,6 +154,7 @@ public class RobotContainer {
     DisabledInstantCommand zeroOffsetCommand = new DisabledInstantCommand(swerveSubsystem::setSwerveOffsets);
     zeroOffsetCommand.setName("Zero Offsets");
     Shuffleboard.getTab("CONFIG").add("Zero Swerve Module Offsets", zeroOffsetCommand);
+    Shuffleboard.getTab("COMP").addBoolean("AmpIntake??", StructureStates::getAmpIntake);
 
     StructureStates.setCurrentState(StructureStates.structureState.startup);
     // Configure the trigger bindings
@@ -163,9 +164,6 @@ public class RobotContainer {
   }
 
   private void configure_COMP_Bindings() {
-    // ToDo:
-    // Test if stored command should be set in the begining or end of the command
-
     // Swerve
     m_driverController.start().onTrue(new DisabledInstantCommand(swerveSubsystem::zeroGyro));
 
@@ -185,7 +183,7 @@ public class RobotContainer {
 
     // // states
     StoredCommand storedCommand = new StoredCommand(shooter, intake);
-    IntakeCommand intakeCommand = new IntakeCommand(shooter, intake);
+    IntakeCommand intakeCommand = new IntakeCommand(shooter, intake, () -> StructureStates.getAmpIntake());
     BetterAMPCommand betterAmpCommand = new BetterAMPCommand(shooter, intake);
     SUBWOOFCommand subwoofCommand = new SUBWOOFCommand(shooter, intake);
     PODIUMCommand podiumCommand = new PODIUMCommand(shooter, intake);
@@ -193,7 +191,7 @@ public class RobotContainer {
     Command shootIndexerCommand = shooter.spinIndexerCommand(RobotConstants.INDEXER_SHOOT_SPEED);
     Command AmpShootIntake = intake.spinIntakeCommand(0.7);
 
-    // upgraded point and aim at speaker
+    // point and aim at speaker
     DoubleSupplier distanceSupplier = (() -> swerveSubsystem.getPose().getTranslation()
         .getDistance(FieldConstants.allianceFlipper(new Pose3d(FieldConstants.Speaker.centerSpeakerOpeningZeroX),
             DriverStation.getAlliance().get()).toPose2d().getTranslation()));
@@ -219,6 +217,7 @@ public class RobotContainer {
       storedCommand.schedule();
     }));
 
+    // Amp Scoring
     PathPlannerPath redampPath = PathPlannerPath.fromPathFile("RedAmpPath");
     PathPlannerPath blueampPath = PathPlannerPath.fromPathFile("BlueAmpPath");
     Command blueampheadingcommand = swerveSubsystem.correctHeading(Rotation2d.fromDegrees(-90))
@@ -228,7 +227,7 @@ public class RobotContainer {
 
     m_driverController.b().onTrue(
         new ParallelCommandGroup(
-            new BetterAMPCommand(shooter, intake)
+            new BetterAMPCommand(shooter, intake, () -> intake.getNoteInAMPPose())
             // new ConditionalCommand(swerveSubsystem.pathToPath(blueampPath), swerveSubsystem.pathToPath(redampPath),
             //     () -> DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == Alliance.Blue))
             // .beforeStarting(new ConditionalCommand(blueampheadingcommand, redampheadingcommand,
@@ -245,15 +244,16 @@ public class RobotContainer {
     m_driverController.b().onTrue(Commands.runOnce(() -> swerveSubsystem.setTargetAngle(
         getAllianceDefaultBlue().equals(Alliance.Red) ? Rotation2d.fromDegrees(90) : Rotation2d.fromDegrees(-90))));
 
-    // Old amp scoring approach
     // Runs the intake on left bummper true
     m_driverController.leftBumper().onTrue(intake.spinIntakeCommand(0.7));
     m_driverController.leftBumper().onFalse(storedCommand);
     m_operatorController.x().onTrue(betterAmpCommand);
 
+    // Backup Speaker Scoring
     m_operatorController.b().onTrue(subwoofCommand);
     m_operatorController.y().onTrue(podiumCommand);
 
+    // Intake and Stored Commands
     m_driverController.x().onTrue(Commands.runOnce(() -> {
       if (StructureStates.getCurrentState() == structureState.stored) {
         intakeCommand.schedule();
@@ -262,6 +262,12 @@ public class RobotContainer {
       }
     }));
 
+    // Should Intake for amp or normaly
+    m_operatorController.leftBumper().onTrue(new InstantCommand(() -> StructureStates.setAmpIntake(true)));
+    m_operatorController.leftBumper().onFalse(new InstantCommand(() -> StructureStates.setAmpIntake(false)));
+
+
+    // Climber
     m_operatorController.rightBumper().onTrue(climber.setSpeedCommand(0.5));
     m_operatorController.rightBumper().onFalse(climber.setSpeedCommand(-0.5));
   }

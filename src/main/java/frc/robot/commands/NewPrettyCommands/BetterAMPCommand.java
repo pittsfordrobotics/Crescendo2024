@@ -6,6 +6,7 @@ package frc.robot.commands.NewPrettyCommands;
 
 import java.util.function.BooleanSupplier;
 
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -21,24 +22,28 @@ import frc.robot.subsystems.Shooter;
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
 public class BetterAMPCommand extends SequentialCommandGroup {
     /** Creates a new AmpCommand. */
-    public BetterAMPCommand(Shooter shooter, Intake intake) {
+    public BetterAMPCommand(Shooter shooter, Intake intake, BooleanSupplier noteInIntake) {
         // Add your commands in the addCommands() call, e.g.
         // addCommands(new FooCommand(), new BarCommand());
         addCommands(
-                new ParallelCommandGroup(
-                        intake.spinIntakeCommand(RobotConstants.NEWAMP_IntakeSpeed_STAGE1),
-                        shooter.setShooterRPMCommand(RobotConstants.NEWAMP_ShooterRPM_STAGE1)),
-                new SequentialCommandGroup(
-                        shooter.setPivotAngleCommand(
-                                RobotConstants.NEWAMP_ShooterPivotAngle),
-                        intake.setPivotAngleCommand(
-                                RobotConstants.NEWAMP_IntakePivotAngle_STAGE1),
-                        intake.waitForPivotAngleCommand()),
-                new WaitCommand(.5),
-                shooter.spinIndexerCommand(RobotConstants.INDEXER_SHOOT_SPEED),
-                new WaitCommand(RobotConstants.NEWAMP_WaitTime_STAGE1),
-                intake.spinIntakeCommand(RobotConstants.NEWAMP_IntakeSpeed_STAGE2),
-                shooter.spinIndexerCommand(RobotConstants.INDEXER_IDLE_SPEED),
+                new ConditionalCommand(null, new SequentialCommandGroup(
+                        new ParallelCommandGroup(
+                                intake.spinIntakeCommand(RobotConstants.NEWAMP_IntakeSpeed_STAGE1),
+                                shooter.setShooterRPMCommand(RobotConstants.NEWAMP_ShooterRPM_STAGE1)),
+                        new SequentialCommandGroup(
+                                shooter.setPivotAngleCommand(
+                                        RobotConstants.NEWAMP_ShooterPivotAngle),
+                                intake.setPivotAngleCommand(
+                                        RobotConstants.NEWAMP_IntakePivotAngle_STAGE1),
+                                intake.waitForPivotAngleCommand()),
+                        new WaitCommand(.5),
+                        shooter.spinIndexerCommand(RobotConstants.INDEXER_SHOOT_SPEED),
+                        new WaitCommand(RobotConstants.NEWAMP_WaitTime_STAGE1),
+                        intake.spinIntakeCommand(RobotConstants.NEWAMP_IntakeSpeed_STAGE2),
+                        shooter.spinIndexerCommand(RobotConstants.INDEXER_IDLE_SPEED)), noteInIntake),
+
+                shooter.setPivotAngleCommand(
+                        RobotConstants.NEWAMP_ShooterPivotAngle),
                 intake.setPivotAngleCommand(
                         RobotConstants.NEWAMP_IntakePivotAngle_STAGE2),
                 intake.waitForPivotAngleCommand(5),

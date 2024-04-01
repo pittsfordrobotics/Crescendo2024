@@ -4,6 +4,9 @@
 
 package frc.robot.commands.NewPrettyCommands;
 
+import java.util.function.BooleanSupplier;
+
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -19,7 +22,7 @@ import frc.robot.subsystems.Shooter;
 
 public class IntakeCommand extends SequentialCommandGroup {
 	/** Creates a new StartIntake2. */
-	public IntakeCommand(Shooter shooter, Intake intake) {
+	public IntakeCommand(Shooter shooter, Intake intake, BooleanSupplier ampIntakee) {
 		// Add your commands in the addCommands() call, e.g.
 		// addCommands(new FooCommand(), new BarCommand());
 		addCommands(
@@ -31,7 +34,7 @@ public class IntakeCommand extends SequentialCommandGroup {
 						intake.waitForPivotAngleCommand(),
 						shooter.setPivotAngleCommand(RobotConstants.INTAKE_ShooterPivotAngle),
 						shooter.waitForPivotAngleCommand()),
-				new WaitUntilCommand(() -> shooter.getLimitSwitch()),
+				new ConditionalCommand(new WaitUntilCommand(() -> intake.getBeamBreak()), new WaitUntilCommand(() -> shooter.getLimitSwitch()), ampIntakee),
 				new StoredCommand(shooter, intake));
 
 	}

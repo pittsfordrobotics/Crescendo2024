@@ -6,6 +6,7 @@ package frc.robot.commands.NewPrettyCommands;
 
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.RepeatCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.Constants.RobotConstants;
 import frc.robot.lib.StructureStates;
@@ -27,6 +28,7 @@ public class StoredCommand extends SequentialCommandGroup {
                         shooter.setShooterRPMCommand(RobotConstants.STORED_ShooterRPM)),
                 new SequentialCommandGroup(
                         shooter.setPivotAngleCommand(RobotConstants.STORED_ShooterPivotAngle),
-                        intake.setPivotAngleCommand(RobotConstants.STORED_IntakePivotAngle)));
+                        intake.setPivotAngleCommand(RobotConstants.STORED_IntakePivotAngle)),
+                new RepeatCommand(intake.noteReadyforAMPInStoredStateCommand()).withTimeout(1.0));
     }
 }

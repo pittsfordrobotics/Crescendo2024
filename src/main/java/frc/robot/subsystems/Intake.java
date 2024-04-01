@@ -20,9 +20,10 @@ import frc.robot.Constants.RobotConstants;
 import frc.robot.commands.DisabledInstantCommand;
 import frc.robot.lib.FFCalculator;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
+import edu.wpi.first.wpilibj2.command.RepeatCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
-
 
 public class Intake extends SubsystemBase {
 
@@ -40,7 +41,7 @@ public class Intake extends SubsystemBase {
   /** Creates a new Intake. */
   public Intake() {
     pivotAngleSetpointDeg = RobotConstants.STORED_IntakePivotAngle;
-        // Intake Pivot Motor R (Leader)
+    // Intake Pivot Motor R (Leader)
     pivotMotorR = new CANSparkMax(IntakeConstants.CAN_INTAKE_PIVOT_R, MotorType.kBrushless);
     pivotMotorR.restoreFactoryDefaults();
     pivotMotorR.setSmartCurrentLimit(40);
@@ -103,6 +104,7 @@ public class Intake extends SubsystemBase {
     // SmartDashboard.putNumber("Intake D", pivotRPID.getD());
 
     Shuffleboard.getTab("Intake").addBoolean("Intake Beam Break", this::getBeamBreak);
+    Shuffleboard.getTab("Intake").addBoolean("Note In AMP Pose", this::getNoteInAMPPose);
 
     Shuffleboard.getTab("Intake").addDouble("Intake RPM", this::getIntakeRPM);
     Shuffleboard.getTab("Intake").addDouble("Intake Pivot Angle", this::getPivotAngleDeg);
@@ -110,8 +112,10 @@ public class Intake extends SubsystemBase {
     Shuffleboard.getTab("Intake").add("Zero Intake Pivot", new DisabledInstantCommand(this::zeroIntakePivot));
     Shuffleboard.getTab("COMP").add("Reset Intake Motor", new DisabledInstantCommand(this::resetintakemotor));
 
-    // Shuffleboard.getTab("Intake").add("Intake Pivot Coast", new DisabledInstantCommand(this::setPivotCoastCommand));
-    // Shuffleboard.getTab("Intake").add("Intake Pivot Brake", new DisabledInstantCommand(this::setPivotBrakeCommand));
+    // Shuffleboard.getTab("Intake").add("Intake Pivot Coast", new
+    // DisabledInstantCommand(this::setPivotCoastCommand));
+    // Shuffleboard.getTab("Intake").add("Intake Pivot Brake", new
+    // DisabledInstantCommand(this::setPivotBrakeCommand));
   }
 
   private void resetintakemotor() {
@@ -121,23 +125,26 @@ public class Intake extends SubsystemBase {
     intakeMotor.setOpenLoopRampRate(0.5);
     intakeMotor.burnFlash();
   }
-  
-  public Command resetIntakeMotor (){
+
+  public Command resetIntakeMotor() {
     return this.runOnce(() -> resetintakemotor());
   }
 
   @Override
   public void periodic() {
-    pivotRPID.setReference(pivotAngleSetpointDeg, ControlType.kPosition, 0, FFCalculator.getInstance().calculateIntakeFF());
+    pivotRPID.setReference(pivotAngleSetpointDeg, ControlType.kPosition, 0,
+        FFCalculator.getInstance().calculateIntakeFF());
 
     // // For PidTuningOnly
-    // if (SmartDashboard.getNumber("Intake P", IntakeConstants.INTAKE_Pivot_P) != pivotRPID.getP()) {
-    //   pivotRPID.setP(SmartDashboard.getNumber("Intake P",
-    //       IntakeConstants.INTAKE_Pivot_P));
+    // if (SmartDashboard.getNumber("Intake P", IntakeConstants.INTAKE_Pivot_P) !=
+    // pivotRPID.getP()) {
+    // pivotRPID.setP(SmartDashboard.getNumber("Intake P",
+    // IntakeConstants.INTAKE_Pivot_P));
     // }
-    // if (SmartDashboard.getNumber("Intake D", IntakeConstants.INTAKE_Pivot_D) != pivotRPID.getD()) {
-    //   pivotRPID.setD(SmartDashboard.getNumber("Intake D",
-    //       IntakeConstants.INTAKE_Pivot_D));
+    // if (SmartDashboard.getNumber("Intake D", IntakeConstants.INTAKE_Pivot_D) !=
+    // pivotRPID.getD()) {
+    // pivotRPID.setD(SmartDashboard.getNumber("Intake D",
+    // IntakeConstants.INTAKE_Pivot_D));
     // }
     // // //
   }
@@ -163,6 +170,13 @@ public class Intake extends SubsystemBase {
     return this.runOnce(() -> setNoteInAMPPose(noteInAMPPose));
   }
 
+  // TODO: rename this lmao
+  public Command noteReadyforAMPInStoredStateCommand() {
+    Command cmmd = new ConditionalCommand(spinIntakeCommand(-.5),
+        spinIntakeCommand(0).alongWith(setNoteInAMPPoseCommand(true)), this::getBeamBreak);
+    return cmmd;
+  }
+
   // Gets the RPM of the intake motor
   public double getIntakeRPM() {
     return intakeMotor.getEncoder().getVelocity();
@@ -172,6 +186,7 @@ public class Intake extends SubsystemBase {
   public double getPivotAngleDeg() {
     return pivotRABSEncoder.getPosition();
   }
+
   public double getPivotAngleSetpointDeg() {
     return pivotAngleSetpointDeg;
   }
@@ -206,9 +221,10 @@ public class Intake extends SubsystemBase {
   // Sets the intake pivot angle to a certain angle using PID on right motors
   // **set in degrees**
   public Command setPivotAngleCommand(double setpointDeg) {
-    double setpointDegClamped = MathUtil.clamp(setpointDeg,0,170);
+    double setpointDegClamped = MathUtil.clamp(setpointDeg, 0, 170);
     return this.runOnce(() -> pivotAngleSetpointDeg = setpointDegClamped);
   }
+
   public Command waitForPivotAngleCommand(double degTolerance) {
     Command cmd = new WaitUntilCommand(() -> Math.abs(getPivotAngleDeg() - getPivotAngleSetpointDeg()) < degTolerance);
     cmd.addRequirements(this);
@@ -219,16 +235,18 @@ public class Intake extends SubsystemBase {
     return waitForPivotAngleCommand(15);
   }
 
-//  // For Testing
-//  public Command intakePivotRaw(double input_test) {
-//    return this.runOnce(() -> pivotMotorR.set(input_test));
-//  }
-  
+  // // For Testing
+  // public Command intakePivotRaw(double input_test) {
+  // return this.runOnce(() -> pivotMotorR.set(input_test));
+  // }
+
   // Sets the intake pivot angle to a certain angle using a supplier
   public Command setPivotAngleSupplierCommand() {
     return this.runOnce(() -> {
-    double setpoint = SmartDashboard.getNumber("IntakePivotAngle_CHANGEME", 170);
-    double setpointDegClamped = MathUtil.clamp(setpoint,0,170);   
-    pivotAngleSetpointDeg = setpointDegClamped;});
-    
-  }}
+      double setpoint = SmartDashboard.getNumber("IntakePivotAngle_CHANGEME", 170);
+      double setpointDegClamped = MathUtil.clamp(setpoint, 0, 170);
+      pivotAngleSetpointDeg = setpointDegClamped;
+    });
+
+  }
+}
