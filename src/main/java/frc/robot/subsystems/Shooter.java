@@ -18,6 +18,7 @@ import com.revrobotics.SparkAbsoluteEncoder;
 import com.revrobotics.SparkAbsoluteEncoder.Type;
 import com.revrobotics.SparkPIDController;
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -47,7 +48,9 @@ public class Shooter extends SubsystemBase {
 
   private SparkAbsoluteEncoder pivotRABSEncoder;
   private double pivotAngleSetpointDeg;
+  private double targetPivotAngleSetpointDeg;
   private double shooterRPMSetpoint;
+  private SlewRateLimiter pivotTargetAngleRateLimiter;
 
   /** Creates a new Shooter. */
   public Shooter() {
@@ -115,6 +118,7 @@ public class Shooter extends SubsystemBase {
     pivotRPID.setPositionPIDWrappingEnabled(true);
     pivotRPID.setPositionPIDWrappingMaxInput(360);
     pivotRPID.setPositionPIDWrappingMinInput(0);
+    pivotMotorR.setOpenLoopRampRate(0.25);
 
     pivotMotorR.burnFlash();
     try {

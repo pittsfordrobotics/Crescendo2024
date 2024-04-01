@@ -42,6 +42,7 @@ public class Intake extends SubsystemBase {
     pivotMotorR.restoreFactoryDefaults();
     pivotMotorR.setSmartCurrentLimit(40);
     pivotMotorR.setInverted(true);
+    pivotMotorR.setOpenLoopRampRate(0.25);
     pivotRABSEncoder = pivotMotorR.getAbsoluteEncoder(Type.kDutyCycle);
     pivotRABSEncoder.setPositionConversionFactor(360);
     pivotRABSEncoder.setInverted(true);
