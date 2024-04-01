@@ -920,12 +920,8 @@ public class SwerveSubsystem extends SubsystemBase {
     public Command driveTranslationAndPointAtTarget(DoubleSupplier translationX, DoubleSupplier translationY,
             Pose2d targetPoint) {
         return run(() -> {
-            // Pose2d flippedTargetPoint = AllianceFlipUtil.apply(targetPoint);
-            DriverStation.Alliance alliance = DriverStation.getAlliance().isPresent()
-                    ? DriverStation.getAlliance().get()
-                    : DriverStation.Alliance.Blue;
             double desiredHeadingRad = getAngleToPoint(
-                    FieldConstants.allianceFlipper(new Pose3d(targetPoint), alliance).toPose2d());
+                    AllianceFlipUtil.apply(targetPoint));
             Rotation2d desired_heading = Rotation2d.fromRadians(desiredHeadingRad);
             swerveDrive.setHeadingCorrection(true);
             double rawXInput = translationX.getAsDouble();

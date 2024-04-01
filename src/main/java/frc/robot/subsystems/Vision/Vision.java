@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.commands.DisabledInstantCommand;
 import frc.robot.lib.VisionData;
+import frc.robot.lib.util.AllianceFlipUtil;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.subsystems.Vision.VisionIO.Pipelines;
@@ -97,28 +98,19 @@ public class Vision extends SubsystemBase {
         // Pose estimation
         for (int i = 0; i < io.length; i++) {
 
-            // exit if data is bad
+            // gets the pose
+            Pose2d visionCalcPose = inputs[i].pose;
 
             // if the bot is not connected, or the bot is at the origin, skip
-            if (Arrays.equals(inputs[i].botXYZ, new double[] { 0.0, 0.0, 0.0 }) || inputs[i].botXYZ.length == 0
-                    || !inputs[i].connected) {
+            if (visionCalcPose.equals(new Pose2d()) || !inputs[i].connected) {
                 continue;
             }
-            // Gets robot pose from the current camera
-            Pose3d robotPose3d = new Pose3d(inputs[i].botXYZ[0], inputs[i].botXYZ[1], inputs[i].botXYZ[2],
-                    new Rotation3d(
-                            Math.toRadians(inputs[i].botRPY[0]),
-                            Math.toRadians(inputs[i].botRPY[1]),
-                            Math.toRadians(inputs[i].botRPY[2])));
-            Pose2d visionCalcPose = robotPose3d.toPose2d();
 
             // exit if off the field (might be bad)
-            if (robotPose3d.getX() < -VisionConstants.FIELD_BORDER_MARGIN
-                    || robotPose3d.getX() > FieldConstants.fieldLength + VisionConstants.FIELD_BORDER_MARGIN
-                    || robotPose3d.getY() < -VisionConstants.FIELD_BORDER_MARGIN
-                    || robotPose3d.getY() > FieldConstants.fieldWidth + VisionConstants.FIELD_BORDER_MARGIN
-                    || robotPose3d.getZ() < -VisionConstants.Z_MARGIN
-                    || robotPose3d.getZ() > VisionConstants.Z_MARGIN) {
+            if (visionCalcPose.getX() < -VisionConstants.FIELD_BORDER_MARGIN
+                    || visionCalcPose.getX() > FieldConstants.fieldLength + VisionConstants.FIELD_BORDER_MARGIN
+                    || visionCalcPose.getY() < -VisionConstants.FIELD_BORDER_MARGIN
+                    || visionCalcPose.getY() > FieldConstants.fieldWidth + VisionConstants.FIELD_BORDER_MARGIN) {
                 continue;
             }
 
@@ -143,33 +135,24 @@ public class Vision extends SubsystemBase {
             }
             Shuffleboard.getTab("Vision").add("TagIds", inputs[i].tagIDs);
 
-            // Calculate average distance to tag
-            double totalDistance = 0.0;
-            Pose2d[] tagPoses2d = new Pose2d[tagPoses.size()];
-            int num = 0;
-            for (Pose3d tagPose : tagPoses) {
-                Alliance alliance = DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue);
-                tagPose = FieldConstants.allianceFlipper(tagPose, alliance);
-                totalDistance += tagPose.getTranslation().getDistance(robotPose3d.getTranslation());
-                tagPoses2d[num] = tagPose.toPose2d();
-                num++;
-            }
-            double avgDistance = totalDistance / tagPoses.size();
+            // Gets the average distance to tag
+            double avgDistance = inputs[i].avgTagDist;
             Shuffleboard.getTab("Vision").add("Vision/AvgDist", avgDistance);
-            Shuffleboard.getTab("Vision").add("Vision/NumTags", tagPoses.size()); // TODO: Double check this can be over
-                                                                                  // 2 lol
+            Shuffleboard.getTab("Vision").add("Vision/NumTags", inputs[i].tagCount);
+            // TODO: Double check this can be over 2 lol
 
-            // exit in auto if under 2 tags
-            if (DriverStation.isAutonomous() && (tagPoses.size() < 2 || avgDistance > 4.0)) {
+            // exit in auto unless have 2 tags and 2 of them are the good tags under 4
+            // meters
+            if (DriverStation.isAutonomous() && (inputs[i].tagCount < 2 || avgDistance > 4.0)) {
                 continue;
             }
 
             // Calculate standard deviation to give to the .addVisionData() swerve method
             // Standard Deveation is inverse to confidence level
             double xyStdDev = VisionConstants.XY_STD_DEV_COEF * Math.pow(avgDistance, 2.0)
-                    / Math.pow(tagPoses.size(), 3.0);
+                    / Math.pow(inputs[i].tagCount, 3.0);
             double thetaStdDev = VisionConstants.THETA_STD_DEV_COEF * Math.pow(avgDistance, 2.0)
-                    / Math.pow(tagPoses.size(), 3.0);
+                    / Math.pow(inputs[i].tagCount, 3.0);
             Shuffleboard.getTab("Vision").add("Vision/XYstd", xyStdDev);
 
             // Add vision data to swerve pose estimator

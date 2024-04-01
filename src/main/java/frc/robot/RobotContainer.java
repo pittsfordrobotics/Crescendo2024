@@ -200,8 +200,7 @@ public class RobotContainer {
 
     // upgraded point and aim at speaker
     DoubleSupplier distanceSupplier = (() -> swerveSubsystem.getPose().getTranslation()
-        .getDistance(FieldConstants.allianceFlipper(new Pose3d(FieldConstants.Speaker.centerSpeakerOpeningZeroX),
-            DriverStation.getAlliance().get()).toPose2d().getTranslation()));
+        .getDistance(AllianceFlipUtil.apply(FieldConstants.Speaker.centerSpeakerOpeningZeroX).getTranslation()));
 
     m_driverController.a().whileTrue(speakerTargetSteeringCommand.alongWith(new RepeatCommand(
         new CommonSpeakerCommand(shooter, intake,

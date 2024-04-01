@@ -101,17 +101,17 @@ public class FieldConstants {
     }
   }
 
-  public static Pose3d allianceFlipper(Pose3d pose, Alliance alliance) {
-    if (alliance == Alliance.Blue) {
-      return pose;
-    }
-    // Keep the x-component, change the magnitude of y component.
-    // Height remains the same.
-    Translation3d transformedTranslation = new Translation3d(pose.getTranslation().getX(),
-        FieldConstants.fieldWidth - pose.getTranslation().getY(), pose.getTranslation().getZ());
+  // public static Pose3d allianceFlipper(Pose3d pose, Alliance alliance) {
+  //   if (alliance == Alliance.Blue) {
+  //     return pose;
+  //   }
+  //   // Keep the x-component, change the magnitude of y component.
+  //   // Height remains the same.
+  //   Translation3d transformedTranslation = new Translation3d(pose.getTranslation().getX(),
+  //       FieldConstants.fieldWidth - pose.getTranslation().getY(), pose.getTranslation().getZ());
 
-    // Rotate by 180 degrees
-    Rotation3d transformedHolonomicRotation = pose.getRotation().times(-1);
-    return new Pose3d(transformedTranslation, transformedHolonomicRotation);
-  }
+  //   // Rotate by 180 degrees
+  //   Rotation3d transformedHolonomicRotation = pose.getRotation().times(-1);
+  //   return new Pose3d(transformedTranslation, transformedHolonomicRotation);
+  // }
 }
