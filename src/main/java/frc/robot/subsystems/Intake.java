@@ -12,6 +12,7 @@ import com.revrobotics.SparkAbsoluteEncoder;
 import com.revrobotics.SparkPIDController;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.IntakeConstants;
@@ -28,6 +29,8 @@ public class Intake extends SubsystemBase {
   private CANSparkMax intakeMotor;
   private CANSparkMax pivotMotorL;
   private CANSparkMax pivotMotorR;
+  private DigitalInput beamBreak;
+  private boolean noteInAMPPose;
 
   private SparkPIDController pivotRPID;
 
@@ -91,14 +94,16 @@ public class Intake extends SubsystemBase {
       Thread.sleep(200);
     } catch (InterruptedException e) {
     }
-    // intakeMotor.setOpenLoopRampRate(2); // sets minimum time in seconds that the motor takes to go from 0 to full throttle
-    // TODO: Tune this ramp rate
+
+    // BeamBreak Sensor
+    beamBreak = new DigitalInput(IntakeConstants.BEAM_BREAK_DIO);
 
     // For PidTuningOnly
     // SmartDashboard.putNumber("Intake P", pivotRPID.getP());
     // SmartDashboard.putNumber("Intake D", pivotRPID.getD());
 
-    
+    Shuffleboard.getTab("Intake").addBoolean("Intake Beam Break", this::getBeamBreak);
+
     Shuffleboard.getTab("Intake").addDouble("Intake RPM", this::getIntakeRPM);
     Shuffleboard.getTab("Intake").addDouble("Intake Pivot Angle", this::getPivotAngleDeg);
 
@@ -135,6 +140,27 @@ public class Intake extends SubsystemBase {
     //       IntakeConstants.INTAKE_Pivot_D));
     // }
     // // //
+  }
+
+  // BeamBreak
+  public boolean getBeamBreak() {
+    return beamBreak.get();
+  }
+
+  public Command waitforBeamBreakCommand() {
+    return new WaitUntilCommand(this::getBeamBreak);
+  }
+
+  public boolean getNoteInAMPPose() {
+    return noteInAMPPose;
+  }
+
+  public void setNoteInAMPPose(boolean noteInAMPPose) {
+    this.noteInAMPPose = noteInAMPPose;
+  }
+
+  public Command setNoteInAMPPoseCommand(boolean noteInAMPPose) {
+    return this.runOnce(() -> setNoteInAMPPose(noteInAMPPose));
   }
 
   // Gets the RPM of the intake motor

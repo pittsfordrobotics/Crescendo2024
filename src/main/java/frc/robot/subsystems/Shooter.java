@@ -130,7 +130,7 @@ public class Shooter extends SubsystemBase {
     pivotMotorL.follow(pivotMotorR, true);
 
     // Limit Switch
-    backLimitSwitch = new DigitalInput(0);
+    backLimitSwitch = new DigitalInput(ShooterConstants.LimitSwitchDIO);
 
     try {
       Thread.sleep(200);

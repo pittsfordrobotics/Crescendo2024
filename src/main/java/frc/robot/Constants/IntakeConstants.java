@@ -10,6 +10,8 @@ public class IntakeConstants {
     public static final double INTAKE_Pivot_I = 0;
     public static final double INTAKE_Pivot_D = 0.025;//was .025 before 2/21 (evan changed)
 
+    public static final int BEAM_BREAK_DIO = 1;
+
     // FF constants
     // See diagram its very usefull
     // deg -> rad = deg * .0175
