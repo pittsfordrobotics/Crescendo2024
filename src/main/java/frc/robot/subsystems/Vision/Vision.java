@@ -43,6 +43,7 @@ public class Vision extends SubsystemBase {
     private boolean useVision = true;
     private Consumer<VisionData> visionDataConsumer;
     private Supplier<Rotation2d> gyroangle;
+    private double xyStdDev = 200;
 
     private final VisionIO[] io;
     private final Map<Integer, Double> lastTagDetectionTimes = new HashMap<>();
@@ -117,6 +118,7 @@ public class Vision extends SubsystemBase {
             // exit if the gyro does not match the vision
             double gyroAngle = gyroangle.get().getDegrees();
             if (Math.abs(gyroAngle - visionCalcPose.getRotation().getDegrees()) > 5) {
+                System.out.println("Gyro and Vision do not match");
                 continue;
             }
 
@@ -133,27 +135,35 @@ public class Vision extends SubsystemBase {
                 Optional<Pose3d> tagPose = FieldConstants.aprilTags.getTagPose((int) inputs[i].tagIDs[z]);
                 tagPose.ifPresent(tagPoses::add);
             }
-            Shuffleboard.getTab("Vision").add("TagIds", inputs[i].tagIDs);
+            Shuffleboard.getTab("Vision").add("Vision" + i + " TagIds", inputs[i].tagIDs);
 
             // Gets the average distance to tag
             double avgDistance = inputs[i].avgTagDist;
-            Shuffleboard.getTab("Vision").add("Vision/AvgDist", avgDistance);
-            Shuffleboard.getTab("Vision").add("Vision/NumTags", inputs[i].tagCount);
+            Shuffleboard.getTab("Vision").add("Vision" + i + " AvgDist", avgDistance);
+            Shuffleboard.getTab("Vision").add("Vision" + i + " NumofTags", inputs[i].tagCount);
             // TODO: Double check this can be over 2 lol
 
-            // exit in auto unless have 2 tags and 2 of them are the good tags under 4
-            // meters
-            if (DriverStation.isAutonomous() && (inputs[i].tagCount < 2 || avgDistance > 4.0)) {
+            // Check if the robot has both speaker tags for red or blue
+            boolean hasBlueSpeakerTags = (Arrays.binarySearch(inputs[i].tagIDs, 7) >= 0) && (Arrays.binarySearch(inputs[i].tagIDs, 8) >= 0);
+            boolean hasRedSpeakerTags = (Arrays.binarySearch(inputs[i].tagIDs, 3) >= 0) && (Arrays.binarySearch(inputs[i].tagIDs, 4) >= 0);
+
+            // Checks if has supergood reading at the speaker
+            boolean hasGreatSpeakerReading = ((inputs[i].tagCount >= 2) && (avgDistance < 4.0) && (hasBlueSpeakerTags || hasRedSpeakerTags));
+            
+            // Exits when in auto if it doesnt have a great great reading
+            if (DriverStation.isAutonomous() && !hasGreatSpeakerReading) {
                 continue;
             }
 
             // Calculate standard deviation to give to the .addVisionData() swerve method
             // Standard Deveation is inverse to confidence level
-            double xyStdDev = VisionConstants.XY_STD_DEV_COEF * Math.pow(avgDistance, 2.0)
-                    / Math.pow(inputs[i].tagCount, 3.0);
-            double thetaStdDev = VisionConstants.THETA_STD_DEV_COEF * Math.pow(avgDistance, 2.0)
-                    / Math.pow(inputs[i].tagCount, 3.0);
-            Shuffleboard.getTab("Vision").add("Vision/XYstd", xyStdDev);
+            xyStdDev = VisionConstants.XY_STD_DEV_COEF * (avgDistance * avgDistance)
+                    / (inputs[i].tagCount * inputs[i].tagCount);
+            if (hasGreatSpeakerReading) {
+                xyStdDev = xyStdDev * 0.5;
+            }
+            double thetaStdDev = VisionConstants.THETA_STD_DEV_COEF;
+            Shuffleboard.getTab("Vision").add("Vision" + i + " XY_std", xyStdDev);
 
             // Add vision data to swerve pose estimator
             VisionData visionData = new VisionData(visionCalcPose, inputs[i].captureTimestamp,
@@ -162,6 +172,8 @@ public class Vision extends SubsystemBase {
 
             // Add robot pose from this camera to a list of all robot poses
             allRobotPoses.add(visionCalcPose);
+            xyStdDev = 200;
         }
+    Shuffleboard.getTab("Vision").add("Vision/AllRobotPoses", allRobotPoses);
     }
 }

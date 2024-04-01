@@ -62,11 +62,12 @@ public class VisionIOLimelight implements VisionIO {
         inputs.tagIDs = tagIDDs;
         inputs.tagDistances = tagDistances;
 
-        // connected if heartbeat value is not zero
+        // Direct access to the network tables for other values
         final NetworkTable limelight = LimelightHelpers.getLimelightNTTable(limelightName);
+        // connected if heartbeat value is not zero
         NetworkTableEntry heartbeatEntry = limelight.getEntry("hb");
         inputs.connected = heartbeatEntry.getDouble(0.0) > 0.0;
-        // has target if 1 
+        // has target if true
         inputs.hasTarget = LimelightHelpers.getTV(limelightName);
     }
 
