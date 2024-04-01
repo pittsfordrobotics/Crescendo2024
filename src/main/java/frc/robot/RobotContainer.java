@@ -184,7 +184,7 @@ public class RobotContainer {
     // // states
     StoredCommand storedCommand = new StoredCommand(shooter, intake);
     IntakeCommand intakeCommand = new IntakeCommand(shooter, intake, () -> StructureStates.getAmpIntake());
-    BetterAMPCommand betterAmpCommand = new BetterAMPCommand(shooter, intake);
+    BetterAMPCommand betterAmpCommand = new BetterAMPCommand(shooter, intake, () -> intake.getNoteInAMPPose());
     SUBWOOFCommand subwoofCommand = new SUBWOOFCommand(shooter, intake);
     PODIUMCommand podiumCommand = new PODIUMCommand(shooter, intake);
     Command idleIndexerCommand = shooter.spinIndexerCommand(RobotConstants.INDEXER_IDLE_SPEED);
