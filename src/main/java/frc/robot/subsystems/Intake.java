@@ -79,7 +79,7 @@ public class Intake extends SubsystemBase {
     resetIntakeMotor();
 
     secondaryIntakeMotor = new CANSparkMax(IntakeConstants.CAN_INTAKE_2, MotorType.kBrushless);
-    intakeMotor.restoreFactoryDefaults();
+    secondaryIntakeMotor.restoreFactoryDefaults();
     secondaryIntakeMotor.follow(intakeMotor, true);
     
     // For PidTuningOnly
