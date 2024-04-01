@@ -101,7 +101,6 @@ public class FieldConstants {
     }
   }
 
-  // Evan added probaly wrong
   public static Pose3d allianceFlipper(Pose3d pose, Alliance alliance) {
     if (alliance == Alliance.Blue) {
       return pose;

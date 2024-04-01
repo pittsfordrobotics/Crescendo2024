@@ -89,7 +89,7 @@ public class Robot extends LoggedRobot {
   @Override
   public void autonomousInit() {
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
-
+    m_robotContainer.useVision(false).schedule();
     // schedule the autonomous command (example)
     if (m_autonomousCommand != null) {
       m_autonomousCommand.schedule();
@@ -110,10 +110,8 @@ public class Robot extends LoggedRobot {
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
-    //m_robotContainer.driveToZeroHeadingAndZeroGyro().schedule();
+    m_robotContainer.useVision(true).schedule();
     m_robotContainer.zeroOdometryAngleOffset().schedule();
-    //m_robotContainer.zeroOdometryFromLastPathPose();
-    //m_robotContainer.setGyroBasedOnPathPlannerTrajectory();
   }
 
   /** This function is called periodically during operator control. */
