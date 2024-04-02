@@ -30,7 +30,7 @@ public class AutoCommandFactory {
     private BooleanSupplier allianceSupplier;
     public AutoCommandFactory(SwerveSubsystem swerveSubsystem) {
         this.swerveSubsystem = swerveSubsystem;
-        // TODO: Replace these values with X and Y translate pid values (should be same) and rotational pid from robot (not necessarily, will test, but should def be nonzero)
+        // TODO: Replace these values with X and Y translate pid values (should be same) and rotational pid from robot (not necessarily, will test, but should def be nonzero) -- THIS IS OLD, NOTHING SHOULD USE IT SO WE DON"T CARE
         xPIDController = new PIDController(2.0, 0.0, 0.0); // PIDController for field-relative X translation (input: Y error in meters, output: m/s).
         yPIDController = new PIDController(2.0, 0, 0); // PIDController for field-relative Y translation (input: Y error in meters, output: m/s).
         headinganglePIDController = new PIDController(0.6, 0.0, 0.01); // PID controller to correct for rotation error

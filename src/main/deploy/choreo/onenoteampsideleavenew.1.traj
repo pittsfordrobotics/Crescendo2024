@@ -235,5 +235,15 @@
       "timestamp": 2.7879658833428147
     }
   ],
-  "eventMarkers": []
+  "eventMarkers": [
+    {
+      "timestamp": 0,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "AlignStuffOnStart"
+        }
+      }
+    }
+  ]
 }
