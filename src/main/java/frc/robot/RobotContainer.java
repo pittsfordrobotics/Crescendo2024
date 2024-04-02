@@ -61,8 +61,6 @@ public class RobotContainer {
   private final Vision vision;
   private double previousRumblePower = 0;
 
-  private final AutoCommandFactory autoCommandFactory;
-
   private SendableChooser<Command> autoChooser = new SendableChooser<>();
   private final CommandXboxController m_driverController = new CommandXboxController(
       OperatorConstants.kDriverControllerPort);
@@ -80,13 +78,9 @@ public class RobotContainer {
     swerveSubsystem = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve/maxSwerve"));
     vision = new Vision(VisionConstants.LIMELIGHT1, VisionConstants.LIMELIGHT2, swerveSubsystem::addVisionData);
 
-
-    // // // auto // // //
-
     FFCalculator c = FFCalculator.getInstance();
     c.updateIntakePivotAngle(intake::getPivotAngleDeg);
     c.updateShooterAngle(shooter::getPivotAngleDeg);
-    autoCommandFactory = new AutoCommandFactory(swerveSubsystem);
     enhancedHeadingSteeringCommand = swerveSubsystem.enhancedHeadingDriveCommand(
         () -> -m_driverController.getLeftY(),
         () -> -m_driverController.getLeftX(),
@@ -104,12 +98,14 @@ public class RobotContainer {
     DisabledInstantCommand zeroOffsetCommand = new DisabledInstantCommand(swerveSubsystem::setSwerveOffsets);
     zeroOffsetCommand.setName("Zero Offsets");
     Shuffleboard.getTab("CONFIG").add("Zero Swerve Module Offsets", zeroOffsetCommand);
+   
+    autoConfig();
 
     StructureStates.setCurrentState(StructureStates.structureState.startup);
+    
     // Configure the trigger bindings
     configure_COMP_Bindings();
     // configure_TEST_Bindings();
-    autoConfig();
   }
 
   private void configure_COMP_Bindings() {
