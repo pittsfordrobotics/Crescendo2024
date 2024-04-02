@@ -1,17 +1,12 @@
 package frc.robot.subsystems;
 
 import com.revrobotics.CANSparkBase;
+import com.revrobotics.CANSparkLowLevel.MotorType;
+import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-
-import com.revrobotics.CANSparkLowLevel.MotorType;
-import com.revrobotics.CANSparkMax;
-import com.revrobotics.SparkPIDController;
-import com.revrobotics.CANSparkBase.ControlType;
-import com.revrobotics.CANSparkBase.SoftLimitDirection;
-
 import frc.robot.Constants.ClimberConstants;
 
 import java.util.ArrayList;
@@ -21,12 +16,8 @@ public class Climber extends SubsystemBase {
     private CANSparkMax leftMotor;
     private CANSparkMax rightMotor;
 
-    private SparkPIDController leftPID;
-    private SparkPIDController rightPID;
     private RelativeEncoder leftEncoder;
     private RelativeEncoder rightEncoder;
-    private boolean leftZeroReached; // Eventually use the limit switch to determine this
-    private boolean rightZeroReached; // Eventually use the limit switch to determine this
     private ArrayList<Double> recentCurrentsLeft = new ArrayList<>();
     private ArrayList<Double> recentCurrentsRight = new ArrayList<>();
     private double currentAverageLeft;
@@ -46,25 +37,8 @@ public class Climber extends SubsystemBase {
         rightMotor.setSmartCurrentLimit(20);
         rightMotor.burnFlash();
 
-        // PID Setup
-        rightPID = rightMotor.getPIDController();
         rightEncoder = rightMotor.getEncoder();
-        rightPID.setFeedbackDevice(rightMotor.getEncoder());
-        rightPID.setP(ClimberConstants.CAN_CLIMBER_P);
-        rightPID.setI(ClimberConstants.CAN_CLIMBER_I);
-        rightPID.setD(ClimberConstants.CAN_CLIMBER_D);
-
-        leftPID = leftMotor.getPIDController();
         leftEncoder = leftMotor.getEncoder();
-        leftPID.setFeedbackDevice(leftMotor.getEncoder());
-        leftPID.setP(ClimberConstants.CAN_CLIMBER_P);
-        leftPID.setI(ClimberConstants.CAN_CLIMBER_I);
-        leftPID.setD(ClimberConstants.CAN_CLIMBER_D);
-
-        // // For PidTuningOnly (outdated)
-        // SmartDashboard.putNumber("Climber P", climberPID.getP());
-        // SmartDashboard.putNumber("Climber D", climberPID.getD());
-        // // // //
 
         // Zero encoder (assumed zero at startup)
         rightEncoder.setPosition(0);
@@ -89,107 +63,32 @@ public class Climber extends SubsystemBase {
     public void periodic() {
         //moving average of the current applied to the motors
         recentCurrentsLeft.add(leftMotor.getOutputCurrent());
-        if(recentCurrentsLeft.size()>5) recentCurrentsLeft.remove(0);
-        currentAverageLeft = recentCurrentsLeft
-                .stream()
+        if(recentCurrentsLeft.size() > 5) recentCurrentsLeft.remove(0);
+        currentAverageLeft = recentCurrentsLeft.stream()
                 .mapToDouble(a -> a)
                 .average()
                 .orElse(0); //averages all elements in recentCurrents
 
         recentCurrentsRight.add(rightMotor.getOutputCurrent());
-        if(recentCurrentsRight.size()>5) recentCurrentsRight.remove(0);
-        currentAverageRight = recentCurrentsRight
-                .stream()
+        if(recentCurrentsRight.size() > 5) recentCurrentsRight.remove(0);
+        currentAverageRight = recentCurrentsRight.stream()
                 .mapToDouble(a -> a)
                 .average()
                 .orElse(0);
-
-        // SmartDashboard.putNumber("Motor Rotations",
-        // rightMotor.getEncoder().getPosition());
-
-        // // For PidTuningOnly
-        // if (SmartDashboard.getNumber("Climber P", ClimberConstants.CAN_CLIMBER_P) !=
-        // climberPID.getP()) {
-        // climberPID.setP(SmartDashboard.getNumber("Climber P",
-        // ClimberConstants.CAN_CLIMBER_P));
-        // }
-        // if (SmartDashboard.getNumber("Climber D", ClimberConstants.CAN_CLIMBER_D) !=
-        // climberPID.getD()) {
-        // climberPID.setD(SmartDashboard.getNumber("Climber D",
-        // ClimberConstants.CAN_CLIMBER_D));
-        // }
-        // // // //
-    }
-
-    // Use pid to reach a predetermined height (Rotations)
-    public Command extendCommand() {
-        return this.runOnce(() -> {
-            rightPID.setReference(ClimberConstants.EXTENSION_SETPOINT, ControlType.kPosition);
-            leftPID.setReference(ClimberConstants.EXTENSION_SETPOINT, ControlType.kPosition);
-        });
-    }
-
-    // Use pid to retract to a predetermined height (Rotations)
-    public Command retractCommand() {
-        return this.runOnce(() -> {
-            rightPID.setReference(ClimberConstants.RETRACTION_SETPOINT, ControlType.kPosition);
-            leftPID.setReference(ClimberConstants.RETRACTION_SETPOINT, ControlType.kPosition);
-        });
-    }
-
-    // Make the climber motor rotate to zero
-    public Command moveToZeroCommand() {
-        return this.runOnce(() -> rightPID.setReference(0, ControlType.kPosition));
     }
 
     /**
-     * @return a command to zero encoder.
+     * @return a command to zero the encoder.
      */
     public Command zeroEncoderCommand() {
-        return this.runOnce(() -> rightEncoder.setPosition(0));
-    }
-
-    /**
-     * <h3>TEMPORARY</h3>
-     * <p>
-     * Should be removed when limit switches are added.
-     * </p>
-     * 
-     * @return
-     *         <p>
-     *         A command that drives motors down at 10% power and max 3 amps of
-     *         current.
-     *         </p>
-     *         <p>
-     *         Sets zero points for encoders once reached.
-     *         </p>
-     */
-    public Command moveAndZeroEncoderCommand() {
-        return this.run(() -> {
-            if (leftMotor.getOutputCurrent() < 3) {
-                leftMotor.set(-0.1);
-                leftZeroReached = false;
-            } else {
-                leftMotor.set(0);
-                leftEncoder.setPosition(0);
-                leftZeroReached = true;
-            }
-            if (rightMotor.getOutputCurrent() < 3) {
-                rightMotor.set(-0.1);
-                rightZeroReached = false;
-            } else {
-                rightMotor.set(0);
-                rightEncoder.setPosition(0);
-                rightZeroReached = true;
-            }
-        }).until(() -> leftZeroReached && rightZeroReached).beforeStarting(() -> {
-            rightZeroReached = false;
-            leftZeroReached = false;
+        return this.runOnce(() -> {
+            leftEncoder.setPosition(0);
+            rightEncoder.setPosition(0);
         });
     }
 
     /**
-     * Sets the voltage for both motors.
+     * @return a command that sets the voltage for both motors.
      */
     public Command setSpeedCommand(double speed) {
         return this.runOnce(() -> {
@@ -210,8 +109,8 @@ public class Climber extends SubsystemBase {
     }
 
     /**
-     * Moves both motors down until one hits the chain, then stops that one and moves the other until
-     * both are on the chain.
+     * @return a command that moves both motors down until one hits the chain, then stops that one and moves the
+     * other until both are on the chain.
      */
     public Command downUntilChainCommand() {
         return this.run(() -> {
