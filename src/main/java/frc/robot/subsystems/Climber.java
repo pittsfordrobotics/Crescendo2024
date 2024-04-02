@@ -1,6 +1,8 @@
 package frc.robot.subsystems;
 
+import com.revrobotics.CANSparkBase;
 import com.revrobotics.RelativeEncoder;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -25,9 +27,10 @@ public class Climber extends SubsystemBase {
     private boolean leftZeroReached; // Eventually use the limit switch to determine this
     private boolean rightZeroReached; // Eventually use the limit switch to determine this
     private ArrayList<Double> recentCurrentsLeft = new ArrayList<>();
-    private double currentAverageLeft;
     private ArrayList<Double> recentCurrentsRight = new ArrayList<>();
+    private double currentAverageLeft;
     private double currentAverageRight;
+    private double softLimit;
 
     public Climber() {
         // Initialize the left motor.
@@ -57,7 +60,7 @@ public class Climber extends SubsystemBase {
         leftPID.setI(ClimberConstants.CAN_CLIMBER_I);
         leftPID.setD(ClimberConstants.CAN_CLIMBER_D);
 
-        // // For PidTuningOnly
+        // // For PidTuningOnly (outdated)
         // SmartDashboard.putNumber("Climber P", climberPID.getP());
         // SmartDashboard.putNumber("Climber D", climberPID.getD());
         // // // //
@@ -65,6 +68,17 @@ public class Climber extends SubsystemBase {
         // Zero encoder (assumed zero at startup)
         rightEncoder.setPosition(0);
         leftEncoder.setPosition(0);
+
+        //soft limits
+        softLimit = leftEncoder.getPosition() * 0.5;
+        leftMotor.setSoftLimit(CANSparkBase.SoftLimitDirection.kReverse, (float) softLimit);
+        rightMotor.setSoftLimit(CANSparkBase.SoftLimitDirection.kReverse, (float) softLimit);
+
+        //set buttons on shuffleboard
+        Shuffleboard.getTab("Climber").addDouble("Soft Limit", () -> softLimit);
+        //todo: name the buttons (how?)
+        Shuffleboard.getTab("Climber").add(sendableBuilder -> softLimit *= 1.1); //up 10%
+        Shuffleboard.getTab("Climber").add(sendableBuilder -> softLimit *= 0.9); //down 10%
     }
 
     /**
@@ -198,7 +212,7 @@ public class Climber extends SubsystemBase {
      * Moves both motors down until one hits the chain, then stops that one and moves the other until
      * both are on the chain.
      */
-    public Command downUntilChain() {
+    public Command downUntilChainCommand() {
         return this.run(() -> {
             boolean[] chain = detectChain();
             leftMotor.set(chain[0] ? 0 : -0.5);
