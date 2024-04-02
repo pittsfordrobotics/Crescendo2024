@@ -174,6 +174,7 @@ public class Vision extends SubsystemBase {
             allRobotPoses.add(visionCalcPose);
             xyStdDev = 200;
         }
-    Shuffleboard.getTab("Vision").add("Vision/AllRobotPoses", allRobotPoses);
+//    Shuffleboard.getTab("Vision").add("Vision/AllRobotPoses", allRobotPoses);
+        //TODO see if not being able to put Arraylist or Array<Pose2d> to shuffleboard is just a sim issue
     }
 }
