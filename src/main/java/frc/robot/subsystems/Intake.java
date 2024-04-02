@@ -28,6 +28,7 @@ import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 public class Intake extends SubsystemBase {
 
   private CANSparkMax intakeMotor;
+  private CANSparkMax secondaryIntakeMotor;
   private CANSparkMax pivotMotorL;
   private CANSparkMax pivotMotorR;
   private DigitalInput beamBreak;
@@ -44,7 +45,7 @@ public class Intake extends SubsystemBase {
     // Intake Pivot Motor R (Leader)
     pivotMotorR = new CANSparkMax(IntakeConstants.CAN_INTAKE_PIVOT_R, MotorType.kBrushless);
     pivotMotorR.restoreFactoryDefaults();
-    pivotMotorR.setSmartCurrentLimit(40);
+    pivotMotorR.setSmartCurrentLimit(IntakeConstants.PIVOT_CURRENT_LIMIT);
     pivotMotorR.setInverted(true);
     pivotRABSEncoder = pivotMotorR.getAbsoluteEncoder(Type.kDutyCycle);
     pivotRABSEncoder.setPositionConversionFactor(360);
@@ -58,47 +59,33 @@ public class Intake extends SubsystemBase {
     pivotRPID.setPositionPIDWrappingEnabled(true);
     pivotRPID.setPositionPIDWrappingMaxInput(360);
     pivotRPID.setPositionPIDWrappingMinInput(0);
-    pivotRPID.setOutputRange(-0.8, .8);
+    pivotRPID.setOutputRange(-0.8, 0.8);
 
     pivotMotorR.burnFlash();
-    try {
-      Thread.sleep(200);
-    } catch (InterruptedException e) {
-    }
+    sleep(200);
 
     // Intake Pivot Motor L
     pivotMotorL = new CANSparkMax(IntakeConstants.CAN_INTAKE_PIVOT_L, MotorType.kBrushless);
     pivotMotorL.restoreFactoryDefaults();
-    pivotMotorL.setSmartCurrentLimit(40);
+    pivotMotorL.setSmartCurrentLimit(IntakeConstants.PIVOT_CURRENT_LIMIT);
     pivotMotorL.follow(pivotMotorR, true);
 
     pivotMotorL.burnFlash();
-    try {
-      Thread.sleep(200);
-    } catch (InterruptedException e) {
-    }
+    sleep(200);
 
-    // Intake Motor
-    intakeMotor = new CANSparkMax(IntakeConstants.CAN_INTAKE, MotorType.kBrushless);
-    resetintakemotor();
-    try {
-      Thread.sleep(200);
-    } catch (InterruptedException e) {
-    }
-    resetintakemotor();
-    try {
-      Thread.sleep(200);
-    } catch (InterruptedException e) {
-    }
-    resetintakemotor();
-    try {
-      Thread.sleep(200);
-    } catch (InterruptedException e) {
-    }
+    // Intake Motors
+    intakeMotor = new CANSparkMax(IntakeConstants.CAN_INTAKE_1, MotorType.kBrushless);
+    intakeMotor.restoreFactoryDefaults();
+    resetIntakeMotor();
+    sleep(200);
+    resetIntakeMotor();
+    sleep(200);
+    resetIntakeMotor();
 
-    // BeamBreak Sensor
-    beamBreak = new DigitalInput(IntakeConstants.BEAM_BREAK_DIO);
-
+    secondaryIntakeMotor = new CANSparkMax(IntakeConstants.CAN_INTAKE_2, MotorType.kBrushless);
+    secondaryIntakeMotor.restoreFactoryDefaults();
+    secondaryIntakeMotor.follow(intakeMotor, true);
+    
     // For PidTuningOnly
     // SmartDashboard.putNumber("Intake P", pivotRPID.getP());
     // SmartDashboard.putNumber("Intake D", pivotRPID.getD());
@@ -110,7 +97,7 @@ public class Intake extends SubsystemBase {
     Shuffleboard.getTab("Intake").addDouble("Intake Pivot Angle", this::getPivotAngleDeg);
 
     Shuffleboard.getTab("Intake").add("Zero Intake Pivot", new DisabledInstantCommand(this::zeroIntakePivot));
-    Shuffleboard.getTab("COMP").add("Reset Intake Motor", new DisabledInstantCommand(this::resetintakemotor));
+    Shuffleboard.getTab("COMP").add("Reset Intake Motor", new DisabledInstantCommand(this::resetIntakeMotor));
 
     // Shuffleboard.getTab("Intake").add("Intake Pivot Coast", new
     // DisabledInstantCommand(this::setPivotCoastCommand));
@@ -118,10 +105,9 @@ public class Intake extends SubsystemBase {
     // DisabledInstantCommand(this::setPivotBrakeCommand));
   }
 
-  private void resetintakemotor() {
-    intakeMotor.restoreFactoryDefaults();
+  private void resetIntakeMotor() {
     intakeMotor.setInverted(true);
-    intakeMotor.setSmartCurrentLimit(20);
+    intakeMotor.setSmartCurrentLimit(IntakeConstants.INTAKE_CURRENT_LIMIT);
     intakeMotor.setOpenLoopRampRate(0.5);
     intakeMotor.burnFlash();
   }
@@ -198,8 +184,9 @@ public class Intake extends SubsystemBase {
 
   // Zeros the Intake Angle
   public void zeroIntakePivot() {
-    pivotRABSEncoder.setZeroOffset(MathUtil
-        .inputModulus(pivotRABSEncoder.getPosition() + pivotRABSEncoder.getZeroOffset(), 0, 360));
+    pivotRABSEncoder.setZeroOffset(
+      MathUtil.inputModulus(pivotRABSEncoder.getPosition() + pivotRABSEncoder.getZeroOffset(), 0, 360));
+
     pivotMotorR.burnFlash();
   }
 
@@ -221,7 +208,7 @@ public class Intake extends SubsystemBase {
   // Sets the intake pivot angle to a certain angle using PID on right motors
   // **set in degrees**
   public Command setPivotAngleCommand(double setpointDeg) {
-    double setpointDegClamped = MathUtil.clamp(setpointDeg, 0, 170);
+    double setpointDegClamped = MathUtil.clamp(setpointDeg, IntakeConstants.PIVOT_ANGLE_MIN, IntakeConstants.PIVOT_ANGLE_MAX);
     return this.runOnce(() -> pivotAngleSetpointDeg = setpointDegClamped);
   }
 
@@ -244,9 +231,16 @@ public class Intake extends SubsystemBase {
   public Command setPivotAngleSupplierCommand() {
     return this.runOnce(() -> {
       double setpoint = SmartDashboard.getNumber("IntakePivotAngle_CHANGEME", 170);
-      double setpointDegClamped = MathUtil.clamp(setpoint, 0, 170);
+      double setpointDegClamped = MathUtil.clamp(setpoint, IntakeConstants.PIVOT_ANGLE_MIN, IntakeConstants.PIVOT_ANGLE_MAX);   
       pivotAngleSetpointDeg = setpointDegClamped;
     });
+  }
 
+  private void sleep(int milliseconds)
+  {
+    try {
+      Thread.sleep(milliseconds);
+    } catch (InterruptedException e) {
+    }
   }
 }

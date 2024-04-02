@@ -2,7 +2,8 @@ package frc.robot.Constants;
 
 public class IntakeConstants {
 
-    public static final int CAN_INTAKE = 21;
+    public static final int CAN_INTAKE_1 = 21;
+    public static final int CAN_INTAKE_2 = 24;
     public static final int CAN_INTAKE_PIVOT_L = 22;
     public static final int CAN_INTAKE_PIVOT_R = 23;
 
@@ -11,6 +12,11 @@ public class IntakeConstants {
     public static final double INTAKE_Pivot_D = 0.025;//was .025 before 2/21 (evan changed)
 
     public static final int BEAM_BREAK_DIO = 1;
+    public static final int INTAKE_CURRENT_LIMIT = 20;
+    public static final int PIVOT_CURRENT_LIMIT = 40;
+
+    public static final int PIVOT_ANGLE_MAX = 170;
+    public static final int PIVOT_ANGLE_MIN = 0;
 
     // FF constants
     // See diagram its very usefull
