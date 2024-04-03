@@ -125,7 +125,7 @@ public class Vision extends SubsystemBase {
             double gyroAngle = gyroangle.get().getDegrees();
             if (Math.abs(gyroAngle - visionCalcPose.getRotation().getDegrees()) > 5) {
                 System.out.println("Gyro and Vision do not match");
-                continue;
+                // continue;
             }
 
             // Vision should not be exited at this point?
@@ -141,12 +141,12 @@ public class Vision extends SubsystemBase {
                 Optional<Pose3d> tagPose = FieldConstants.aprilTags.getTagPose((int) inputs[i].tagIDs[z]);
                 tagPose.ifPresent(tagPoses::add);
             }
-            Shuffleboard.getTab("Vision").add("Vision" + i + " TagIds", inputs[i].tagIDs);
+            // Shuffleboard.getTab("Vision").add("Vision" + i + " TagIds", inputs[i].tagIDs);
 
             // Gets the average distance to tag
             double avgDistance = inputs[i].avgTagDist;
-            Shuffleboard.getTab("Vision").add("Vision" + i + " AvgDist", avgDistance);
-            Shuffleboard.getTab("Vision").add("Vision" + i + " NumofTags", inputs[i].tagCount);
+            // Shuffleboard.getTab("Vision").add("Vision" + i + " AvgDist", avgDistance);
+            // Shuffleboard.getTab("Vision").add("Vision" + i + " NumofTags", inputs[i].tagCount);
             // TODO: Double check this can be over 2 lol
 
             // Check if the robot has both speaker tags for red or blue
@@ -172,7 +172,8 @@ public class Vision extends SubsystemBase {
                 xyStdDev = xyStdDev * 0.5;
             }
             double thetaStdDev = VisionConstants.THETA_STD_DEV_COEF;
-            Shuffleboard.getTab("Vision").add("Vision" + i + " XY_std", xyStdDev);
+            // Shuffleboard.getTab("Vision").add("Vision" + i + " XY_std", xyStdDev);
+            // Shuffleboard.getTab("Vision").add("Has Great Speaker Reading", hasGreatSpeakerReading);
 
             // Add vision data to swerve pose estimator
             VisionData visionData = new VisionData(visionCalcPose, inputs[i].captureTimestamp,
