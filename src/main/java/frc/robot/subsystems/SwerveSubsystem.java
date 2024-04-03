@@ -54,6 +54,7 @@ import swervelib.SwerveDrive;
 import swervelib.SwerveDriveTest;
 import swervelib.SwerveModule;
 import swervelib.math.SwerveMath;
+import swervelib.motors.SwerveMotor;
 import swervelib.parser.SwerveControllerConfiguration;
 import swervelib.parser.SwerveDriveConfiguration;
 import swervelib.parser.SwerveParser;
@@ -104,7 +105,7 @@ public class SwerveSubsystem extends SubsystemBase {
         // meters to get meters/second.
         // The gear ratio is 6.75 motor revolutions per wheel rotation.
         // The encoder resolution per motor revolution is 1 per motor revolution.
-        double driveConversionFactor = SwerveMath.calculateMetersPerRotation(Units.inchesToMeters(4), 6.75);
+        double driveConversionFactor = SwerveMath.calculateMetersPerRotation(Units.inchesToMeters(3), 4.710);
         System.out.println("\"conversionFactor\": {");
         System.out.println("\t\"angle\": " + angleConversionFactor + ",");
         System.out.println("\t\"drive\": " + driveConversionFactor);
@@ -112,7 +113,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
         // Configure the Telemetry before creating the SwerveDrive to avoid unnecessary
         // objects being created.
-        SwerveDriveTelemetry.verbosity = TelemetryVerbosity.LOW;
+        SwerveDriveTelemetry.verbosity = TelemetryVerbosity.HIGH; //TODO: Change back to LOW
         try {
             swerveDrive = new SwerveParser(directory).createSwerveDrive(maximumSpeed);
             // Alternative method if you don't want to supply the conversion factor via JSON
@@ -125,7 +126,13 @@ public class SwerveSubsystem extends SubsystemBase {
         swerveDrive.setHeadingCorrection(false); // Heading correction should only be used while controlling the robot
                                                  // via angle.
 
-        swerveDrive.replaceSwerveModuleFeedforward(new SimpleMotorFeedforward(SwerveConstants.SWERVEMODULE_kS, SwerveConstants.SWERVEMODULE_kV, SwerveConstants.SWERVEMODULE_kA)); // remove kA for module maybe
+        //swerveDrive.replaceSwerveModuleFeedforward(new SimpleMotorFeedforward(SwerveConstants.SWERVEMODULE_kS, SwerveConstants.SWERVEMODULE_kV, SwerveConstants.SWERVEMODULE_kA)); // ONLY USE WHEN U WANT SAME VALUES ON ALL MODULES
+        double[] swerveModuleDrivekSArray = {SwerveConstants.FRONT_LEFT.drive_kS, SwerveConstants.FRONT_RIGHT.drive_kS, SwerveConstants.BACK_LEFT.drive_kS, SwerveConstants.BACK_RIGHT.drive_kS};
+        double[] swerveModuleDrivekVArray = {SwerveConstants.FRONT_LEFT.drive_kV, SwerveConstants.FRONT_RIGHT.drive_kV, SwerveConstants.BACK_LEFT.drive_kV, SwerveConstants.BACK_RIGHT.drive_kV};
+        double[] swerveModuleDrivekAArray = {SwerveConstants.FRONT_LEFT.drive_kA, SwerveConstants.FRONT_RIGHT.drive_kA, SwerveConstants.BACK_LEFT.drive_kA, SwerveConstants.BACK_RIGHT.drive_kA};
+        for(int i = 0; i < swerveDrive.getModules().length; i++) {
+            swerveDrive.getModules()[i].setFeedforward(new SimpleMotorFeedforward(swerveModuleDrivekSArray[i], swerveModuleDrivekVArray[i], swerveModuleDrivekAArray[i])); // 
+          }
         setupPathPlanner();
 
         prevVelocityP = getSwerveDriveConfiguration().modules[0].configuration.velocityPIDF.p;
@@ -142,6 +149,8 @@ public class SwerveSubsystem extends SubsystemBase {
 
         prevHeadingD = getSwerveController().thetaController.getD();
         headingD = Shuffleboard.getTab("PID Config").add("Heading D", prevHeadingD);
+
+        Shuffleboard.getTab("CONFIG").addDouble("Front left voltage", () -> swerveDrive.getModules()[0].getDriveMotor().getVoltage());
 
         Shuffleboard.getTab("PID Config").addString("PIDs", this::getPIDVals);
 

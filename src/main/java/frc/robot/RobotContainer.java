@@ -158,6 +158,8 @@ public class RobotContainer {
   }
 
   private void configure_COMP_Bindings() {
+    //SYSID button on shuffleboard
+    Shuffleboard.getTab("CONFIG").add("SysID drive motor routine", swerveSubsystem.sysIdDriveMotorCommand());
     // ToDo:
     // Test if stored command should be set in the begining or end of the command
 
@@ -214,8 +216,8 @@ public class RobotContainer {
       storedCommand.schedule();
     }));
 
-    PathPlannerPath redampPath = PathPlannerPath.fromPathFile("RedAmpPath");
-    PathPlannerPath blueampPath = PathPlannerPath.fromPathFile("BlueAmpPath");
+    //PathPlannerPath redampPath = PathPlannerPath.fromPathFile("RedAmpPath");
+    //PathPlannerPath blueampPath = PathPlannerPath.fromPathFile("BlueAmpPath");
     Command blueampheadingcommand = swerveSubsystem.correctHeading(Rotation2d.fromDegrees(-90))
         .beforeStarting(Commands.runOnce(() -> vision.useVision(false)));
     Command redampheadingcommand = swerveSubsystem.correctHeading(Rotation2d.fromDegrees(90))
