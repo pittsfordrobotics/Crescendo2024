@@ -42,7 +42,7 @@ public class Intake extends SubsystemBase {
     pivotMotorR.restoreFactoryDefaults();
     pivotMotorR.setSmartCurrentLimit(40);
     pivotMotorR.setInverted(true);
-    pivotMotorR.setOpenLoopRampRate(0.25);
+    pivotMotorR.setClosedLoopRampRate(0.25);
     pivotRABSEncoder = pivotMotorR.getAbsoluteEncoder(Type.kDutyCycle);
     pivotRABSEncoder.setPositionConversionFactor(360);
     pivotRABSEncoder.setInverted(true);
@@ -92,8 +92,6 @@ public class Intake extends SubsystemBase {
       Thread.sleep(200);
     } catch (InterruptedException e) {
     }
-    // intakeMotor.setOpenLoopRampRate(2); // sets minimum time in seconds that the motor takes to go from 0 to full throttle
-    // TODO: Tune this ramp rate
 
     // For PidTuningOnly
     // SmartDashboard.putNumber("Intake P", pivotRPID.getP());

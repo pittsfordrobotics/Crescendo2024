@@ -118,7 +118,7 @@ public class Shooter extends SubsystemBase {
     pivotRPID.setPositionPIDWrappingEnabled(true);
     pivotRPID.setPositionPIDWrappingMaxInput(360);
     pivotRPID.setPositionPIDWrappingMinInput(0);
-    pivotMotorR.setOpenLoopRampRate(0.25);
+    pivotMotorR.setClosedLoopRampRate(0.25);
 
     pivotMotorR.burnFlash();
     try {
