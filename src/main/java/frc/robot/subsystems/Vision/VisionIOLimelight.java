@@ -16,15 +16,6 @@ import frc.robot.lib.util.LimelightHelpers.RawFiducial;
 import edu.wpi.first.wpilibj.Timer;
 
 public class VisionIOLimelight implements VisionIO {
-    public Pose3d lastPose = new Pose3d();
-
-    // This is how it was last year.
-    // I changed it so that each method takes a name parameter. So that multiple
-    // limelights is possible.
-    // I might be completely of base here, but I think this should work.
-    // private final String limelightName = "";
-    // private final NetworkTable limelight =
-    // LimelightHelpers.getLimelightNTTable(limelightName);
 
     public VisionIOLimelight(String CamName) {
         setLEDs(LED.OFF, CamName);

@@ -63,6 +63,17 @@ public class Vision extends SubsystemBase {
 
         Shuffleboard.getTab("Vision").addBoolean("Is Vison Being Used?", this::usingVision);
         Shuffleboard.getTab("Vision").add("UseVisionToggle", new DisabledInstantCommand(this::useVisionToggle));
+        
+        for (int i = 0; i < io.length; i++) {
+            int number = i;
+            Shuffleboard.getTab("Vision").addDouble(i + "/AvgTagDist", () -> this.inputs[number].avgTagDist);
+            Shuffleboard.getTab("Vision").addInteger(i + "/NumTags", () -> this.inputs[number].tagCount);
+            Shuffleboard.getTab("Vision").addDoubleArray(i + "/TagDistances", () -> this.inputs[number].tagDistances);
+            Shuffleboard.getTab("Vision").addString(i + "/TagIDs", () -> this.inputs[number].tagIDs.toString()); //why are ints dumb
+            Shuffleboard.getTab("Vision").addDouble(i + "/Pose2d_X", () -> this.inputs[number].pose.getX());
+            Shuffleboard.getTab("Vision").addDouble(i + "/Pose2d_Y", () -> this.inputs[number].pose.getY());
+            Shuffleboard.getTab("Vision").addDouble(i + "/Pose2d_Theta", () -> this.inputs[number].pose.getRotation().getDegrees());
+        }
     }
 
     private final VisionIO.VisionIOInputs[] inputs = new VisionIO.VisionIOInputs[] { new VisionIO.VisionIOInputs(),
