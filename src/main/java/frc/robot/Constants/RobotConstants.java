@@ -6,7 +6,7 @@ package frc.robot.Constants;
 
 /** Add your docs here. */
 public class RobotConstants {
-    public static final String SMARTDASHBOARD_COMP_TAB_PREFIX = "SmartDashboard/COMP/";
+    public static final String SHUFFLEBOARD_COMP_TAB_NAME = "COMP";
     // Positive RPM pushes out the note
     // Positive angle movement moves the shooter or intake up
 
