@@ -28,6 +28,8 @@ import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.Timer;
@@ -88,6 +90,9 @@ public class SwerveSubsystem extends SubsystemBase {
 
     private Rotation2d currentTargetAngle = new Rotation2d();
     private double speedFactor = 1;
+
+    StructPublisher<Pose2d> publisher = NetworkTableInstance.getDefault()
+            .getStructTopic("SwervePose", Pose2d.struct).publish();
 
     /**
      * Initialize {@link SwerveDrive} with the directory provided.
@@ -242,9 +247,10 @@ public class SwerveSubsystem extends SubsystemBase {
         );
     }
 
-    public Command pathToPath (PathPlannerPath path) {
+    public Command pathToPath(PathPlannerPath path) {
         // Load the path we want to pathfind to and follow
-        // PathPlannerPath path = PathPlannerPath.fromPathFile("Example Human Player Pickup");
+        // PathPlannerPath path = PathPlannerPath.fromPathFile("Example Human Player
+        // Pickup");
 
         // Create the constraints to use while pathfinding. The constraints defined in
         // the path will only be used for the path.
@@ -257,7 +263,7 @@ public class SwerveSubsystem extends SubsystemBase {
                 path,
                 constraints,
                 .5 // Rotation delay distance in meters. This is how far the robot should travel
-                    // before attempting to rotate.
+                   // before attempting to rotate.
         );
     }
 
@@ -267,11 +273,10 @@ public class SwerveSubsystem extends SubsystemBase {
      * 
      * @return A command to drive to that heading angle between path segments
      */
-   public Command correctHeading(ChoreoTrajectory traj) {
-        return this.run(() -> 
-        {
-        swerveDrive.drive(swerveDrive.swerveController.getTargetSpeeds(0, 0, currentTargetAngle.getRadians(),
-                getHeading().getRadians(), swerveDrive.getMaximumVelocity()));
+    public Command correctHeading(ChoreoTrajectory traj) {
+        return this.run(() -> {
+            swerveDrive.drive(swerveDrive.swerveController.getTargetSpeeds(0, 0, currentTargetAngle.getRadians(),
+                    getHeading().getRadians(), swerveDrive.getMaximumVelocity()));
         })
                 .beforeStarting(() -> {
                     swerveDrive.setHeadingCorrection(true);
@@ -279,37 +284,40 @@ public class SwerveSubsystem extends SubsystemBase {
                 })
                 .until(() -> Math.abs(currentTargetAngle.getDegrees() - getHeading().getDegrees()) < 4);
     }
+
     public Command correctHeading(Supplier<Pose2d> targetPoseSupplier) {
-        return Commands.run(() -> 
-        {
-        swerveDrive.drive(swerveDrive.swerveController.getTargetSpeeds(0, 0, currentTargetAngle.getRadians(),
-                getHeading().getRadians(), swerveDrive.getMaximumVelocity()));
+        return Commands.run(() -> {
+            swerveDrive.drive(swerveDrive.swerveController.getTargetSpeeds(0, 0, currentTargetAngle.getRadians(),
+                    getHeading().getRadians(), swerveDrive.getMaximumVelocity()));
         })
-                .beforeStarting(() -> 
-                {
-                swerveDrive.setHeadingCorrection(true);
-                //currentTargetAngle = (DriverStation.getAlliance().get() == Alliance.Blue) ? traj.getFinalPose().getRotation() : traj.flipped().getFinalPose().getRotation();
-                System.out.println("Correcting heading to: " + targetPoseSupplier.get().getRotation());
-                currentTargetAngle = (targetPoseSupplier.get().getRotation());
+                .beforeStarting(() -> {
+                    swerveDrive.setHeadingCorrection(true);
+                    // currentTargetAngle = (DriverStation.getAlliance().get() == Alliance.Blue) ?
+                    // traj.getFinalPose().getRotation() :
+                    // traj.flipped().getFinalPose().getRotation();
+                    System.out.println("Correcting heading to: " + targetPoseSupplier.get().getRotation());
+                    currentTargetAngle = (targetPoseSupplier.get().getRotation());
 
                 })
-                .until(() -> Math.abs(currentTargetAngle.getDegrees() - getHeading().getDegrees()) < RobotConstants.CORRECTHEADING_TOLERANCE_DEGREES);
+                .until(() -> Math.abs(currentTargetAngle.getDegrees()
+                        - getHeading().getDegrees()) < RobotConstants.CORRECTHEADING_TOLERANCE_DEGREES);
     }
 
-
     public Command correctHeading(Rotation2d targetRotation) {
-        return Commands.run(() -> 
-        {
-        swerveDrive.drive(swerveDrive.swerveController.getTargetSpeeds(0, 0, currentTargetAngle.getRadians(),
-                getHeading().getRadians(), swerveDrive.getMaximumVelocity()));
+        return Commands.run(() -> {
+            swerveDrive.drive(swerveDrive.swerveController.getTargetSpeeds(0, 0, currentTargetAngle.getRadians(),
+                    getHeading().getRadians(), swerveDrive.getMaximumVelocity()));
         })
-                .beforeStarting(() -> 
-                {
-                swerveDrive.setHeadingCorrection(true);
-                //currentTargetAngle = (DriverStation.getAlliance().get() == Alliance.Blue) ? traj.getFinalPose().getRotation() : traj.flipped().getFinalPose().getRotation();
-                currentTargetAngle = AllianceFlipUtil.apply(targetRotation);
+                .beforeStarting(() -> {
+                    swerveDrive.setHeadingCorrection(true);
+                    // currentTargetAngle = (DriverStation.getAlliance().get() == Alliance.Blue) ?
+                    // traj.getFinalPose().getRotation() :
+                    // traj.flipped().getFinalPose().getRotation();
+                    currentTargetAngle = AllianceFlipUtil.apply(targetRotation);
                 })
-                .until(() -> Math.abs(currentTargetAngle.getDegrees() - getHeading().getDegrees()) < RobotConstants.CORRECTHEADING_TOLERANCE_DEGREES); //TODO: edit tolerance
+                .until(() -> Math.abs(currentTargetAngle.getDegrees()
+                        - getHeading().getDegrees()) < RobotConstants.CORRECTHEADING_TOLERANCE_DEGREES); // TODO: edit
+                                                                                                         // tolerance
     }
 
     /**
@@ -398,7 +406,15 @@ public class SwerveSubsystem extends SubsystemBase {
             }
             if (leftRotationInput != 0 && rightRotationInput == 0) {
                 swerveDrive.setHeadingCorrection(false);
-                double leftRotationOutput = Math.pow(leftRotationInput, 3) * swerveDrive.getMaximumAngularVelocity() * 2 //For some reason max angular velocity is too low
+                double leftRotationOutput = Math.pow(leftRotationInput, 3) * swerveDrive.getMaximumAngularVelocity() * 2 // For
+                                                                                                                         // some
+                                                                                                                         // reason
+                                                                                                                         // max
+                                                                                                                         // angular
+                                                                                                                         // velocity
+                                                                                                                         // is
+                                                                                                                         // too
+                                                                                                                         // low
                         * speedFactor;
                 swerveDrive.drive(new Translation2d(
                         xInput * swerveDrive.getMaximumVelocity() * speedFactor,
@@ -570,14 +586,14 @@ public class SwerveSubsystem extends SubsystemBase {
     public void resetOdometry(Pose2d initialHolonomicPose) {
         swerveDrive.resetOdometry(initialHolonomicPose);
     }
+
     public Command resetOdometry(Supplier<Pose2d> initialHolonomicPoseSupplier) {
-        return Commands.runOnce(() ->
-        {
-        swerveDrive.resetOdometry(initialHolonomicPoseSupplier.get());
-        System.out.println("Reset odometry based on pose: " + initialHolonomicPoseSupplier.get());
-        }
-        );
+        return Commands.runOnce(() -> {
+            swerveDrive.resetOdometry(initialHolonomicPoseSupplier.get());
+            System.out.println("Reset odometry based on pose: " + initialHolonomicPoseSupplier.get());
+        });
     }
+
     /**
      * Sets the odometry angle to the current gyro angle.
      * 
@@ -593,6 +609,7 @@ public class SwerveSubsystem extends SubsystemBase {
             System.out.println("resetOdometry with LastPathPose = " + RobotContainer.getPathPlannerTargetPose());
         });
     }
+
     /**
      * Gets the current pose (position and rotation) of the robot, as reported by
      * odometry.
@@ -841,6 +858,8 @@ public class SwerveSubsystem extends SubsystemBase {
         }
 
         swerveDrive.updateOdometry();
+
+        publisher.set(this.getPose());
 
         SmartDashboard.putNumber("Vision-Swerve-PoseX", this.getPose().getX());
         SmartDashboard.putNumber("Vision-Swerve-PoseY", this.getPose().getY());

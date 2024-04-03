@@ -30,6 +30,9 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StructArrayPublisher;
+import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -47,6 +50,9 @@ public class Vision extends SubsystemBase {
 
     private final VisionIO[] io;
     private final Map<Integer, Double> lastTagDetectionTimes = new HashMap<>();
+
+    StructArrayPublisher<Pose2d> visionPoseArrayPublisher = NetworkTableInstance.getDefault()
+            .getStructArrayTopic("Vision Poses", Pose2d.struct).publish();
 
     public Vision(VisionIO ioLimelight1, VisionIO ioLimelight2, Supplier<Rotation2d> gyroangle,
             Consumer<VisionData> visionDataConsumer) {
@@ -144,12 +150,15 @@ public class Vision extends SubsystemBase {
             // TODO: Double check this can be over 2 lol
 
             // Check if the robot has both speaker tags for red or blue
-            boolean hasBlueSpeakerTags = (Arrays.binarySearch(inputs[i].tagIDs, 7) >= 0) && (Arrays.binarySearch(inputs[i].tagIDs, 8) >= 0);
-            boolean hasRedSpeakerTags = (Arrays.binarySearch(inputs[i].tagIDs, 3) >= 0) && (Arrays.binarySearch(inputs[i].tagIDs, 4) >= 0);
+            boolean hasBlueSpeakerTags = (Arrays.binarySearch(inputs[i].tagIDs, 7) >= 0)
+                    && (Arrays.binarySearch(inputs[i].tagIDs, 8) >= 0);
+            boolean hasRedSpeakerTags = (Arrays.binarySearch(inputs[i].tagIDs, 3) >= 0)
+                    && (Arrays.binarySearch(inputs[i].tagIDs, 4) >= 0);
 
             // Checks if has supergood reading at the speaker
-            boolean hasGreatSpeakerReading = ((inputs[i].tagCount >= 2) && (avgDistance < 4.0) && (hasBlueSpeakerTags || hasRedSpeakerTags));
-            
+            boolean hasGreatSpeakerReading = ((inputs[i].tagCount >= 2) && (avgDistance < 4.0)
+                    && (hasBlueSpeakerTags || hasRedSpeakerTags));
+
             // Exits when in auto if it doesnt have a great great reading
             if (DriverStation.isAutonomous() && !hasGreatSpeakerReading) {
                 continue;
@@ -174,7 +183,6 @@ public class Vision extends SubsystemBase {
             allRobotPoses.add(visionCalcPose);
             xyStdDev = 200;
         }
-//    Shuffleboard.getTab("Vision").add("Vision/AllRobotPoses", allRobotPoses);
-        //TODO see if not being able to put Arraylist or Array<Pose2d> to shuffleboard is just a sim issue
+        visionPoseArrayPublisher.set(allRobotPoses.toArray(new Pose2d[0]));
     }
 }
