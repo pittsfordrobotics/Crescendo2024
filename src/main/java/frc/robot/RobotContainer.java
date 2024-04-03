@@ -111,8 +111,7 @@ public class RobotContainer {
         NamedCommands.registerCommand("AlignStuffOnStart", new SequentialCommandGroup(setGyroBasedOnPathPlannerTrajectory(), swerveSubsystem.resetOdometry(pathPlannerTargetPoseSupplier)));
         // instantiates autoChooser based on PathPlanner files (exists at code deploy, no need to wait)
         autoChooser = AutoBuilder.buildAutoChooser();
-        SmartDashboard.putData("PathPlanner Auto Chooser", autoChooser);
-
+        Shuffleboard.getTab(RobotConstants.SHUFFLEBOARD_COMP_TAB_NAME).add("PathPlanner Auto Chooser", autoChooser).withSize(2,1);
         PathPlannerLogging.setLogTargetPoseCallback((pose) -> { 
         pathPlannerTargetPose = pose;
         });
