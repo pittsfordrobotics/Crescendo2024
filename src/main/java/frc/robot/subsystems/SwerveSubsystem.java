@@ -127,11 +127,11 @@ public class SwerveSubsystem extends SubsystemBase {
                                                  // via angle.
 
         //swerveDrive.replaceSwerveModuleFeedforward(new SimpleMotorFeedforward(SwerveConstants.SWERVEMODULE_kS, SwerveConstants.SWERVEMODULE_kV, SwerveConstants.SWERVEMODULE_kA)); // ONLY USE WHEN U WANT SAME VALUES ON ALL MODULES
-        double[] swerveModuleDrivekSArray = {SwerveConstants.FRONT_LEFT.drive_kS, SwerveConstants.FRONT_RIGHT.drive_kS, SwerveConstants.BACK_LEFT.drive_kS, SwerveConstants.BACK_RIGHT.drive_kS};
-        double[] swerveModuleDrivekVArray = {SwerveConstants.FRONT_LEFT.drive_kV, SwerveConstants.FRONT_RIGHT.drive_kV, SwerveConstants.BACK_LEFT.drive_kV, SwerveConstants.BACK_RIGHT.drive_kV};
-        double[] swerveModuleDrivekAArray = {SwerveConstants.FRONT_LEFT.drive_kA, SwerveConstants.FRONT_RIGHT.drive_kA, SwerveConstants.BACK_LEFT.drive_kA, SwerveConstants.BACK_RIGHT.drive_kA};
+        // double[] swerveModuleDrivekSArray = {SwerveConstants.FRONT_LEFT.drive_kS, SwerveConstants.FRONT_RIGHT.drive_kS, SwerveConstants.BACK_LEFT.drive_kS, SwerveConstants.BACK_RIGHT.drive_kS};
+        // double[] swerveModuleDrivekVArray = {SwerveConstants.FRONT_LEFT.drive_kV, SwerveConstants.FRONT_RIGHT.drive_kV, SwerveConstants.BACK_LEFT.drive_kV, SwerveConstants.BACK_RIGHT.drive_kV};
+        // double[] swerveModuleDrivekAArray = {SwerveConstants.FRONT_LEFT.drive_kA, SwerveConstants.FRONT_RIGHT.drive_kA, SwerveConstants.BACK_LEFT.drive_kA, SwerveConstants.BACK_RIGHT.drive_kA};
         for(int i = 0; i < swerveDrive.getModules().length; i++) {
-            swerveDrive.getModules()[i].setFeedforward(new SimpleMotorFeedforward(swerveModuleDrivekSArray[i], swerveModuleDrivekVArray[i], swerveModuleDrivekAArray[i])); // 
+            swerveDrive.getModules()[i].setFeedforward(new SimpleMotorFeedforward(SwerveConstants.MODULE_CONSTANTS[i].drive_kS, SwerveConstants.MODULE_CONSTANTS[i].drive_kV, SwerveConstants.MODULE_CONSTANTS[i].drive_kA));
           }
         setupPathPlanner();
 
