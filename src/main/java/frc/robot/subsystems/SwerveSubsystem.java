@@ -130,7 +130,7 @@ public class SwerveSubsystem extends SubsystemBase {
         // double[] swerveModuleDrivekAArray = {SwerveConstants.FRONT_LEFT.drive_kA, SwerveConstants.FRONT_RIGHT.drive_kA, SwerveConstants.BACK_LEFT.drive_kA, SwerveConstants.BACK_RIGHT.drive_kA};
         for(int i = 0; i < swerveDrive.getModules().length; i++) {
             // Lower the kS to reduce wobble?
-            swerveDrive.getModules()[i].setFeedforward(new SimpleMotorFeedforward(SwerveConstants.MODULE_CONSTANTS[i].drive_kS - 0.1, SwerveConstants.MODULE_CONSTANTS[i].drive_kV, SwerveConstants.MODULE_CONSTANTS[i].drive_kA));
+            swerveDrive.getModules()[i].setFeedforward(new SimpleMotorFeedforward(SwerveConstants.MODULE_CONSTANTS[i].drive_kS - 0.1, SwerveConstants.MODULE_CONSTANTS[i].drive_kV, SwerveConstants.MODULE_CONSTANTS[i].drive_kA / 3));
           }
         setupPathPlanner();
 
