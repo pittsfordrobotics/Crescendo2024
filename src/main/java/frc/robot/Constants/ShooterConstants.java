@@ -29,7 +29,7 @@ public final class ShooterConstants {
     public static final double SHOOTER_L_FFGain = 0.0001688;
     public static final double SHOOTER_R_FFGain = 0.000169;
 
-    public static final int LimitSwitchDIO = 0;
+    public static final int LimitSwitchDIO = 6;
 
 
 

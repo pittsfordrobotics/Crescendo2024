@@ -191,7 +191,7 @@ public class RobotContainer {
     }));
 
     // Amp Scoring
-    PathPlannerPath redampPath = PathPlannerPath.fromPathFile("RedAmpPath");
+    PathPlannerPath redampPath = PathPlannerPath.fromPathFile("RedAMPPath");
     PathPlannerPath blueampPath = PathPlannerPath.fromPathFile("BlueAmpPath");
     Command blueampheadingcommand = swerveSubsystem.correctHeading(Rotation2d.fromDegrees(-90))
         .beforeStarting(Commands.runOnce(() -> vision.useVision(false)));

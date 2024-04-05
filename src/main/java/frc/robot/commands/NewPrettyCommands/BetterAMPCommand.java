@@ -26,7 +26,7 @@ public class BetterAMPCommand extends SequentialCommandGroup {
         // Add your commands in the addCommands() call, e.g.
         // addCommands(new FooCommand(), new BarCommand());
         addCommands(
-                new ConditionalCommand(null, new SequentialCommandGroup(
+                new ConditionalCommand(new InstantCommand(), new SequentialCommandGroup(
                         new ParallelCommandGroup(
                                 intake.spinIntakeCommand(RobotConstants.NEWAMP_IntakeSpeed_STAGE1),
                                 shooter.setShooterRPMCommand(RobotConstants.NEWAMP_ShooterRPM_STAGE1)),

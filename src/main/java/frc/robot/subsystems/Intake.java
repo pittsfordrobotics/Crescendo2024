@@ -85,6 +85,8 @@ public class Intake extends SubsystemBase {
     secondaryIntakeMotor = new CANSparkMax(IntakeConstants.CAN_INTAKE_2, MotorType.kBrushless);
     secondaryIntakeMotor.restoreFactoryDefaults();
     secondaryIntakeMotor.follow(intakeMotor, true);
+
+    beamBreak = new DigitalInput(1);
     
     // For PidTuningOnly
     // SmartDashboard.putNumber("Intake P", pivotRPID.getP());
@@ -112,8 +114,8 @@ public class Intake extends SubsystemBase {
     intakeMotor.burnFlash();
   }
 
-  public Command resetIntakeMotor() {
-    return this.runOnce(() -> resetintakemotor());
+  public Command resetIntakeMotorCommand() {
+    return this.runOnce(this::resetIntakeMotor);
   }
 
   @Override
@@ -159,7 +161,7 @@ public class Intake extends SubsystemBase {
   // TODO: rename this lmao
   public Command noteReadyforAMPInStoredStateCommand() {
     Command cmmd = new ConditionalCommand(spinIntakeCommand(-.5),
-        spinIntakeCommand(0).alongWith(setNoteInAMPPoseCommand(true)), this::getBeamBreak);
+        spinIntakeCommand(0).andThen(setNoteInAMPPoseCommand(true)), this::getBeamBreak);
     return cmmd;
   }
 

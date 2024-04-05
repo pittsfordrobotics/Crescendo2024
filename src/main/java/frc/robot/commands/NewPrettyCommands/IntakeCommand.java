@@ -6,11 +6,7 @@ package frc.robot.commands.NewPrettyCommands;
 
 import java.util.function.BooleanSupplier;
 
-import edu.wpi.first.wpilibj2.command.ConditionalCommand;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
+import edu.wpi.first.wpilibj2.command.*;
 import frc.robot.Constants.RobotConstants;
 import frc.robot.lib.StructureStates;
 import frc.robot.subsystems.Intake;
@@ -22,19 +18,21 @@ import frc.robot.subsystems.Shooter;
 
 public class IntakeCommand extends SequentialCommandGroup {
 	/** Creates a new StartIntake2. */
-	public IntakeCommand(Shooter shooter, Intake intake, BooleanSupplier ampIntakee) {
+	public IntakeCommand(Shooter shooter, Intake intake, BooleanSupplier ampIntake) {
 		// Add your commands in the addCommands() call, e.g.
 		// addCommands(new FooCommand(), new BarCommand());
 		addCommands(
 				new InstantCommand(() -> StructureStates.setCurrentState(StructureStates.structureState.intake)),
 				new ParallelCommandGroup(shooter.setShooterRPMCommand(RobotConstants.INTAKE_ShooterRPM),
-						intake.spinIntakeCommand(RobotConstants.INTAKE_IntakeSpeed)),
+						intake.spinIntakeCommand(ampIntake.getAsBoolean() ? RobotConstants.INTAKE_IntakeSpeed / 5 : RobotConstants.INTAKE_IntakeSpeed)),
 				new SequentialCommandGroup(
 						intake.setPivotAngleCommand(RobotConstants.INTAKE_IntakePivotAngle),
 						intake.waitForPivotAngleCommand(),
 						shooter.setPivotAngleCommand(RobotConstants.INTAKE_ShooterPivotAngle),
 						shooter.waitForPivotAngleCommand()),
-				new ConditionalCommand(new WaitUntilCommand(() -> intake.getBeamBreak()), new WaitUntilCommand(() -> shooter.getLimitSwitch()), ampIntakee),
+				new ConditionalCommand(new WaitUntilCommand(() -> intake.getBeamBreak()), new WaitUntilCommand(() -> shooter.getLimitSwitch()), ampIntake),
+				intake.spinIntakeCommand(0),
+				new ConditionalCommand(new WaitCommand(1), new InstantCommand(), ampIntake),
 				new StoredCommand(shooter, intake));
 
 	}
