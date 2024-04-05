@@ -55,7 +55,6 @@ import com.pathplanner.lib.path.PathPlannerPath;
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   private final SwerveSubsystem swerveSubsystem;
-  private final SendableChooser<Command> driveModeChooser;
   private final Climber climber;
   private final Shooter shooter;
   private final Intake intake;
@@ -69,6 +68,7 @@ public class RobotContainer {
       OperatorConstants.kDriverControllerPort);
   private final CommandXboxController m_operatorController = new CommandXboxController(
       OperatorConstants.kOperatorControllerPort);
+  Command enhancedHeadingSteeringCommand;
   Command speakerTargetSteeringCommand;
     private static Pose2d pathPlannerTargetPose;
 
@@ -111,8 +111,7 @@ public class RobotContainer {
         NamedCommands.registerCommand("AlignStuffOnStart", new SequentialCommandGroup(setGyroBasedOnPathPlannerTrajectory(), swerveSubsystem.resetOdometry(pathPlannerTargetPoseSupplier)));
         // instantiates autoChooser based on PathPlanner files (exists at code deploy, no need to wait)
         autoChooser = AutoBuilder.buildAutoChooser();
-        SmartDashboard.putData("PathPlanner Auto Chooser", autoChooser);
-
+        Shuffleboard.getTab(RobotConstants.SHUFFLEBOARD_COMP_TAB_NAME).add("PathPlanner Auto Chooser", autoChooser).withSize(2,1);
         PathPlannerLogging.setLogTargetPoseCallback((pose) -> { 
         pathPlannerTargetPose = pose;
         });
@@ -120,9 +119,8 @@ public class RobotContainer {
     FFCalculator c = FFCalculator.getInstance();
     c.updateIntakePivotAngle(intake::getPivotAngleDeg);
     c.updateShooterAngle(shooter::getPivotAngleDeg);
-    driveModeChooser = new SendableChooser<>();
     autoCommandFactory = new AutoCommandFactory(swerveSubsystem);
-    Command enhancedHeadingSteeringCommand = swerveSubsystem.enhancedHeadingDriveCommand(
+    enhancedHeadingSteeringCommand = swerveSubsystem.enhancedHeadingDriveCommand(
         () -> -m_driverController.getLeftY(),
         () -> -m_driverController.getLeftX(),
         () -> -m_driverController.getRightY(),
@@ -130,27 +128,12 @@ public class RobotContainer {
         m_driverController::getLeftTriggerAxis,
         m_driverController::getRightTriggerAxis);
     enhancedHeadingSteeringCommand.setName("Enhanced Heading Steer");
-    Command headingSteeringCommand = swerveSubsystem.headingDriveCommand(
-        () -> -m_driverController.getLeftY(),
-        () -> -m_driverController.getLeftX(),
-        () -> -m_driverController.getRightX(),
-        () -> -m_driverController.getRightY());
-    headingSteeringCommand.setName("Heading Steer");
-    Command rotationRateSteeringCommand = swerveSubsystem.rotationRateDriveCommand(
-        () -> -m_driverController.getLeftY(),
-        () -> -m_driverController.getLeftX(),
-        () -> -m_driverController.getRightX());
 
     Pose2d speaker = FieldConstants.Speaker.centerSpeakerOpening;
     speakerTargetSteeringCommand = swerveSubsystem.driveTranslationAndPointAtTarget(
         () -> -m_driverController.getLeftY(),
         () -> -m_driverController.getLeftX(),
         speaker);
-    rotationRateSteeringCommand.setName("Rotation Rate Steer");
-    driveModeChooser.setDefaultOption("Enhanced Steering (BETA)", enhancedHeadingSteeringCommand);
-    driveModeChooser.addOption("Heading Steering", headingSteeringCommand);
-    driveModeChooser.addOption("Rotation Rate Steering", rotationRateSteeringCommand);
-    Shuffleboard.getTab("CONFIG").add(driveModeChooser);
     DisabledInstantCommand zeroOffsetCommand = new DisabledInstantCommand(swerveSubsystem::setSwerveOffsets);
     zeroOffsetCommand.setName("Zero Offsets");
     Shuffleboard.getTab("CONFIG").add("Zero Swerve Module Offsets", zeroOffsetCommand);
@@ -165,18 +148,8 @@ public class RobotContainer {
 
   private void configure_COMP_Bindings() {
     // Swerve
-    m_driverController.start().onTrue(new DisabledInstantCommand(swerveSubsystem::zeroGyro));
-
-    Command driveCommand = driveModeChooser.getSelected();
-    swerveSubsystem.setDefaultCommand(driveCommand);
-    driveModeChooser.onChange(command -> {
-      Command currentDefault = swerveSubsystem.getDefaultCommand();
-      swerveSubsystem.removeDefaultCommand();
-      CommandScheduler.getInstance().cancel(currentDefault);
-      swerveSubsystem.setDefaultCommand(command);
-      System.out.println(swerveSubsystem.getDefaultCommand().getName());
-    });
-    m_driverController.start().onTrue(new InstantCommand(() -> {
+    swerveSubsystem.setDefaultCommand(enhancedHeadingSteeringCommand);
+    m_driverController.start().onTrue(new DisabledInstantCommand(() -> {
       swerveSubsystem.zeroGyro();
       System.out.println("Resetting gyro");
     }));
@@ -279,15 +252,7 @@ public class RobotContainer {
     m_driverController.leftBumper().onTrue(swerveSubsystem.setSlowSpeed())
         .onFalse(swerveSubsystem.setNormalSpeed());
 
-    Command driveCommand = driveModeChooser.getSelected();
-    swerveSubsystem.setDefaultCommand(driveCommand);
-    driveModeChooser.onChange(command -> {
-      Command currentDefault = swerveSubsystem.getDefaultCommand();
-      swerveSubsystem.removeDefaultCommand();
-      CommandScheduler.getInstance().cancel(currentDefault);
-      swerveSubsystem.setDefaultCommand(command);
-      System.out.println(swerveSubsystem.getDefaultCommand().getName());
-    });
+    swerveSubsystem.setDefaultCommand(enhancedHeadingSteeringCommand);
 
     // y- indexer
     // b- ontrue intake (onfalse zero)
