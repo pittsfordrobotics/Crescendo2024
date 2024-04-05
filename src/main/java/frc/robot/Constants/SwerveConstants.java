@@ -3,11 +3,11 @@ package frc.robot.Constants;
 import frc.robot.lib.SwerveModuleConstants;
 
 public class SwerveConstants {
-
-    private static SwerveModuleConstants FRONT_LEFT_CONSTANTS = new SwerveModuleConstants(0.3199, 2.6512, 10.006);
-    private static SwerveModuleConstants FRONT_RIGHT_CONSTANTS = new SwerveModuleConstants(0.23351, 2.6361, 13.654);
-    private static SwerveModuleConstants BACK_LEFT_CONSTANTS = new SwerveModuleConstants(0.26965, 2.6011, 13.234);
-    private static SwerveModuleConstants BACK_RIGHT_CONSTANTS = new SwerveModuleConstants(0.25825, 2.7213, 12.562);
+    //TODO run angle motor calibration routine and set angle motor values
+    private static SwerveModuleConstants FRONT_LEFT_CONSTANTS = new SwerveModuleConstants(0.3199, 2.6512, 10.006, 0, 0, 0);
+    private static SwerveModuleConstants FRONT_RIGHT_CONSTANTS = new SwerveModuleConstants(0.23351, 2.6361, 13.654, 0, 0, 0);
+    private static SwerveModuleConstants BACK_LEFT_CONSTANTS = new SwerveModuleConstants(0.26965, 2.6011, 13.234, 0, 0, 0);
+    private static SwerveModuleConstants BACK_RIGHT_CONSTANTS = new SwerveModuleConstants(0.25825, 2.7213, 12.562, 0, 0, 0);
     public static final SwerveModuleConstants[] MODULE_CONSTANTS = {FRONT_LEFT_CONSTANTS, FRONT_RIGHT_CONSTANTS, BACK_LEFT_CONSTANTS, BACK_RIGHT_CONSTANTS};
 
     // public class BACK_LEFT {
