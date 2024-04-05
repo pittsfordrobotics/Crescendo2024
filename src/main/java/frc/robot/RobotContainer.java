@@ -143,6 +143,7 @@ public class RobotContainer {
   private void configure_COMP_Bindings() {
     //SYSID button on shuffleboard
     Shuffleboard.getTab("CONFIG").add("SysID drive motor routine", swerveSubsystem.sysIdDriveMotorCommand());
+    Shuffleboard.getTab("CONFIG").add("SysID angle motor routine", swerveSubsystem.sysIdAngleMotorCommand());
     // ToDo:
     // Test if stored command should be set in the begining or end of the command
 
