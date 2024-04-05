@@ -101,9 +101,7 @@ public class SwerveSubsystem extends SubsystemBase {
         double angleConversionFactor = SwerveMath.calculateDegreesPerSteeringRotation(12.8);
         // Motor conversion factor is (PI * WHEEL DIAMETER IN METERS) / (GEAR RATIO *
         // ENCODER RESOLUTION).
-        // In this case the wheel diameter is 4 inches, which must be converted to
-        // meters to get meters/second.
-        // The gear ratio is 6.75 motor revolutions per wheel rotation.
+        // NOTE: The gear ratio of the drive motors is 4.71:1 and 3 inch wheel diameter. This is crucial for getting autos to work right.
         // The encoder resolution per motor revolution is 1 per motor revolution.
         double driveConversionFactor = SwerveMath.calculateMetersPerRotation(Units.inchesToMeters(3), 4.710);
         System.out.println("\"conversionFactor\": {");
@@ -149,8 +147,6 @@ public class SwerveSubsystem extends SubsystemBase {
 
         prevHeadingD = getSwerveController().thetaController.getD();
         headingD = Shuffleboard.getTab("PID Config").add("Heading D", prevHeadingD);
-
-        Shuffleboard.getTab("CONFIG").addDouble("Front left voltage", () -> swerveDrive.getModules()[0].getDriveMotor().getVoltage());
 
         Shuffleboard.getTab("PID Config").addString("PIDs", this::getPIDVals);
 
