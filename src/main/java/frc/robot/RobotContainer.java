@@ -79,7 +79,7 @@ public class RobotContainer {
     intake = new Intake();
     swerveSubsystem = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve/maxSwerve"));
     vision = new Vision(VisionConstants.LIMELIGHT1, VisionConstants.LIMELIGHT2, swerveSubsystem::getHeading,
-        swerveSubsystem::addVisionData);
+        swerveSubsystem::getAngularAccelerationRad_Sec, swerveSubsystem::addVisionData);
     pathPlannerTargetPose = new Pose2d();
 
     DoubleSupplier distanceSupplier = (() -> swerveSubsystem.getPose().getTranslation()
@@ -89,34 +89,38 @@ public class RobotContainer {
     DoubleSupplier RPMSupplier = ShooterInterpolationHelper.getShooterRPM(distanceSupplier);
     Supplier<Pose2d> pathPlannerTargetPoseSupplier = (() -> pathPlannerTargetPose);
 
-        NamedCommands.registerCommand("StartIntakeNoDelaysCommand", new SequentialCommandGroup(
-          new StoredCommand(shooter, intake),
-          Commands.waitSeconds(0.5),
-          new StartIntakeNoDelaysCommand(shooter, intake)
-          )
-        );
-        NamedCommands.registerCommand("AutoFireNote", new AutoFireNote(shooter)); // waits for spinner rpm (MUST be previously set to spin up), then fires note
-        NamedCommands.registerCommand("StoredCommand", new StoredCommand(shooter, intake));
-        NamedCommands.registerCommand("AimSpeaker", new RepeatCommand(new CommonSpeakerCommandNoDelays(shooter, intake, angleSupplier, RPMSupplier)));
-        NamedCommands.registerCommand("ShootSubwoof", new SequentialCommandGroup(
-          new SUBWOOFCommand(shooter, intake),
-          new AutoFireNote(shooter),
-          new StoredCommand(shooter, intake)
-        ));
-        NamedCommands.registerCommand("ShootSubwoofSide", new SequentialCommandGroup(
-          new SUBWOOFCommandSide(shooter, intake),
-          new AutoFireNote(shooter),
-          new StoredCommand(shooter, intake)
-        ));
-        NamedCommands.registerCommand("CorrectHeading", swerveSubsystem.correctHeading(pathPlannerTargetPoseSupplier).withTimeout(1.5));
-        NamedCommands.registerCommand("CorrectHeadingShortTimeout", swerveSubsystem.correctHeading(pathPlannerTargetPoseSupplier).withTimeout(0.5));
-        NamedCommands.registerCommand("AlignStuffOnStart", new SequentialCommandGroup(setGyroBasedOnPathPlannerTrajectory(), swerveSubsystem.resetOdometry(pathPlannerTargetPoseSupplier)));
-        // instantiates autoChooser based on PathPlanner files (exists at code deploy, no need to wait)
-        autoChooser = AutoBuilder.buildAutoChooser();
-        Shuffleboard.getTab(RobotConstants.SHUFFLEBOARD_COMP_TAB_NAME).add("PathPlanner Auto Chooser", autoChooser).withSize(2,1);
-        PathPlannerLogging.setLogTargetPoseCallback((pose) -> { 
-        pathPlannerTargetPose = pose;
-        });
+    NamedCommands.registerCommand("StartIntakeNoDelaysCommand", new SequentialCommandGroup(
+        new StoredCommand(shooter, intake),
+        Commands.waitSeconds(0.5),
+        new StartIntakeNoDelaysCommand(shooter, intake)));
+    NamedCommands.registerCommand("AutoFireNote", new AutoFireNote(shooter)); // waits for spinner rpm (MUST be
+                                                                              // previously set to spin up), then fires
+                                                                              // note
+    NamedCommands.registerCommand("StoredCommand", new StoredCommand(shooter, intake));
+    NamedCommands.registerCommand("AimSpeaker",
+        new RepeatCommand(new CommonSpeakerCommandNoDelays(shooter, intake, angleSupplier, RPMSupplier)));
+    NamedCommands.registerCommand("ShootSubwoof", new SequentialCommandGroup(
+        new SUBWOOFCommand(shooter, intake),
+        new AutoFireNote(shooter),
+        new StoredCommand(shooter, intake)));
+    NamedCommands.registerCommand("ShootSubwoofSide", new SequentialCommandGroup(
+        new SUBWOOFCommandSide(shooter, intake),
+        new AutoFireNote(shooter),
+        new StoredCommand(shooter, intake)));
+    NamedCommands.registerCommand("CorrectHeading",
+        swerveSubsystem.correctHeading(pathPlannerTargetPoseSupplier).withTimeout(1.5));
+    NamedCommands.registerCommand("CorrectHeadingShortTimeout",
+        swerveSubsystem.correctHeading(pathPlannerTargetPoseSupplier).withTimeout(0.5));
+    NamedCommands.registerCommand("AlignStuffOnStart", new SequentialCommandGroup(setGyroBasedOnPathPlannerTrajectory(),
+        swerveSubsystem.resetOdometry(pathPlannerTargetPoseSupplier)));
+    // instantiates autoChooser based on PathPlanner files (exists at code deploy,
+    // no need to wait)
+    autoChooser = AutoBuilder.buildAutoChooser();
+    Shuffleboard.getTab(RobotConstants.SHUFFLEBOARD_COMP_TAB_NAME).add("PathPlanner Auto Chooser", autoChooser)
+        .withSize(2, 1);
+    PathPlannerLogging.setLogTargetPoseCallback((pose) -> {
+      pathPlannerTargetPose = pose;
+    });
 
     FFCalculator c = FFCalculator.getInstance();
     c.updateIntakePivotAngle(intake::getPivotAngleDeg);

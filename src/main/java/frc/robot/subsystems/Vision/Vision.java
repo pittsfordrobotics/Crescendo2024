@@ -9,6 +9,7 @@ import frc.robot.Constants.VisionConstants;
 import frc.robot.commands.DisabledInstantCommand;
 import frc.robot.lib.VisionData;
 import frc.robot.lib.util.AllianceFlipUtil;
+import frc.robot.lib.util.LimelightHelpers;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.subsystems.Vision.VisionIO.Pipelines;
@@ -46,18 +47,22 @@ public class Vision extends SubsystemBase {
     private boolean useVision = true;
     private Consumer<VisionData> visionDataConsumer;
     private Supplier<Rotation2d> gyroangle;
+    private Supplier<Double> robotRotationalVelocity;
     private double xyStdDev = 200;
+    private boolean hasGreatSpeakerReading = false;
 
     private final VisionIO[] io;
     private final Map<Integer, Double> lastTagDetectionTimes = new HashMap<>();
+    private Pipelines pipeline = Pipelines.Test;
 
     StructArrayPublisher<Pose2d> visionPoseArrayPublisher = NetworkTableInstance.getDefault()
             .getStructArrayTopic("Vision Poses", Pose2d.struct).publish();
 
     public Vision(VisionIO ioLimelight1, VisionIO ioLimelight2, Supplier<Rotation2d> gyroangle,
-            Consumer<VisionData> visionDataConsumer) {
+            Supplier<Double> robotRotationalVelocity, Consumer<VisionData> visionDataConsumer) {
         this.visionDataConsumer = visionDataConsumer;
         this.gyroangle = gyroangle;
+        this.robotRotationalVelocity = robotRotationalVelocity;
         io = new VisionIO[] { ioLimelight1, ioLimelight2 };
         FieldConstants.aprilTags.getTags().forEach((AprilTag tag) -> lastTagDetectionTimes.put(tag.ID, 0.0));
 
@@ -65,7 +70,7 @@ public class Vision extends SubsystemBase {
         Shuffleboard.getTab("Vision").add("UseVisionToggle", new DisabledInstantCommand(this::useVisionToggle));
         
         for (int i = 0; i < io.length; i++) {
-            int number = i;
+            int number = i; // why are ints dumb
             Shuffleboard.getTab("Vision").addDouble(i + "/AvgTagDist", () -> this.inputs[number].avgTagDist);
             Shuffleboard.getTab("Vision").addInteger(i + "/NumTags", () -> this.inputs[number].tagCount);
             Shuffleboard.getTab("Vision").addDoubleArray(i + "/TagDistances", () -> this.inputs[number].tagDistances);
@@ -74,13 +79,13 @@ public class Vision extends SubsystemBase {
             Shuffleboard.getTab("Vision").addDouble(i + "/Pose2d_Y", () -> this.inputs[number].pose.getY());
             Shuffleboard.getTab("Vision").addDouble(i + "/Pose2d_Theta", () -> this.inputs[number].pose.getRotation().getDegrees());
         }
+        Shuffleboard.getTab("Vision").addDouble("XY_std", this::getXYstdDev);
+        Shuffleboard.getTab("Vision").addBoolean("Has Great Speaker Reading", this::hasGreatSpeakerReading);
     }
 
     private final VisionIO.VisionIOInputs[] inputs = new VisionIO.VisionIOInputs[] { new VisionIO.VisionIOInputs(),
             new VisionIO.VisionIOInputs() };
     private final String[] camNames = new String[] { VisionConstants.LIMELIGHT1_NAME, VisionConstants.LIMELIGHT2_NAME };
-
-    private Pipelines pipeline = Pipelines.Test;
 
     public void setUseVision(boolean usevision) {
         this.useVision = usevision;
@@ -98,11 +103,19 @@ public class Vision extends SubsystemBase {
         this.pipeline = pipeline;
     }
 
+    public double getXYstdDev() {
+        return xyStdDev;
+    }
+
+    public boolean hasGreatSpeakerReading() {
+        return hasGreatSpeakerReading;
+    }
+
     @Override
     public void periodic() {
         for (int i = 0; i < io.length; i++) {
             // update the inputs from the netwrork tables named camNames[i]
-            io[i].updateInputs(inputs[i], camNames[i]);
+            io[i].updateInputs(inputs[i], camNames[i], gyroangle.get().getDegrees());
             // keeps the pipeline always the same
             io[i].setPipeline(pipeline, camNames[i]);
         }
@@ -139,10 +152,10 @@ public class Vision extends SubsystemBase {
                 // continue;
             }
 
-            // Vision should not be exited at this point?
-            Shuffleboard.getTab("Vision").add("Vision/Pose" + i + "/X", visionCalcPose.getX());
-            Shuffleboard.getTab("Vision").add("Vision/Pose" + i + "/Y", visionCalcPose.getY());
-            Shuffleboard.getTab("Vision").add("Vision/Pose" + i + "/Theta", visionCalcPose.getRotation().getDegrees());
+            // exit if the robot is rotating too fast
+            if (Math.abs(robotRotationalVelocity.get()) > 8.0) {
+                continue;
+            }
 
             // Get tag poses and update last detection times
             List<Pose3d> tagPoses = new ArrayList<>();
@@ -152,12 +165,9 @@ public class Vision extends SubsystemBase {
                 Optional<Pose3d> tagPose = FieldConstants.aprilTags.getTagPose((int) inputs[i].tagIDs[z]);
                 tagPose.ifPresent(tagPoses::add);
             }
-            // Shuffleboard.getTab("Vision").add("Vision" + i + " TagIds", inputs[i].tagIDs);
 
             // Gets the average distance to tag
             double avgDistance = inputs[i].avgTagDist;
-            // Shuffleboard.getTab("Vision").add("Vision" + i + " AvgDist", avgDistance);
-            // Shuffleboard.getTab("Vision").add("Vision" + i + " NumofTags", inputs[i].tagCount);
             // TODO: Double check this can be over 2 lol
 
             // Check if the robot has both speaker tags for red or blue
@@ -167,7 +177,7 @@ public class Vision extends SubsystemBase {
                     && (Arrays.binarySearch(inputs[i].tagIDs, 4) >= 0);
 
             // Checks if has supergood reading at the speaker
-            boolean hasGreatSpeakerReading = ((inputs[i].tagCount >= 2) && (avgDistance < 4.0)
+            hasGreatSpeakerReading = ((inputs[i].tagCount >= 2) && (avgDistance < 4.0)
                     && (hasBlueSpeakerTags || hasRedSpeakerTags));
 
             // Exits when in auto if it doesnt have a great great reading
@@ -183,8 +193,6 @@ public class Vision extends SubsystemBase {
                 xyStdDev = xyStdDev * 0.5;
             }
             double thetaStdDev = VisionConstants.THETA_STD_DEV_COEF;
-            // Shuffleboard.getTab("Vision").add("Vision" + i + " XY_std", xyStdDev);
-            // Shuffleboard.getTab("Vision").add("Has Great Speaker Reading", hasGreatSpeakerReading);
 
             // Add vision data to swerve pose estimator
             VisionData visionData = new VisionData(visionCalcPose, inputs[i].captureTimestamp,
@@ -193,7 +201,7 @@ public class Vision extends SubsystemBase {
 
             // Add robot pose from this camera to a list of all robot poses
             allRobotPoses.add(visionCalcPose);
-            xyStdDev = 200;
+            // xyStdDev = 200;
         }
         visionPoseArrayPublisher.set(allRobotPoses.toArray(new Pose2d[0]));
     }

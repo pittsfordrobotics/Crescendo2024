@@ -24,9 +24,11 @@ public class VisionIOLimelight implements VisionIO {
 
     // Uses limelight lib and network tables to get the values from the limelight
     // TODO: Use getBotPoseEstimate() from LimelightHelpers
-    public void updateInputs(VisionIOInputs inputs, String limelightName) {
+    @Override
+    public void updateInputs(VisionIOInputs inputs, String limelightName, double gyroAngle) {
+        LimelightHelpers.SetRobotOrientation(limelightName, gyroAngle, 0, 0, 0, 0, 0 );
         // Gets the needed data from the networktables
-        PoseEstimate botPoseEstimate = LimelightHelpers.getBotPoseEstimate_wpiBlue(limelightName);
+        PoseEstimate botPoseEstimate = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelightName);
 
         // Latency (Pipeline + Capture)
         double latency = botPoseEstimate.latency;
