@@ -6,12 +6,7 @@ package frc.robot;
 
 import org.littletonrobotics.junction.LoggedRobot;
 
-import edu.wpi.first.cameraserver.CameraServer;
-import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.net.PortForwarder;
-import edu.wpi.first.util.PixelFormat;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
