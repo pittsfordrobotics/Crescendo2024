@@ -9,9 +9,6 @@ import java.util.function.DoubleSupplier;
 import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkBase.IdleMode;
 
-import java.util.function.DoubleSupplier;
-import java.util.function.Supplier;
-
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.SparkAbsoluteEncoder;
@@ -130,7 +127,7 @@ public class Shooter extends SubsystemBase {
     pivotMotorL.follow(pivotMotorR, true);
 
     // Limit Switch
-    backLimitSwitch = new DigitalInput(0);
+    backLimitSwitch = new DigitalInput(6);
 
     try {
       Thread.sleep(200);

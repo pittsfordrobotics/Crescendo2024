@@ -4,7 +4,6 @@
 
 package frc.robot;
 
-import com.choreo.lib.Choreo;
 import com.choreo.lib.ChoreoTrajectory;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
@@ -13,7 +12,6 @@ import com.pathplanner.lib.util.PathPlannerLogging;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.units.Time;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Filesystem;
@@ -27,9 +25,6 @@ import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.Constants.RobotConstants;
 import frc.robot.Constants.VisionConstants;
-import frc.robot.commands.AutoActionCommands.AutoShoot;
-import frc.robot.commands.AutoActionCommands.AutoShootSubwoof;
-import frc.robot.commands.AutoActionCommands.StartIntakeCommand;
 import frc.robot.commands.AutoActionCommands.StartIntakeNoDelaysCommand;
 import frc.robot.commands.AutoActionCommands.AutoFireNote;
 import frc.robot.commands.DisabledInstantCommand;
@@ -146,6 +141,9 @@ public class RobotContainer {
   }
 
   private void configure_COMP_Bindings() {
+    //SYSID button on shuffleboard
+    Shuffleboard.getTab("CONFIG").add("SysID drive motor routine", swerveSubsystem.sysIdDriveMotorCommand());
+    Shuffleboard.getTab("CONFIG").add("SysID angle motor routine", swerveSubsystem.sysIdAngleMotorCommand());
     // ToDo:
     // Test if stored command should be set in the begining or end of the command
 
@@ -192,8 +190,8 @@ public class RobotContainer {
       storedCommand.schedule();
     }));
 
-    PathPlannerPath redampPath = PathPlannerPath.fromPathFile("RedAmpPath");
-    PathPlannerPath blueampPath = PathPlannerPath.fromPathFile("BlueAmpPath");
+    //PathPlannerPath redampPath = PathPlannerPath.fromPathFile("RedAmpPath");
+    //PathPlannerPath blueampPath = PathPlannerPath.fromPathFile("BlueAmpPath");
     Command blueampheadingcommand = swerveSubsystem.correctHeading(Rotation2d.fromDegrees(-90))
         .beforeStarting(Commands.runOnce(() -> vision.useVision(false)));
     Command redampheadingcommand = swerveSubsystem.correctHeading(Rotation2d.fromDegrees(90))

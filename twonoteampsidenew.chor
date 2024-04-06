@@ -1,8 +1,8 @@
 {
-    "version": "v0.3",
+    "version": "v0.3.1",
     "robotConfiguration": {
         "mass": 74.08797700309194,
-        "rotationalInertia": 6,
+        "rotationalInertia": 4.933268980530884,
         "motorMaxTorque": 0.625,
         "motorMaxVelocity": 4704,
         "gearing": 4.71,
@@ -699,6 +699,7 @@
                 {
                     "name": "StartIntakeNoDelaysCommand",
                     "target": 1,
+                    "trajTargetIndex": 1,
                     "targetTimestamp": 0.37295829531244556,
                     "offset": -0.15,
                     "command": {
@@ -711,6 +712,7 @@
                 {
                     "name": "AimSpeaker",
                     "target": 3,
+                    "trajTargetIndex": 3,
                     "targetTimestamp": 2.453868209945664,
                     "offset": 0.7,
                     "command": {
@@ -723,6 +725,7 @@
                 {
                     "name": "AlignStuffOnStart",
                     "target": 0,
+                    "trajTargetIndex": 0,
                     "targetTimestamp": 0,
                     "offset": 0,
                     "command": {
@@ -1412,6 +1415,7 @@
                 {
                     "name": "AimSpeaker",
                     "target": 3,
+                    "trajTargetIndex": 3,
                     "targetTimestamp": 3.172015716738616,
                     "offset": 0.25,
                     "command": {
