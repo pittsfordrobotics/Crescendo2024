@@ -153,7 +153,11 @@ public class Vision extends SubsystemBase {
             }
 
             // exit if the robot is rotating too fast
-            if (Math.abs(robotRotationalVelocity.get()) > 8.0) {
+            if (Math.abs(robotRotationalVelocity.get()) > 6.28) {
+                continue;
+            }
+
+            if (inputs[i].tagCount == 0) {
                 continue;
             }
 
