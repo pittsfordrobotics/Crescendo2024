@@ -575,6 +575,7 @@ public class SwerveSubsystem extends SubsystemBase {
     public void zeroGyro() {
         setGyroAngle(allianceRotationFlipper(new Rotation2d()));
         currentTargetAngle = allianceRotationFlipper(new Rotation2d());
+        swerveDrive.resetOdometry(new Pose2d(getPose().getTranslation(), allianceRotationFlipper(new Rotation2d())));
     }
 
     /**
