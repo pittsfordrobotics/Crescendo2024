@@ -143,7 +143,6 @@ public class RobotContainer {
     DisabledInstantCommand zeroOffsetCommand = new DisabledInstantCommand(swerveSubsystem::setSwerveOffsets);
     zeroOffsetCommand.setName("Zero Offsets");
     Shuffleboard.getTab("CONFIG").add("Zero Swerve Module Offsets", zeroOffsetCommand);
-
     StructureStates.setCurrentState(StructureStates.structureState.startup);
     // Configure the trigger bindings
     configure_COMP_Bindings();
@@ -161,6 +160,7 @@ public class RobotContainer {
       swerveSubsystem.zeroGyro();
       System.out.println("Resetting gyro");
     }));
+
 
     // // states
     StoredCommand storedCommand = new StoredCommand(shooter, intake);

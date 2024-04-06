@@ -50,6 +50,7 @@ public class Vision extends SubsystemBase {
     private Supplier<Double> robotRotationalVelocity;
     private double xyStdDev = 200;
     private boolean hasGreatSpeakerReading = false;
+    private double swervesGyro = 12.2;
 
     private final VisionIO[] io;
     private final Map<Integer, Double> lastTagDetectionTimes = new HashMap<>();
@@ -81,6 +82,7 @@ public class Vision extends SubsystemBase {
         }
         Shuffleboard.getTab("Vision").addDouble("XY_std", this::getXYstdDev);
         Shuffleboard.getTab("Vision").addBoolean("Has Great Speaker Reading", this::hasGreatSpeakerReading);
+        Shuffleboard.getTab("Vision").addDouble("Swerves Gyro", this::getSwervesGyro);
     }
 
     private final VisionIO.VisionIOInputs[] inputs = new VisionIO.VisionIOInputs[] { new VisionIO.VisionIOInputs(),
@@ -111,6 +113,10 @@ public class Vision extends SubsystemBase {
         return hasGreatSpeakerReading;
     }
 
+    public double getSwervesGyro() {
+        return swervesGyro;
+    }
+
     @Override
     public void periodic() {
         for (int i = 0; i < io.length; i++) {
@@ -119,6 +125,7 @@ public class Vision extends SubsystemBase {
             // keeps the pipeline always the same
             io[i].setPipeline(pipeline, camNames[i]);
         }
+        swervesGyro = gyroangle.get().getDegrees();
         List<Pose2d> allRobotPoses = new ArrayList<>();
 
         // exit if boolean
