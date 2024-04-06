@@ -90,6 +90,7 @@ public class SwerveSubsystem extends SubsystemBase {
     private double prevHeadingD;
 
     private Rotation2d currentTargetAngle = new Rotation2d();
+    private Pose2d allianceRelPose = new Pose2d();
     private double speedFactor = 1;
 
     StructPublisher<Pose2d> publisher = NetworkTableInstance.getDefault()
@@ -322,62 +323,8 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     /**
-     * Command to drive the robot using translative values and heading as a
-     * setpoint.
-     *
-     * @param translationX Translation in the X direction. Cubed for smoother
-     *                     controls.
-     * @param translationY Translation in the Y direction. Cubed for smoother
-     *                     controls.
-     * @param headingX     Heading X to calculate angle of the joystick.
-     * @param headingY     Heading Y to calculate angle of the joystick.
-     * @return Drive command.
-     */
-    public Command headingDriveCommand(DoubleSupplier translationX, DoubleSupplier translationY,
-            DoubleSupplier headingX,
-            DoubleSupplier headingY) {
-        return run(() -> {
-            swerveDrive.setHeadingCorrection(true);
-            double[] deadbandRotationInputs = AllDeadbands
-                    .applyCircularDeadband(new double[] { headingX.getAsDouble(), headingY.getAsDouble() }, 0.95);
-            double rawXInput = translationX.getAsDouble();
-            double rawYInput = translationY.getAsDouble();
-            double[] scaledDeadbandTranslationInputs = AllDeadbands
-                    .applyScaledSquaredCircularDeadband(new double[] { rawXInput, rawYInput }, 0.1);
-            double xInput = scaledDeadbandTranslationInputs[0];
-            double yInput = scaledDeadbandTranslationInputs[1];
-            // Make the robot move
-            driveFieldOriented(swerveDrive.swerveController.getTargetSpeeds(xInput * speedFactor, yInput * speedFactor,
-                    deadbandRotationInputs[0],
-                    deadbandRotationInputs[1],
-                    swerveDrive.getYaw().getRadians(),
-                    swerveDrive.getMaximumVelocity()));
-        });
-    }
-
-    public Command headingDriveCommand(DoubleSupplier translationX, DoubleSupplier translationY,
-            Supplier<Rotation2d> headingAngle) {
-        return run(() -> {
-            swerveDrive.setHeadingCorrection(true);
-            double rawXInput = translationX.getAsDouble();
-            double rawYInput = translationY.getAsDouble();
-            double[] scaledDeadbandTranslationInputs = AllDeadbands
-                    .applyScaledSquaredCircularDeadband(new double[] { rawXInput, rawYInput }, 0.1);
-            double xInput = scaledDeadbandTranslationInputs[0];
-            double yInput = scaledDeadbandTranslationInputs[1];
-            // Make the robot move
-            driveFieldOriented(swerveDrive.swerveController.getTargetSpeeds(
-                    xInput * speedFactor,
-                    yInput * speedFactor,
-                    headingAngle.get().getDegrees(),
-                    swerveDrive.getYaw().getRadians(),
-                    swerveDrive.getMaximumVelocity()));
-        });
-    }
-
-    /**
      * <h2>More features</h2>
-     *
+     * Drives alliance relative
      * @param translationX      Translation input in the X direction.
      * @param translationY      Translation input in the Y direction.
      * @param rotationX         Rotation input in the X direction.
@@ -402,27 +349,13 @@ public class SwerveSubsystem extends SubsystemBase {
             double yInput = scaledDeadbandTranslationInputs[1];
             // determining if target angle is commanded
             if (deadbandRotationInputs[0] != 0 || deadbandRotationInputs[1] != 0) {
-                currentTargetAngle = Rotation2d
-                        .fromRadians(Math.atan2(deadbandRotationInputs[1], deadbandRotationInputs[0]));
+                setTargetAllianceRelAngle(Rotation2d.fromRadians(Math.atan2(deadbandRotationInputs[1], deadbandRotationInputs[0])));
             }
             if (leftRotationInput != 0 && rightRotationInput == 0) {
                 swerveDrive.setHeadingCorrection(false);
-                double leftRotationOutput = Math.pow(leftRotationInput, 3) * swerveDrive.getMaximumAngularVelocity() * 2 // For
-                                                                                                                         // some
-                                                                                                                         // reason
-                                                                                                                         // max
-                                                                                                                         // angular
-                                                                                                                         // velocity
-                                                                                                                         // is
-                                                                                                                         // too
-                                                                                                                         // low
+                double leftRotationOutput = Math.pow(leftRotationInput, 3) * swerveDrive.getMaximumAngularVelocity() * 2
                         * speedFactor;
-                swerveDrive.drive(new Translation2d(
-                        xInput * swerveDrive.getMaximumVelocity() * speedFactor,
-                        yInput * swerveDrive.getMaximumVelocity() * speedFactor),
-                        leftRotationOutput,
-                        true, false);
-                currentTargetAngle = null;
+                driveAllianceRelative(xInput * swerveDrive.getMaximumVelocity() * speedFactor, yInput * swerveDrive.getMaximumVelocity() * speedFactor, leftRotationOutput, false);
             }
             // If right trigger pressed, rotate left at a rate proportional to the right
             // trigger input
@@ -431,11 +364,7 @@ public class SwerveSubsystem extends SubsystemBase {
                 double rightRotationOutput = -Math.pow(rightRotationInput, 3) * swerveDrive.getMaximumAngularVelocity()
                         * 2 // For some reason max angular velocity is too low
                         * speedFactor;
-                swerveDrive.drive(new Translation2d(
-                        xInput * swerveDrive.getMaximumVelocity() * speedFactor,
-                        yInput * swerveDrive.getMaximumVelocity() * speedFactor),
-                        rightRotationOutput,
-                        true, false);
+                driveAllianceRelative(xInput * swerveDrive.getMaximumVelocity() * speedFactor, yInput * swerveDrive.getMaximumVelocity() * speedFactor, rightRotationOutput, false);
                 currentTargetAngle = null;
             }
             // If no triggers are pressed or both are pressed, use the right stick for
@@ -447,70 +376,11 @@ public class SwerveSubsystem extends SubsystemBase {
                 swerveDrive.setHeadingCorrection(currentTargetAngle != null);
                 if (currentTargetAngle != null) {
                     // Make the robot move
-                    driveFieldOriented(swerveDrive.swerveController.getTargetSpeeds(xInput * speedFactor,
-                            yInput * speedFactor, currentTargetAngle.getRadians(), swerveDrive.getYaw().getRadians(),
-                            swerveDrive.getMaximumVelocity()));
+                    driveAllianceRelative(xInput * speedFactor, yInput * speedFactor, currentTargetAngle.getRadians(), true);
                 } else {
-                    swerveDrive.drive(new Translation2d(
-                            xInput * swerveDrive.getMaximumVelocity() * speedFactor,
-                            yInput * swerveDrive.getMaximumVelocity() * speedFactor),
-                            0,
-                            true, false);
+                    driveAllianceRelative(xInput * swerveDrive.getMaximumVelocity() * speedFactor, yInput * swerveDrive.getMaximumVelocity() * speedFactor, 0, false);
                 }
             }
-        });
-    }
-
-    /**
-     * Command to drive the robot using translative values and heading as angular
-     * velocity.
-     *
-     * @param translationX     Translation in the X direction. Cubed for smoother
-     *                         controls.
-     * @param translationY     Translation in the Y direction. Cubed for smoother
-     *                         controls.
-     * @param angularRotationX Angular velocity of the robot to set. Cubed for
-     *                         smoother controls.
-     * @return Drive command.
-     */
-    public Command rotationRateDriveCommand(DoubleSupplier translationX, DoubleSupplier translationY,
-            DoubleSupplier angularRotationX) {
-        return run(() -> {
-            double rawXInput = translationX.getAsDouble();
-            double rawYInput = translationY.getAsDouble();
-            double[] scaledDeadbandTranslationInputs = AllDeadbands
-                    .applyScaledSquaredCircularDeadband(new double[] { rawXInput, rawYInput }, 0.1);
-            double xInput = scaledDeadbandTranslationInputs[0];
-            double yInput = scaledDeadbandTranslationInputs[1];
-            double rotationRate = Math.pow(MathUtil.applyDeadband(angularRotationX.getAsDouble(), 0.1), 3);
-            swerveDrive.setHeadingCorrection(false);
-            // Make the robot move
-            swerveDrive.drive(new Translation2d(xInput * swerveDrive.getMaximumVelocity() * speedFactor,
-                    yInput * swerveDrive.getMaximumVelocity() * speedFactor),
-                    Math.pow(rotationRate, 3) * swerveDrive.getMaximumAngularVelocity() * speedFactor,
-                    true, false);
-        });
-    }
-
-    /**
-     * Command to drive the robot using translative values and heading as a
-     * setpoint.
-     *
-     * @param translationX Translation in the X direction.
-     * @param translationY Translation in the Y direction.
-     * @param rotation     Rotation as a value between [-1, 1] converted to radians.
-     * @return Drive command.
-     */
-    public Command simDriveCommand(DoubleSupplier translationX, DoubleSupplier translationY, DoubleSupplier rotation) {
-        // swerveDrive.setHeadingCorrection(true); // Normally you would want heading
-        // correction for this kind of control.
-        return run(() -> {
-            // Make the robot move
-            driveFieldOriented(swerveDrive.swerveController.getTargetSpeeds(translationX.getAsDouble(),
-                    translationY.getAsDouble(),
-                    rotation.getAsDouble() * Math.PI,
-                    swerveDrive.getYaw().getRadians(),
-                    swerveDrive.getMaximumVelocity()));
         });
     }
 
@@ -621,6 +491,65 @@ public class SwerveSubsystem extends SubsystemBase {
         return swerveDrive.getPose();
     }
 
+    /** Gets the current alliance, defaulting to blue */
+    public Alliance getAllianceDefaultBlue() {
+        Alliance currentAlliance;
+        if (DriverStation.getAlliance().isPresent()) {
+          currentAlliance = DriverStation.getAlliance().get();
+        } else {
+          currentAlliance = Alliance.Blue;
+          System.out.println("No alliance, setting to blue");
+        }
+        return currentAlliance;
+      }
+
+    /** Uses the current field rel pose to get the alliance rel pose, should be called periodically */
+    public void updateAllianceRelPose() {
+        Pose2d fieldRelPose = getPose();
+        allianceRelPose = alliancePoseFlipper(fieldRelPose);
+    }
+
+    /** Flips a Pose2d by 180 degrees if necessary */
+    public Pose2d alliancePoseFlipper(Pose2d input) {
+        if(getAllianceDefaultBlue() == Alliance.Blue) {
+            return input;
+        } else {
+            return new Pose2d(FieldConstants.fieldLength - input.getX(), FieldConstants.fieldWidth - input.getY(), input.getRotation().minus(new Rotation2d(Math.PI)));
+        }
+    }
+
+    /** Takes a chassis speeds object and flips it 180 degrees if needed*/
+    public ChassisSpeeds allianceTargetSpeedsFlipper(ChassisSpeeds input) {
+        if(getAllianceDefaultBlue() == Alliance.Blue) {
+            return input;
+        } else {
+            return new ChassisSpeeds(-input.vxMetersPerSecond, -input.vyMetersPerSecond, input.omegaRadiansPerSecond);
+        }
+    }
+
+    /** Takes a rotation2d and flips it 180 degrees */
+    public Rotation2d allianceRotationFlipper(Rotation2d input) {
+        return getAllianceDefaultBlue() == Alliance.Blue ? input : input.minus(new Rotation2d(Math.PI));
+    }
+
+    /** Gets current pose, alliance relative */
+    public Pose2d getAllianceRelPose() {
+        return allianceRelPose;
+    }
+
+    /** Drive robot with alliance relative speeds.
+     *  Converts them to field relative speeds first then drives the robot.
+    */
+    public void driveAllianceRelative(double x, double y, double rotationRateOrHeading, boolean headingDrive) {
+        if(headingDrive) {
+            driveFieldOriented(swerveDrive.swerveController.getTargetSpeeds(getAllianceDefaultBlue() == Alliance.Blue ? x : -x, getAllianceDefaultBlue() == Alliance.Blue ? y : -y, 
+                currentTargetAngle.getRadians(), swerveDrive.getYaw().getRadians(), swerveDrive.getMaximumVelocity()));
+        } else {
+            swerveDrive.drive(new Translation2d(getAllianceDefaultBlue() == Alliance.Blue ? x : -x, getAllianceDefaultBlue() == Alliance.Blue ? y : -y),
+                rotationRateOrHeading, true, false);
+        }
+    }
+
     /**
      * Set chassis speeds with closed-loop velocity control.
      *
@@ -641,15 +570,15 @@ public class SwerveSubsystem extends SubsystemBase {
 
     /**
      * Resets the gyro angle to zero and resets odometry to the same position, but
-     * facing toward 0.
+     * facing toward 0. (Alliance Relative)
      */
     public void zeroGyro() {
-        swerveDrive.zeroGyro();
-        currentTargetAngle = new Rotation2d();
+        setGyroAngle(allianceRotationFlipper(new Rotation2d()));
+        currentTargetAngle = allianceRotationFlipper(new Rotation2d());
     }
 
     /**
-     * Sets the current angle of the gyro. If the robot reaches the same angle, the
+     * Sets the current angle of the gyro (Field Relative). If the robot reaches the same angle, the
      * gyro will report this angle.
      * 
      * @param currentAngle The angle that the gyro should read in its current state.
@@ -700,6 +629,10 @@ public class SwerveSubsystem extends SubsystemBase {
 
     public void setTargetAngle(Rotation2d newTargetAngle) {
         currentTargetAngle = newTargetAngle;
+    }
+
+    public void setTargetAllianceRelAngle(Rotation2d allianceRelAngle) {
+        currentTargetAngle = allianceRotationFlipper(allianceRelAngle);
     }
 
     public Command setSlowSpeed() {
@@ -863,6 +796,7 @@ public class SwerveSubsystem extends SubsystemBase {
         }
 
         swerveDrive.updateOdometry();
+        updateAllianceRelPose();
 
         publisher.set(this.getPose());
 
