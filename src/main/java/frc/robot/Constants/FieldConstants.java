@@ -36,6 +36,9 @@ public class FieldConstants {
   public static Translation2d ampCenter = new Translation2d(Units.inchesToMeters(72.455),
       Units.inchesToMeters(322.996));
 
+  public static Translation2d ampCenterRED_THISIFFORREDAMP = new Translation2d(fieldLength - Units.inchesToMeters(72.455),
+      Units.inchesToMeters(322.996));
+
   /** Staging locations for each note */
   public static final class StagingLocations {
     public static double centerlineX = fieldLength / 2.0;
