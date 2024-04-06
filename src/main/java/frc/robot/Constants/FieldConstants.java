@@ -9,7 +9,6 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 
 import java.io.IOException;
-import java.util.function.Supplier;
 
 /**
  * Contains various field dimensions and useful reference points. Dimensions are

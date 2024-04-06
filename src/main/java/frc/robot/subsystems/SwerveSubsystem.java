@@ -17,6 +17,7 @@ import com.revrobotics.AbsoluteEncoder;
 
 import com.revrobotics.CANSparkMax;
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -24,16 +25,12 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
-import edu.wpi.first.math.numbers.N1;
-import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.SimpleWidget;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -42,9 +39,11 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import frc.robot.RobotContainer;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.RobotConstants;
+import frc.robot.Constants.SwerveConstants;
 import frc.robot.lib.VisionData;
 import frc.robot.lib.util.AllianceFlipUtil;
 import frc.robot.lib.AllDeadbands;
@@ -55,9 +54,11 @@ import java.util.function.Supplier;
 
 import swervelib.SwerveController;
 import swervelib.SwerveDrive;
+import swervelib.SwerveDriveTest;
 import swervelib.SwerveModule;
 import swervelib.imu.SwerveIMU;
 import swervelib.math.SwerveMath;
+import swervelib.motors.SwerveMotor;
 import swervelib.parser.SwerveControllerConfiguration;
 import swervelib.parser.SwerveDriveConfiguration;
 import swervelib.parser.SwerveParser;
@@ -108,11 +109,9 @@ public class SwerveSubsystem extends SubsystemBase {
         double angleConversionFactor = SwerveMath.calculateDegreesPerSteeringRotation(12.8);
         // Motor conversion factor is (PI * WHEEL DIAMETER IN METERS) / (GEAR RATIO *
         // ENCODER RESOLUTION).
-        // In this case the wheel diameter is 4 inches, which must be converted to
-        // meters to get meters/second.
-        // The gear ratio is 6.75 motor revolutions per wheel rotation.
+        // NOTE: The gear ratio of the drive motors is 4.71:1 and 3 inch wheel diameter. This is crucial for getting autos to work right.
         // The encoder resolution per motor revolution is 1 per motor revolution.
-        double driveConversionFactor = SwerveMath.calculateMetersPerRotation(Units.inchesToMeters(4), 6.75);
+        double driveConversionFactor = SwerveMath.calculateMetersPerRotation(Units.inchesToMeters(3), 4.710);
         System.out.println("\"conversionFactor\": {");
         System.out.println("\t\"angle\": " + angleConversionFactor + ",");
         System.out.println("\t\"drive\": " + driveConversionFactor);
@@ -133,6 +132,14 @@ public class SwerveSubsystem extends SubsystemBase {
         swerveDrive.setHeadingCorrection(false); // Heading correction should only be used while controlling the robot
                                                  // via angle.
 
+        //swerveDrive.replaceSwerveModuleFeedforward(new SimpleMotorFeedforward(SwerveConstants.SWERVEMODULE_kS, SwerveConstants.SWERVEMODULE_kV, SwerveConstants.SWERVEMODULE_kA)); // ONLY USE WHEN U WANT SAME VALUES ON ALL MODULES
+        // double[] swerveModuleDrivekSArray = {SwerveConstants.FRONT_LEFT.drive_kS, SwerveConstants.FRONT_RIGHT.drive_kS, SwerveConstants.BACK_LEFT.drive_kS, SwerveConstants.BACK_RIGHT.drive_kS};
+        // double[] swerveModuleDrivekVArray = {SwerveConstants.FRONT_LEFT.drive_kV, SwerveConstants.FRONT_RIGHT.drive_kV, SwerveConstants.BACK_LEFT.drive_kV, SwerveConstants.BACK_RIGHT.drive_kV};
+        // double[] swerveModuleDrivekAArray = {SwerveConstants.FRONT_LEFT.drive_kA, SwerveConstants.FRONT_RIGHT.drive_kA, SwerveConstants.BACK_LEFT.drive_kA, SwerveConstants.BACK_RIGHT.drive_kA};
+        for(int i = 0; i < swerveDrive.getModules().length; i++) {
+            // Lower the kS to reduce wobble?
+            swerveDrive.getModules()[i].setFeedforward(new SimpleMotorFeedforward(SwerveConstants.MODULE_CONSTANTS[i].drive_kS * 0.1, SwerveConstants.MODULE_CONSTANTS[i].drive_kV, SwerveConstants.MODULE_CONSTANTS[i].drive_kA));
+          }
         setupPathPlanner();
 
         prevVelocityP = getSwerveDriveConfiguration().modules[0].configuration.velocityPIDF.p;
@@ -183,7 +190,7 @@ public class SwerveSubsystem extends SubsystemBase {
                         // Translation PID constants
                         new PIDConstants(2,
                                 0,
-                                0.05), // TODO: make 0.005 when not in sim
+                                0.05), // TODO: TUNE THIS, NOT SURE IF SHOULD BE 0.005 PER OLD COMMENT
                         // Rotation PID constants
                         4.5,
                         // Max module speed, in m/s
@@ -896,4 +903,32 @@ public class SwerveSubsystem extends SubsystemBase {
                     swerveDrive.getMaximumVelocity()));
         });
     }
+
+      /**
+   * Command to characterize the robot drive motors using SysId
+   *
+   * @return SysId Drive Command
+   */
+  public Command sysIdDriveMotorCommand()
+  {
+    return SwerveDriveTest.generateSysIdCommand(
+        SwerveDriveTest.setDriveSysIdRoutine(
+            new Config(),
+            this, swerveDrive, 12),
+        3.0, 5.0, 3.0); // TODO: Tweak (increase quasitimeout if possible) for running sysid characterization
+  }
+
+  /**
+   * Command to characterize the robot angle motors using SysId
+   *
+   * @return SysId Angle Command
+   */
+  public Command sysIdAngleMotorCommand()
+  {
+    return SwerveDriveTest.generateSysIdCommand(
+        SwerveDriveTest.setAngleSysIdRoutine(
+            new Config(),
+            this, swerveDrive),
+        3.0, 5.0, 3.0); // TODO: Tweak (increase quasitimeout if possible) if needed for running sysid characterization
+  }
 }
