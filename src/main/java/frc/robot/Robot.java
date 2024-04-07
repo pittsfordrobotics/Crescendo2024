@@ -48,6 +48,9 @@ public class Robot extends LoggedRobot {
     // autonomous chooser on the dashboard.
     // UsbCamera camera = CameraServer.startAutomaticCapture();
     // camera.setVideoMode(PixelFormat.kYUYV, 640, 480, 10); // TODO: Camera is disabled for FLR, change if needed later
+    Shuffleboard.getTab("CONFIG").addDouble("Memory total", () -> Runtime.getRuntime().totalMemory() / 1024.0 / 1024.0);
+    Shuffleboard.getTab("CONFIG").addDouble("Memory free",() -> Runtime.getRuntime().freeMemory() / 1024.0 / 1024.0);
+    Shuffleboard.getTab("CONFIG").addDouble("Memory usage",() -> (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / 1024.0 / 1024.0);
     m_robotContainer = new RobotContainer();
   }
 
