@@ -4,16 +4,13 @@
 
 package frc.robot;
 
-import com.choreo.lib.ChoreoTrajectory;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.util.PathPlannerLogging;
 
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.units.Time;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Filesystem;
@@ -56,7 +53,6 @@ public class RobotContainer {
   private final Shooter shooter;
   private final Intake intake;
   private final Vision vision;
-  private double previousRumblePower = 0;
 
   private final AutoCommandFactory autoCommandFactory;
 
@@ -115,9 +111,7 @@ public class RobotContainer {
     autoChooser = AutoBuilder.buildAutoChooser();
     Shuffleboard.getTab(RobotConstants.SHUFFLEBOARD_COMP_TAB_NAME).add("PathPlanner Auto Chooser", autoChooser)
         .withSize(2, 1);
-    PathPlannerLogging.setLogTargetPoseCallback((pose) -> {
-      pathPlannerTargetPose = pose;
-    });
+    PathPlannerLogging.setLogTargetPoseCallback((pose) -> pathPlannerTargetPose = pose);
 
     FFCalculator c = FFCalculator.getInstance();
     c.updateIntakePivotAngle(intake::getPivotAngleDeg);
@@ -206,7 +200,7 @@ public class RobotContainer {
         new ParallelCommandGroup(
           Commands.runOnce(() -> swerveSubsystem.setTargetAngle(Rotation2d.fromDegrees(-90))),
             new BetterAMPCommand(shooter, intake),
-          new ConditionalCommand(swerveSubsystem.driveToPose(ampPose).beforeStarting(swerveSubsystem.correctHeading(Rotation2d.fromDegrees(-90))), 
+          new ConditionalCommand(swerveSubsystem.driveToPose(ampPose).beforeStarting(swerveSubsystem.correctHeading(Rotation2d.fromDegrees(-90))),
           swerveSubsystem.driveToPose(ampPoseRed).beforeStarting(swerveSubsystem.correctHeading(Rotation2d.fromDegrees(-90))),
           () -> getAllianceDefaultBlue() == Alliance.Blue)
         ));
@@ -289,46 +283,16 @@ public class RobotContainer {
     m_operatorController.y().onFalse(shooter.spinIndexerCommand(-0.1));
   }
 
-  // private ChoreoTrajectory finalAutoTrajectory;
-  // public void setGyroBasedOnAutoFinalTrajectory(){
-  // swerveSubsystem.setGyroAngle(finalAutoTrajectory.getFinalPose().getRotation());
-  // // Sets the gyro heading, NEVER FLIPPED since robot should always point away
-  // from DS when gyro reports 0
-  // } // Unnecessary since it can be done initially
-
-  /**
-   * <p>
-   * Sets the gyro heading, flipped in relation to the ALLIANCE's origin, NOT the
-   * origin of the FIELD.
-   * </p>
-   * <p>
-   * Uses alliance-relative flipping, so only used for teleop.
-   * </p>
-   * <p>
-   * Auto will simply ignore it if odometry is reset after.
-   * </p>
-   * 
-   * @param traj The choreo trajectory whose initial angle is used to set the gyro
-   *             angle.
-   */
-  public void setGyroBasedOnInitialChoreoTrajectory(ChoreoTrajectory traj) {
-    System.out.println("Is alliance present when setting initial gyro? " + DriverStation.getAlliance().isPresent());
-    Rotation2d actualAllianceRelativeAngle = DriverStation.getAlliance().get() == Alliance.Blue
-        ? traj.getInitialPose().getRotation()
-        : new Rotation2d().minus(traj.getInitialPose().getRotation());
-    swerveSubsystem.setGyroAngle(actualAllianceRelativeAngle);
-  }
-
   public Command setGyroBasedOnPathPlannerTrajectory() {
     return Commands.runOnce(() -> {
       System.out.println("Is alliance present when setting initial gyro? " + DriverStation.getAlliance().isPresent());
       System.out.println("What is the perceived initial pathplanner pose?:" + pathPlannerTargetPose.getTranslation()
           + " " + (pathPlannerTargetPose.getRotation()));
       Rotation2d actualFieldRelativeRotation = pathPlannerTargetPose.getRotation();
-      Rotation2d allianceRelativeRotation = DriverStation.getAlliance().get() == Alliance.Blue
-          ? actualFieldRelativeRotation
-          : actualFieldRelativeRotation.plus(Rotation2d.fromDegrees(180));
-      swerveSubsystem.setGyroAngle(allianceRelativeRotation);
+//      Rotation2d allianceRelativeRotation = DriverStation.getAlliance().get() == Alliance.Blue
+//          ? actualFieldRelativeRotation
+//          : actualFieldRelativeRotation.plus(Rotation2d.fromDegrees(180));
+      swerveSubsystem.setGyroAngle(actualFieldRelativeRotation);
     });
   }
 
@@ -360,9 +324,6 @@ public class RobotContainer {
   }
 
   public void buzz_controllers(double power) {
-    if (Math.abs(power - previousRumblePower) < .1) {
-      return;
-    }
     m_driverController.getHID().setRumble(RumbleType.kBothRumble, power);
     m_operatorController.getHID().setRumble(RumbleType.kBothRumble, power);
   }
@@ -550,6 +511,5 @@ public class RobotContainer {
     // .3, false), swerveSubsystem); // test drive command, for debugging
     // return autoChooser.getSelected().andThen(zeroOdometryAngleOffset());
     return autoChooser.getSelected();
-    // TODO: Replace the andThen statement if this does not align to gyro
   }
 }
