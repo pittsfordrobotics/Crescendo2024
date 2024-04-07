@@ -9,7 +9,6 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 
 import java.io.IOException;
-import java.util.function.Supplier;
 
 /**
  * Contains various field dimensions and useful reference points. Dimensions are
@@ -34,6 +33,9 @@ public class FieldConstants {
   public static double startingLineX = Units.inchesToMeters(74.111);
 
   public static Translation2d ampCenter = new Translation2d(Units.inchesToMeters(72.455),
+      Units.inchesToMeters(322.996));
+
+  public static Translation2d ampCenterRED_THISIFFORREDAMP = new Translation2d(fieldLength - Units.inchesToMeters(72.455),
       Units.inchesToMeters(322.996));
 
   /** Staging locations for each note */
