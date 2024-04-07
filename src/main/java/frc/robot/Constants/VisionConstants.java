@@ -23,8 +23,8 @@ public final class VisionConstants {
 
     public static final double FIELD_BORDER_MARGIN = 0.5;
     public static final double Z_MARGIN = 0.75;
-    public static final double XY_STD_DEV_COEF = 0.01;
+    public static final double XY_STD_DEV_COEF = 0.2;
     //public static final double THETA_STD_DEV_COEF = 0.01;
-    public static final double THETA_STD_DEV_COEF = 100000;
+    public static final double THETA_STD_DEV_COEF = 9999999.9;
     public static final double TARGET_LOG_SECONDS = 0.1;
 }

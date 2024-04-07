@@ -1,25 +1,25 @@
 package frc.robot.subsystems.Vision;
 
+import edu.wpi.first.math.geometry.Pose2d;
+
 /** Vision subsystem hardware interface. */
 public interface VisionIO {
     class VisionIOInputs {
-        public double pipelineLatency = 0.0;
-        public double captureLatency = 0.0;
+        public double totalLatency = 0.0;
         public double captureTimestamp = 0.0;
         public boolean hasTarget = false;
         public boolean connected = false;
-        public double vAngle = 0.0;
-        public double hAngle = 0.0;
-        public double[] tagIDs = new double[]{};
-        public double[] botXYZ = new double[]{};
-        public double[] botRPY = new double[]{};
+        public double avgTagDist = 0.0;
+        public int tagCount = 0;
+        public double[] tagDistances = new double[]{};
+        public int[] tagIDs = new int[]{};
+        public Pose2d pose = new Pose2d();
     }
 
     /**
      * Far: has the lowest FPS, but allows for possible vision updates when halfway down the field
      * Mid: has slightly higher FPS, but allows for farther vision updates when halfway down the field
      * Close: has the highest FPS, but only has limited range
-     * Retro: uses the green lights
      */
 
     
@@ -65,7 +65,7 @@ public interface VisionIO {
     }
 
     /** Updates the set of loggable inputs. */
-    default void updateInputs(VisionIOInputs inputs, String CamName) {}
+    default void updateInputs(VisionIOInputs inputs, String CamName, double gyroAngle) {}
 
     /** Enabled or disabled vision LEDs. */
     default void setLEDs(LED led, String CamName) {}
