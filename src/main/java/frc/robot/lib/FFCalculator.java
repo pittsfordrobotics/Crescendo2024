@@ -71,10 +71,9 @@ public class FFCalculator {
 
         double TotalTorque_ShoulderPiv = CMX * 9.8 * MT;
 
-        if (theta.getDegrees() < 5) {
-            return 0;
+        if (theta.getDegrees() < 2) {
+            return TotalTorque_ShoulderPiv * ShooterMultiplier * 0.5;
         }
-
 
         return TotalTorque_ShoulderPiv * ShooterMultiplier;
 

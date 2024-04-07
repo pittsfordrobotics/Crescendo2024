@@ -7,6 +7,10 @@ package frc.robot;
 import org.littletonrobotics.junction.LoggedRobot;
 
 import edu.wpi.first.net.PortForwarder;
+import edu.wpi.first.util.PixelFormat;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.DataLogManager;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
@@ -37,11 +41,16 @@ public class Robot extends LoggedRobot {
       PortForwarder.add(port, "limelight.local", port);
     }
 
+    DataLogManager.start();
+    DriverStation.startDataLog(DataLogManager.getLog());
     // Instantiate our RobotContainer. This will perform all our button bindings,
     // and put our
     // autonomous chooser on the dashboard.
     // UsbCamera camera = CameraServer.startAutomaticCapture();
     // camera.setVideoMode(PixelFormat.kYUYV, 640, 480, 10); // TODO: Camera is disabled for FLR, change if needed later
+    Shuffleboard.getTab("CONFIG").addDouble("Memory total", () -> Runtime.getRuntime().totalMemory() / 1024.0 / 1024.0);
+    Shuffleboard.getTab("CONFIG").addDouble("Memory free",() -> Runtime.getRuntime().freeMemory() / 1024.0 / 1024.0);
+    Shuffleboard.getTab("CONFIG").addDouble("Memory usage",() -> (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / 1024.0 / 1024.0);
     m_robotContainer = new RobotContainer();
   }
 
@@ -65,6 +74,9 @@ public class Robot extends LoggedRobot {
     // and running subsystem periodic() methods. This must be called from the
     // robot's periodic
     // block in order for anything in the Command-based framework to work.
+    if(Runtime.getRuntime().freeMemory() / 1024 / 1024 <= 1) {
+      Runtime.getRuntime().gc();
+    }
     CommandScheduler.getInstance().run();
   }
 
@@ -84,7 +96,7 @@ public class Robot extends LoggedRobot {
   @Override
   public void autonomousInit() {
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
-
+    m_robotContainer.useVision(false).schedule();
     // schedule the autonomous command (example)
     if (m_autonomousCommand != null) {
       m_autonomousCommand.schedule();
@@ -105,10 +117,9 @@ public class Robot extends LoggedRobot {
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
-    //m_robotContainer.driveToZeroHeadingAndZeroGyro().schedule();
+    m_robotContainer.useVision(true).schedule();
     m_robotContainer.zeroOdometryAngleOffset().schedule();
-    //m_robotContainer.zeroOdometryFromLastPathPose();
-    //m_robotContainer.setGyroBasedOnPathPlannerTrajectory();
+
   }
 
   /** This function is called periodically during operator control. */

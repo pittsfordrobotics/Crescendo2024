@@ -750,7 +750,7 @@
                     }
                 }
             ],
-            "isTrajectoryStale": false
+            "isTrajectoryStale": true
         },
         "twonotepodiumsidemoveoutoftheway": {
             "waypoints": [
@@ -953,7 +953,7 @@
             "usesDefaultFieldObstacles": true,
             "circleObstacles": [],
             "eventMarkers": [],
-            "isTrajectoryStale": false
+            "isTrajectoryStale": true
         },
         "thirdnotepodiumside": {
             "waypoints": [
@@ -2283,7 +2283,7 @@
                     }
                 }
             ],
-            "isTrajectoryStale": false
+            "isTrajectoryStale": true
         },
         "thirdnotecenterfrompodiumside": {
             "waypoints": [
@@ -2957,7 +2957,7 @@
                     }
                 }
             ],
-            "isTrajectoryStale": false
+            "isTrajectoryStale": true
         },
         "thirdnotepodiumsideedge": {
             "waypoints": [
@@ -4341,7 +4341,7 @@
                     }
                 }
             ],
-            "isTrajectoryStale": false
+            "isTrajectoryStale": true
         }
     },
     "splitTrajectoriesAtStopPoints": false,
