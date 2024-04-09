@@ -4,9 +4,13 @@
 
 package frc.robot.subsystems;
 
+import java.util.List;
+
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -29,6 +33,10 @@ public class Leds extends SubsystemBase {
     LedSpeed ledSpeed = LedSpeed.slow;
     AddressableLED ledstrip;
     AddressableLEDBuffer ledBuffer;
+    SendableChooser<Color> mainColorChooser = new SendableChooser<Color>();
+    SendableChooser<Color> secondaryColorChooser = new SendableChooser<Color>();
+    SendableChooser<LedMode> modeChooser = new SendableChooser<LedMode>();
+    SendableChooser<LedSpeed> speedChooser = new SendableChooser<LedSpeed>();
 
     /** Creates a new Leds. */
     public Leds() {
@@ -38,6 +46,35 @@ public class Leds extends SubsystemBase {
         ledstrip.setLength(ledBuffer.getLength());
         ledstrip.setData(ledBuffer);
         ledstrip.start();
+
+        for (LedMode mode : LedMode.values()) {
+            modeChooser.addOption(mode.toString(), mode);
+        }
+        for (LedSpeed speed : LedSpeed.values()) {
+            speedChooser.addOption(speed.toString(), speed);
+        }
+        for (Color color : List.of(Color.kBlack, Color.kWhite, Color.kRed, Color.kGreen, Color.kBlue, Color.kYellow,
+                Color.kPurple, Color.kOrange, Color.kAqua, Color.kDeepPink)) {
+            mainColorChooser.addOption(color.toString(), color);
+            secondaryColorChooser.addOption(color.toString(), color);
+        }
+        Shuffleboard.getTab("LEDS").add("Color", mainColorChooser);
+        Shuffleboard.getTab("LEDS").add("Secondary Color", secondaryColorChooser);
+        Shuffleboard.getTab("LEDS").add("Mode", modeChooser);
+        Shuffleboard.getTab("LEDS").add("Speed", speedChooser);
+
+        mainColorChooser.onChange(color -> {
+            MainColor = color;
+        });
+        secondaryColorChooser.onChange(coloor -> {
+            SecondaryColor = coloor;
+        });
+        modeChooser.onChange(mode -> {
+            ledMode = mode;
+        });
+        speedChooser.onChange(speed -> {
+            ledSpeed = speed;
+        });
     }
 
     @Override
@@ -131,7 +168,7 @@ public class Leds extends SubsystemBase {
                 q = q * ledBuffer.getLength() * 5;
                 // Sets certain led to color based on q
                 for (var j = 0; j < ledBuffer.getLength(); j++) {
-                    if (j == Math.abs((i % q) - q/2) / ledBuffer.getLength()) {
+                    if (j == Math.abs((i % q) - q / 2) / ledBuffer.getLength()) {
                         ledBuffer.setLED(j, MainColor);
                     } else {
                         ledBuffer.setLED(j, SecondaryColor);
