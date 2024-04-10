@@ -7,11 +7,10 @@ import com.revrobotics.RelativeEncoder;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import com.revrobotics.SparkPIDController;
-import com.revrobotics.CANSparkBase.ControlType;
 import frc.robot.Constants.ClimberConstants;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class Climber extends SubsystemBase {
 
@@ -24,7 +23,6 @@ public class Climber extends SubsystemBase {
     private ArrayList<Double> recentCurrentsRight = new ArrayList<>();
     private double currentAverageLeft;
     private double currentAverageRight;
-    private double softLimit;
 
     public Climber() {
         // Initialize the left motor.
@@ -47,15 +45,30 @@ public class Climber extends SubsystemBase {
         leftEncoder.setPosition(0);
 
         //soft limits
-        softLimit = leftEncoder.getPosition() * 0.5;
-        leftMotor.setSoftLimit(CANSparkBase.SoftLimitDirection.kReverse, (float) softLimit);
-        rightMotor.setSoftLimit(CANSparkBase.SoftLimitDirection.kReverse, (float) softLimit);
+        leftMotor.setSoftLimit(CANSparkBase.SoftLimitDirection.kForward,
+                (float) ClimberConstants.SOFT_LIMIT_FORWARD_LEFT);
+        leftMotor.setSoftLimit(CANSparkBase.SoftLimitDirection.kReverse,
+                (float) ClimberConstants.SOFT_LIMIT_REVERSE_LEFT);
+        rightMotor.setSoftLimit(CANSparkBase.SoftLimitDirection.kForward,
+                (float) ClimberConstants.SOFT_LIMIT_FORWARD_RIGHT);
+        rightMotor.setSoftLimit(CANSparkBase.SoftLimitDirection.kReverse,
+                (float) ClimberConstants.SOFT_LIMIT_REVERSE_RIGHT);
 
         //set buttons on shuffleboard
-        Shuffleboard.getTab("Climber").addDouble("Soft Limit", () -> softLimit);
-        //todo: name the buttons (how?)
-        Shuffleboard.getTab("Climber").add(sendableBuilder -> softLimit *= 1.1); //up 10%
-        Shuffleboard.getTab("Climber").add(sendableBuilder -> softLimit *= 0.9); //down 10%
+        Shuffleboard.getTab("Climber").addDouble("Soft Limit Left Forward",
+                () -> ClimberConstants.SOFT_LIMIT_FORWARD_LEFT);
+        Shuffleboard.getTab("Climber").addDouble("Soft Limit Left Reverse",
+                () -> ClimberConstants.SOFT_LIMIT_REVERSE_LEFT);
+        Shuffleboard.getTab("Climber").addDouble("Soft Limit Right Forward",
+                () -> ClimberConstants.SOFT_LIMIT_FORWARD_RIGHT);
+        Shuffleboard.getTab("Climber").addDouble("Soft Limit Right Reverse",
+                () -> ClimberConstants.SOFT_LIMIT_REVERSE_RIGHT);
+
+        Shuffleboard.getTab("Climber").addDouble("Left Motor Current", () -> currentAverageLeft);
+        Shuffleboard.getTab("Climber").addDouble("Right Motor Current", () -> currentAverageRight);
+
+        Shuffleboard.getTab("Climber").addDouble("Left Motor Encoder", () -> leftEncoder.getPosition());
+        Shuffleboard.getTab("Climber").addDouble("Right Motor Encoder", () -> rightEncoder.getPosition());
     }
 
     /**
@@ -105,8 +118,8 @@ public class Climber extends SubsystemBase {
      */
     public boolean[] detectChain() {
         return new boolean[] {
-                currentAverageLeft > ClimberConstants.CLIMBER_OFFSET,
-                currentAverageRight > ClimberConstants.CLIMBER_OFFSET
+                currentAverageLeft > ClimberConstants.CLIMBER_CURRENT_THRESHOLD,
+                currentAverageRight > ClimberConstants.CLIMBER_CURRENT_THRESHOLD
         };
     }
 
@@ -119,9 +132,6 @@ public class Climber extends SubsystemBase {
             boolean[] chain = detectChain();
             leftMotor.set(chain[0] ? 0 : -0.5);
             rightMotor.set(chain[1] ? 0 : -0.5);
-        }).until(() -> {
-            boolean[] chain = detectChain();
-            return chain[0] && chain[1];
-        });
+        }).until(() -> Arrays.equals(detectChain(), new boolean[]{true, true}));
     }
 }
