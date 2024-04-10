@@ -216,23 +216,31 @@ public class Leds extends SubsystemBase {
     }
 
     // When the robot is ready to shoot
-    public Command setLedHasGoodSpeakerShot() {
+    public Command setLEDHasGoodSpeakerShot() {
         return this.runOnce(() -> {
-            setLedAll(Color.kGreen, Color.kBlack, LedMode.solid, LedSpeed.slow);
+            setLedAll(Color.kGreen, Color.kDarkSeaGreen, LedMode.blink, LedSpeed.fast);
+        });
+    }
+
+    // When the robot is in a normal state
+    public Command setLEDNormal() {
+        return this.runOnce(() -> {
+            setLedAll(Color.kHotPink, Color.kBlack, LedMode.solid, LedSpeed.slow);
         });
     }
 
     // When the robot is intaking
-    public Command setLedHasGoodSpeakerIntake() {
+    public Command setLEDIntake() {
         return this.runOnce(() -> {
-            setLedAll(Color.kBlue, Color.kBlack, LedMode.solid, LedSpeed.slow);
+            setLedAll(Color.kYellow, Color.kDarkOrange, LedMode.blinkDual, LedSpeed.fast);
         });
     }
 
-    // When the robot is in stored position
-    public Command setLedHasGoodSpeakerStored() {
+
+    // When the robot is in automated mode
+    public Command setLedAutomatedMode() {
         return this.runOnce(() -> {
-            setLedAll(Color.kYellow, Color.kBlack, LedMode.solid, LedSpeed.slow);
+            setLedAll(Color.kHotPink, Color.kAqua, LedMode.bounce, LedSpeed.mid);
         });
     }
 
