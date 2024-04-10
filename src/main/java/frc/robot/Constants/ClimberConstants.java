@@ -1,6 +1,6 @@
 package frc.robot.Constants;
 
-public class ClimberConstants {
+public final class ClimberConstants {
 
     public static final int CAN_CLIMBER_L = 31;
     public static final int CAN_CLIMBER_R = 32;

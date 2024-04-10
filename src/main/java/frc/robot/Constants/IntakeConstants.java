@@ -1,6 +1,6 @@
 package frc.robot.Constants;
 
-public class IntakeConstants {
+public final class IntakeConstants {
 
     public static final int CAN_INTAKE_1 = 21;
     public static final int CAN_INTAKE_2 = 24;
@@ -11,7 +11,7 @@ public class IntakeConstants {
     public static final double INTAKE_Pivot_I = 0;
     public static final double INTAKE_Pivot_D = 0.025;//was .025 before 2/21 (evan changed)
 
-    public static final int BEAM_BREAK_DIO = 1;
+    public static final int BEAM_BREAK_DIO = 3; // DIO #0 may have a problem?
     public static final int INTAKE_CURRENT_LIMIT = 20;
     public static final int PIVOT_CURRENT_LIMIT = 40;
 

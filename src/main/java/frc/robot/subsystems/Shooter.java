@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems;
 
+import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
 import com.revrobotics.CANSparkBase.ControlType;
@@ -19,6 +20,7 @@ import com.revrobotics.SparkAbsoluteEncoder.Type;
 import com.revrobotics.SparkPIDController;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.DigitalSource;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -39,7 +41,8 @@ public class Shooter extends SubsystemBase {
   private CANSparkMax indexerMotorR;
   private CANSparkMax pivotMotorL;
   private CANSparkMax pivotMotorR;
-  private DigitalInput backLimitSwitch;
+  private DigitalInput backLimitSwitch1;
+  private DigitalInput backLimitSwitch2;
 
   private SparkPIDController pivotRPID;
   private SparkPIDController shooterRPID;
@@ -129,13 +132,12 @@ public class Shooter extends SubsystemBase {
     pivotMotorL.setIdleMode(CANSparkMax.IdleMode.kBrake);
     pivotMotorL.follow(pivotMotorR, true);
 
-    // Limit Switch
-    backLimitSwitch = new DigitalInput(ShooterConstants.LimitSwitchDIO);
-
     try {
       Thread.sleep(200);
     } catch (InterruptedException e) {
     }
+    backLimitSwitch1 = new DigitalInput(ShooterConstants.LimitSwitchDIO1);
+    backLimitSwitch2 = new DigitalInput(ShooterConstants.LimitSwitchDIO2);
 
     // Logging
     // SmartDashboard.putNumber("Shooter Pivot P", pivotRPID.getP());
@@ -215,7 +217,7 @@ public class Shooter extends SubsystemBase {
 
   /** returns true if the limit switch is pressed */
   public boolean getLimitSwitch() {
-    return backLimitSwitch.get();
+    return backLimitSwitch1.get() || backLimitSwitch2.get();
   }
 
   // Returns the angle of the shooter pivot (Right motor in deg)

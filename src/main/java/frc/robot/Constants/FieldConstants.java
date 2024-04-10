@@ -26,7 +26,7 @@ import java.util.function.Supplier;
  * Length refers to the <i>x</i> direction (as described by wpilib) <br>
  * Width refers to the <i>y</i> direction (as described by wpilib)
  */
-public class FieldConstants {
+public final class FieldConstants {
   public static double fieldLength = Units.inchesToMeters(651.223);
   public static double fieldWidth = Units.inchesToMeters(323.277);
   public static double wingX = Units.inchesToMeters(229.201);
