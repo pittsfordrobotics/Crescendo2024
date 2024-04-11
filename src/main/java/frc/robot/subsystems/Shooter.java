@@ -214,7 +214,7 @@ public class Shooter extends SubsystemBase {
 
   /** returns true if the limit switch is pressed */
   public boolean getLimitSwitch() {
-    return backLimitSwitch1.get() || backLimitSwitch2.get(); // TODO: see if we need to invert
+    return !backLimitSwitch1.get() || !backLimitSwitch2.get(); // TODO: see if we need to invert
   }
 
   // Returns the angle of the shooter pivot (Right motor in deg)
