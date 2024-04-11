@@ -148,6 +148,7 @@ public class RobotContainer {
   }
 
   private void configure_COMP_Bindings() {
+    leds.setLEDNormalMethod(); // TODO: aaaaaa
     //SYSID button on shuffleboard
     Shuffleboard.getTab("CONFIG").add("SysID drive motor routine", swerveSubsystem.sysIdDriveMotorCommand());
     Shuffleboard.getTab("CONFIG").add("SysID angle motor routine", swerveSubsystem.sysIdAngleMotorCommand());
