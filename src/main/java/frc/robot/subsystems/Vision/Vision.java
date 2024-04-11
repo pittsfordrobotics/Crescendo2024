@@ -4,9 +4,14 @@
 
 package frc.robot.subsystems.Vision;
 
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.VisionConstants;
+import frc.robot.commands.DisabledInstantCommand;
 import frc.robot.lib.VisionData;
+import frc.robot.lib.util.AllianceFlipUtil;
+import frc.robot.lib.util.LimelightHelpers;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.subsystems.Vision.VisionIO.Pipelines;
 
@@ -17,12 +22,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.function.DoubleSupplier;
+import java.util.function.Supplier;
 
 import edu.wpi.first.apriltag.AprilTag;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StructArrayPublisher;
+import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -33,130 +44,174 @@ public class Vision extends SubsystemBase {
     // Initializatio
     private boolean useVision = true;
     private Consumer<VisionData> visionDataConsumer;
+    private Supplier<Rotation2d> gyroangle;
+    private Supplier<Double> robotRotationalVelocity;
+    private double xyStdDev = 200;
+    private boolean hasGreatSpeakerReading = false;
+    private double swervesGyro = 12.2;
 
     private final VisionIO[] io;
     private final Map<Integer, Double> lastTagDetectionTimes = new HashMap<>();
+    private Pipelines pipeline = Pipelines.Test;
 
-    public Vision(VisionIO ioLimelight1, VisionIO ioLimelight2, Consumer<VisionData> visionDataConsumer) {
+    StructArrayPublisher<Pose2d> visionPoseArrayPublisher = NetworkTableInstance.getDefault()
+            .getStructArrayTopic("Vision Poses", Pose2d.struct).publish();
+
+    public Vision(VisionIO ioLimelight1, VisionIO ioLimelight2, Supplier<Rotation2d> gyroangle,
+            Supplier<Double> robotRotationalVelocity, Consumer<VisionData> visionDataConsumer) {
         this.visionDataConsumer = visionDataConsumer;
+        this.gyroangle = gyroangle;
+        this.robotRotationalVelocity = robotRotationalVelocity;
         io = new VisionIO[] { ioLimelight1, ioLimelight2 };
         FieldConstants.aprilTags.getTags().forEach((AprilTag tag) -> lastTagDetectionTimes.put(tag.ID, 0.0));
+
+        Shuffleboard.getTab("Vision").addBoolean("Is Vison Being Used?", this::usingVision);
+        Shuffleboard.getTab("Vision").add("UseVisionToggle", new DisabledInstantCommand(this::useVisionToggle));
+        
+        for (int i = 0; i < io.length; i++) {
+            int number = i; // why are ints dumb
+            Shuffleboard.getTab("Vision").addDouble(i + "/AvgTagDist", () -> this.inputs[number].avgTagDist);
+            Shuffleboard.getTab("Vision").addInteger(i + "/NumTags", () -> this.inputs[number].tagCount);
+            Shuffleboard.getTab("Vision").addDoubleArray(i + "/TagDistances", () -> this.inputs[number].tagDistances);
+            Shuffleboard.getTab("Vision").addString(i + "/TagIDs", () -> this.inputs[number].tagIDs.toString()); //why are ints dumb
+            Shuffleboard.getTab("Vision").addDouble(i + "/Pose2d_X", () -> this.inputs[number].pose.getX());
+            Shuffleboard.getTab("Vision").addDouble(i + "/Pose2d_Y", () -> this.inputs[number].pose.getY());
+            Shuffleboard.getTab("Vision").addDouble(i + "/Pose2d_Theta", () -> this.inputs[number].pose.getRotation().getDegrees());
+        }
+        Shuffleboard.getTab("Vision").addDouble("XY_std", this::getXYstdDev);
+        Shuffleboard.getTab("Vision").addBoolean("Has Great Speaker Reading", this::hasGreatSpeakerReading);
+        Shuffleboard.getTab("Vision").addDouble("Swerves Gyro", this::getSwervesGyro);
     }
 
     private final VisionIO.VisionIOInputs[] inputs = new VisionIO.VisionIOInputs[] { new VisionIO.VisionIOInputs(),
             new VisionIO.VisionIOInputs() };
     private final String[] camNames = new String[] { VisionConstants.LIMELIGHT1_NAME, VisionConstants.LIMELIGHT2_NAME };
 
-    private Pipelines pipeline = Pipelines.Test; // default pipeline
-
-    public void useVision (boolean usevision){
+    public void setUseVision(boolean usevision) {
         this.useVision = usevision;
+    }
+
+    public void useVisionToggle() {
+        this.useVision = !this.useVision;
+    }
+
+    public boolean usingVision() {
+        return useVision;
+    }
+
+    public void setPipeline(Pipelines pipeline) {
+        this.pipeline = pipeline;
+    }
+
+    public double getXYstdDev() {
+        return xyStdDev;
+    }
+
+    public boolean hasGreatSpeakerReading() {
+        return hasGreatSpeakerReading;
+    }
+
+    public double getSwervesGyro() {
+        return swervesGyro;
     }
 
     @Override
     public void periodic() {
         for (int i = 0; i < io.length; i++) {
             // update the inputs from the netwrork tables named camNames[i]
-            io[i].updateInputs(inputs[i], camNames[i]);
+            io[i].updateInputs(inputs[i], camNames[i], gyroangle.get().getDegrees());
             // keeps the pipeline always the same
             io[i].setPipeline(pipeline, camNames[i]);
         }
+        swervesGyro = gyroangle.get().getDegrees();
         List<Pose2d> allRobotPoses = new ArrayList<>();
 
+        // exit if boolean
         if (!useVision) {
             return;
         }
 
         // Pose estimation
-        if (!DriverStation.isAutonomous()) {
-            for (int i = 0; i < io.length; i++) {
-                // exit if boolean
+        for (int i = 0; i < io.length; i++) {
 
-                // exit if data is bad
-                if (Arrays.equals(inputs[i].botXYZ, new double[] { 0.0, 0.0, 0.0 }) || inputs[i].botXYZ.length == 0
-                        || !inputs[i].connected) {
-                    continue;
-                }
+            // gets the pose
+            Pose2d visionCalcPose = inputs[i].pose;
 
-                // Gets robot pose from the current camera
-                // Pose is centered differently depending on the alliance of the robot
-                Pose3d robotPose3d = new Pose3d(inputs[i].botXYZ[0], inputs[i].botXYZ[1], inputs[i].botXYZ[2],
-                        new Rotation3d(
-                                Math.toRadians(inputs[i].botRPY[0]),
-                                Math.toRadians(inputs[i].botRPY[1]),
-                                Math.toRadians(inputs[i].botRPY[2])));
-                Pose2d visionCalcPose = robotPose3d.toPose2d();
-
-                // exit if off the field (might be bad)
-                if (robotPose3d.getX() < -VisionConstants.FIELD_BORDER_MARGIN
-                        || robotPose3d.getX() > FieldConstants.fieldLength + VisionConstants.FIELD_BORDER_MARGIN
-                        || robotPose3d.getY() < -VisionConstants.FIELD_BORDER_MARGIN
-                        || robotPose3d.getY() > FieldConstants.fieldWidth + VisionConstants.FIELD_BORDER_MARGIN
-                        || robotPose3d.getZ() < -VisionConstants.Z_MARGIN
-                        || robotPose3d.getZ() > VisionConstants.Z_MARGIN) {
-                    continue;
-                }
-
-                // Vision should not be exited at this point?
-                SmartDashboard.putBoolean("Vision exited?", true);
-
-                SmartDashboard.putNumber("Vision/Pose" + i + "/X", visionCalcPose.getX());
-                SmartDashboard.putNumber("Vision/Pose" + i + "/Y", visionCalcPose.getY());
-                SmartDashboard.putNumber("Vision/Pose" + i + "/Theta", visionCalcPose.getRotation().getDegrees());
-
-                // Get tag poses and update last detection times
-                // (sketchy code not sure it works pls review - Evan)
-                List<Pose3d> tagPoses = new ArrayList<>();
-                for (int z = 0; z < inputs[i].tagIDs.length; z++) {
-                    int tagId = (int) inputs[i].tagIDs[z];
-                    lastTagDetectionTimes.put(tagId, Timer.getFPGATimestamp());
-                    Optional<Pose3d> tagPose = FieldConstants.aprilTags.getTagPose((int) inputs[i].tagIDs[z]);
-                    tagPose.ifPresent(tagPoses::add);
-                }
-
-                // Calculate average distance to tag
-                double totalDistance = 0.0;
-                Pose2d[] tagPoses2d = new Pose2d[tagPoses.size()];
-                int num = 0;
-                for (Pose3d tagPose : tagPoses) {
-                    Alliance alliance = DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue);
-                    tagPose = FieldConstants.allianceFlipper(tagPose, alliance);
-                    totalDistance += tagPose.getTranslation().getDistance(robotPose3d.getTranslation());
-                    tagPoses2d[num] = tagPose.toPose2d();
-                    num++;
-                }
-                double avgDistance = totalDistance / tagPoses.size();
-                // SmartDashboard.putNumber("Vision/AvgDist", avgDistance);
-
-                // Calculate standard deviation to give to the .addVisionData() swerve method
-                // The larger the STD the less the data is trusted, here the STD is proportional
-                // to the distance to the tag
-                // Increase VisionConstants.XY_STD_DEV_COEF and
-                // VisionConstants.THETA_STD_DEV_COEF to trust vision in general less
-
-                double xyStdDev = VisionConstants.XY_STD_DEV_COEF * Math.pow(avgDistance, 2.0) / tagPoses.size();
-                double thetaStdDev = VisionConstants.THETA_STD_DEV_COEF * Math.pow(avgDistance, 2.0) / tagPoses.size();
-
-                // SmartDashboard.putNumber("Vision/XYstd", xyStdDev);
-                // SmartDashboard.putNumber("Vision/ThetaStd", thetaStdDev);
-
-                // Add vision data to swerve pose estimator -- will depend on swerve
-                VisionData visionData = new VisionData(visionCalcPose, inputs[i].captureTimestamp,
-                        VecBuilder.fill(xyStdDev, xyStdDev, thetaStdDev));
-                visionDataConsumer.accept(visionData);
-
-                // Add robot pose from this camera to a list of all robot poses
-                allRobotPoses.add(visionCalcPose);
-                List<Pose3d> allTagPoses = new ArrayList<>();
-                for (Map.Entry<Integer, Double> detectionEntry : lastTagDetectionTimes.entrySet()) {
-                    if (Timer.getFPGATimestamp() - detectionEntry.getValue() < VisionConstants.TARGET_LOG_SECONDS
-                            && FieldConstants.aprilTags.getTagPose(detectionEntry.getKey()).isPresent()) {
-                        allTagPoses.add(FieldConstants.aprilTags.getTagPose(detectionEntry.getKey()).get());
-                    }
-                }
+            // if the bot is not connected, or the bot is at the origin, skip
+            if (visionCalcPose.equals(new Pose2d()) || !inputs[i].connected) {
+                continue;
             }
+
+            // exit if off the field (might be bad)
+            if (visionCalcPose.getX() < -VisionConstants.FIELD_BORDER_MARGIN
+                    || visionCalcPose.getX() > FieldConstants.fieldLength + VisionConstants.FIELD_BORDER_MARGIN
+                    || visionCalcPose.getY() < -VisionConstants.FIELD_BORDER_MARGIN
+                    || visionCalcPose.getY() > FieldConstants.fieldWidth + VisionConstants.FIELD_BORDER_MARGIN) {
+                continue;
+            }
+
+            // exit if the gyro does not match the vision
+            double gyroAngle = gyroangle.get().getDegrees();
+            if (Math.abs(gyroAngle - visionCalcPose.getRotation().getDegrees()) > 5) {
+                System.out.println("Gyro and Vision do not match");
+                // continue;
+            }
+
+            // exit if the robot is rotating too fast
+            if (Math.abs(robotRotationalVelocity.get()) > 6.28) {
+                continue;
+            }
+
+            if (inputs[i].tagCount == 0) {
+                continue;
+            }
+
+            // Get tag poses and update last detection times
+            List<Pose3d> tagPoses = new ArrayList<>();
+            for (int z = 0; z < inputs[i].tagIDs.length; z++) {
+                int tagId = (int) inputs[i].tagIDs[z];
+                lastTagDetectionTimes.put(tagId, Timer.getFPGATimestamp());
+                Optional<Pose3d> tagPose = FieldConstants.aprilTags.getTagPose((int) inputs[i].tagIDs[z]);
+                tagPose.ifPresent(tagPoses::add);
+            }
+
+            // Gets the average distance to tag
+            double avgDistance = inputs[i].avgTagDist;
+            // TODO: Double check this can be over 2 lol
+
+            // Check if the robot has both speaker tags for red or blue
+            boolean hasBlueSpeakerTags = (Arrays.binarySearch(inputs[i].tagIDs, 7) >= 0)
+                    && (Arrays.binarySearch(inputs[i].tagIDs, 8) >= 0);
+            boolean hasRedSpeakerTags = (Arrays.binarySearch(inputs[i].tagIDs, 3) >= 0)
+                    && (Arrays.binarySearch(inputs[i].tagIDs, 4) >= 0);
+
+            // Checks if has supergood reading at the speaker
+            hasGreatSpeakerReading = ((inputs[i].tagCount >= 2) && (avgDistance < 4.0)
+                    && (hasBlueSpeakerTags || hasRedSpeakerTags));
+
+            // Exits when in auto if it doesnt have a great great reading
+            if (DriverStation.isAutonomous() && !hasGreatSpeakerReading) {
+                continue;
+            }
+
+            // Calculate standard deviation to give to the .addVisionData() swerve method
+            // Standard Deveation is inverse to confidence level
+            xyStdDev = VisionConstants.XY_STD_DEV_COEF * (avgDistance * avgDistance)
+                    / (inputs[i].tagCount * inputs[i].tagCount);
+            if (hasGreatSpeakerReading) {
+                xyStdDev = xyStdDev * 0.5;
+            }
+            double thetaStdDev = VisionConstants.THETA_STD_DEV_COEF;
+
+            // Add vision data to swerve pose estimator
+            VisionData visionData = new VisionData(visionCalcPose, inputs[i].captureTimestamp,
+                    VecBuilder.fill(xyStdDev, xyStdDev, thetaStdDev));
+            visionDataConsumer.accept(visionData);
+
+            // Add robot pose from this camera to a list of all robot poses
+            allRobotPoses.add(visionCalcPose);
+            // xyStdDev = 200;
         }
-        // Shuffleboard.getTab("Vision").add("Vision/NumPoses", allRobotPoses.size());
-        // Shuffleboard.getTab("Vison").add("Vision/NumTags", allRobotPoses.toArray());
+        visionPoseArrayPublisher.set(allRobotPoses.toArray(new Pose2d[0]));
     }
 }
