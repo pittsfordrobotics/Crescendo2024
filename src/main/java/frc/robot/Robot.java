@@ -53,10 +53,6 @@ public class Robot extends LoggedRobot {
     Shuffleboard.getTab("CONFIG").addDouble("Memory free",() -> Runtime.getRuntime().freeMemory() / 1024.0 / 1024.0);
     Shuffleboard.getTab("CONFIG").addDouble("Memory usage",() -> (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / 1024.0 / 1024.0);
     m_robotContainer = new RobotContainer();
-
-    m_robotContainer.useVision(false).schedule();
-
-
   }
 
   /**
