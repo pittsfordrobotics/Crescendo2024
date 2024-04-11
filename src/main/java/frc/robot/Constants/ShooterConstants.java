@@ -29,6 +29,9 @@ public final class ShooterConstants {
     public static final double SHOOTER_L_FFGain = 0.0001688;
     public static final double SHOOTER_R_FFGain = 0.000169;
 
+    public static final int LimitSwitchDIO1 = 1;
+    public static final int LimitSwitchDIO2 = 2;
+
 
 
     // key: distance from center of robot to middle pose of subwoof projected down

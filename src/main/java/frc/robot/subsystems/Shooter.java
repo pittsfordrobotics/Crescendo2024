@@ -36,7 +36,8 @@ public class Shooter extends SubsystemBase {
   private CANSparkMax indexerMotorR;
   private CANSparkMax pivotMotorL;
   private CANSparkMax pivotMotorR;
-  private DigitalInput backLimitSwitch;
+  private DigitalInput backLimitSwitch1;
+  private DigitalInput backLimitSwitch2;
 
   private SparkPIDController pivotRPID;
   private SparkPIDController shooterRPID;
@@ -125,14 +126,12 @@ public class Shooter extends SubsystemBase {
     pivotMotorL.setSmartCurrentLimit(40);
     pivotMotorL.setIdleMode(CANSparkMax.IdleMode.kBrake);
     pivotMotorL.follow(pivotMotorR, true);
-
-    // Limit Switch
-    backLimitSwitch = new DigitalInput(6);
-
     try {
       Thread.sleep(200);
     } catch (InterruptedException e) {
     }
+    backLimitSwitch1 = new DigitalInput(ShooterConstants.LimitSwitchDIO1);
+    backLimitSwitch2 = new DigitalInput(ShooterConstants.LimitSwitchDIO2);
 
     // Logging
     // SmartDashboard.putNumber("Shooter Pivot P", pivotRPID.getP());
@@ -144,6 +143,11 @@ public class Shooter extends SubsystemBase {
     // SmartDashboard.putNumber("Shooter L&R P", shooterRPID.getP());
 
     Shuffleboard.getTab("SHOOTER").add(this);
+
+    Shuffleboard.getTab("SHOOTER").addBoolean("Shooter Limit Switch", this::getLimitSwitch);
+    Shuffleboard.getTab("SHOOTER").addBoolean("Shooter Limit Switch 1", backLimitSwitch1::get);
+    Shuffleboard.getTab("SHOOTER").addBoolean("Shooter Limit Switch 2", backLimitSwitch2::get);
+
 
     Shuffleboard.getTab("COMP").addDouble("Shooter RPM R", this::getShooterRRPM);
     Shuffleboard.getTab("COMP").addDouble("Shooter RPM L", this::getShooterLRPM);
@@ -212,7 +216,7 @@ public class Shooter extends SubsystemBase {
 
   /** returns true if the limit switch is pressed */
   public boolean getLimitSwitch() {
-    return backLimitSwitch.get();
+    return backLimitSwitch1.get() && backLimitSwitch2.get();
   }
 
   // Returns the angle of the shooter pivot (Right motor in deg)
