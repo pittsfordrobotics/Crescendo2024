@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.Constants.RobotConstants;
 import frc.robot.lib.StructureStates;
 import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.Leds;
 import frc.robot.subsystems.Shooter;
 
 // NOTE:  Consider using this command inline, rather than writing a subclass.  For more
@@ -19,20 +20,21 @@ import frc.robot.subsystems.Shooter;
 
 public class IntakeCommand extends SequentialCommandGroup {
 	/** Creates a new StartIntake2. */
-	public IntakeCommand(Shooter shooter, Intake intake) {
+	public IntakeCommand(Shooter shooter, Intake intake, Leds leds) {
 		// Add your commands in the addCommands() call, e.g.
 		// addCommands(new FooCommand(), new BarCommand());
 		addCommands(
 				new InstantCommand(() -> StructureStates.setCurrentState(StructureStates.structureState.intake)),
 				new ParallelCommandGroup(shooter.setShooterRPMCommand(RobotConstants.INTAKE_ShooterRPM),
-						intake.spinIntakeCommand(RobotConstants.INTAKE_IntakeSpeed)),
+						intake.spinIntakeCommand(RobotConstants.INTAKE_IntakeSpeed),
+						leds.setLEDIntake()),
 				new SequentialCommandGroup(
 						intake.setPivotAngleCommand(RobotConstants.INTAKE_IntakePivotAngle),
 						intake.waitForPivotAngleCommand(),
 						shooter.setPivotAngleCommand(RobotConstants.INTAKE_ShooterPivotAngle),
 						shooter.waitForPivotAngleCommand()),
 				new WaitUntilCommand(() -> shooter.getLimitSwitch()),
-				new StoredCommand(shooter, intake));
+				new StoredCommand(shooter, intake, leds));
 
 	}
 }

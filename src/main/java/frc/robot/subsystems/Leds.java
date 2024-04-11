@@ -9,6 +9,7 @@ import java.util.List;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.util.Color;
@@ -79,6 +80,10 @@ public class Leds extends SubsystemBase {
 
     @Override
     public void periodic() {
+        if (DriverStation.isAutonomous()) {
+            setLedAutomatedMode();
+        }
+
         int i = 0;
         int q = 0;
         switch (ledSpeed) {
@@ -236,12 +241,9 @@ public class Leds extends SubsystemBase {
         });
     }
 
-
     // When the robot is in automated mode
-    public Command setLedAutomatedMode() {
-        return this.runOnce(() -> {
+    public void setLedAutomatedMode() {
             setLedAll(Color.kHotPink, Color.kAqua, LedMode.bounce, LedSpeed.mid);
-        });
     }
 
     private void setFullLengthofBuffer(AddressableLEDBuffer buffer, Color color) {
@@ -253,6 +255,7 @@ public class Leds extends SubsystemBase {
     // takes in a color and double and rerurns a color with the brightness relative
     // to the double
     private Color changeColorBrightness(Color color, double brightness) {
+        brightness = MathUtil.clamp(brightness, 0, 1);
         return new Color(color.red * brightness, color.green * brightness, color.blue * brightness);
     }
 }
