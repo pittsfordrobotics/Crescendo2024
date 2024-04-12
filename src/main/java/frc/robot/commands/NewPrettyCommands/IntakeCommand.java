@@ -34,7 +34,9 @@ public class IntakeCommand extends SequentialCommandGroup {
 						shooter.setPivotAngleCommand(RobotConstants.INTAKE_ShooterPivotAngle),
 						shooter.waitForPivotAngleCommand()),
 				new WaitUntilCommand(() -> shooter.getLimitSwitch()),
+				leds.setLEDHasNote(),
 				new StoredCommand(shooter, intake, leds));
 
 	}
+	
 }

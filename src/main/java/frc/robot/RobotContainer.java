@@ -53,7 +53,7 @@ public class RobotContainer {
   private final Climber climber;
   private final Shooter shooter;
   private final Intake intake;
-  private final Leds leds;
+  public final Leds leds;
   private final Vision vision;
 
   private final AutoCommandFactory autoCommandFactory;
@@ -148,7 +148,6 @@ public class RobotContainer {
   }
 
   private void configure_COMP_Bindings() {
-    leds.setLEDNormalMethod(); // TODO: aaaaaa
     //SYSID button on shuffleboard
     Shuffleboard.getTab("CONFIG").add("SysID drive motor routine", swerveSubsystem.sysIdDriveMotorCommand());
     Shuffleboard.getTab("CONFIG").add("SysID angle motor routine", swerveSubsystem.sysIdAngleMotorCommand());

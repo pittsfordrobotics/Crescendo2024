@@ -119,6 +119,7 @@ public class Robot extends LoggedRobot {
     }
     m_robotContainer.useVision(true).schedule();
     m_robotContainer.zeroOdometryAngleOffset().schedule();
+    m_robotContainer.leds.setLEDNormal().schedule();
 
   }
 

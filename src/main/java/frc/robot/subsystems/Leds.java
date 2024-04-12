@@ -244,6 +244,12 @@ public class Leds extends SubsystemBase {
         });
     }
 
+    public Command setLEDHasNote() {
+        return this.runOnce(() -> {
+            setLedAll(Color.kGreen, Color.kAliceBlue, LedMode.solid, LedSpeed.slow);
+        });
+    }
+
     // When the robot is in automated mode
     public void setLedAutomatedMode() {
             setLedAll(Color.kHotPink, Color.kAqua, LedMode.bounce, LedSpeed.mid);
