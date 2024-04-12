@@ -18,6 +18,8 @@ public final class ShooterConstants {
     public static final int CAN_SHOOTER_PIVOT_L = 15;
     public static final int CAN_SHOOTER_PIVOT_R = 16;
 
+    public static final int SHOOTER_PIVOT_CURRENT_LIMIT = 40;
+
     public static final double SHOOTER_P = 0.0004;
     public static final double SHOOTER_I = 0;
     public static final double SHOOTER_D = 0.01;
@@ -29,10 +31,8 @@ public final class ShooterConstants {
     public static final double SHOOTER_L_FFGain = 0.0001688;
     public static final double SHOOTER_R_FFGain = 0.000169;
 
-    public static final int LimitSwitchDIO1 = 1;
-    public static final int LimitSwitchDIO2 = 2;
-
-
+    public static final int BACK_LIMIT_PROX_1_DIO = 1;
+    public static final int BACK_LIMIT_PROX_2_DIO = 2;
 
     // key: distance from center of robot to middle pose of subwoof projected down
     // (inches); value: shooter angle (degrees)
