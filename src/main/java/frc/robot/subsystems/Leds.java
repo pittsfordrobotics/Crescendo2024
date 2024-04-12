@@ -43,7 +43,6 @@ public class Leds extends SubsystemBase {
     public Leds() {
         ledstrip = new AddressableLED(4);
         ledBuffer = new AddressableLEDBuffer(9);
-        ledBuffer.setLED(0, Color.kDeepPink);
         ledstrip.setLength(ledBuffer.getLength());
         ledstrip.setData(ledBuffer);
         ledstrip.start();
