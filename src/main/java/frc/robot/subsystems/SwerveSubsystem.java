@@ -547,14 +547,15 @@ public class SwerveSubsystem extends SubsystemBase {
 
     /** Drive robot with alliance relative speeds.
      *  Converts them to field relative speeds first then drives the robot.
+     *  If using heading drive, it does not use the target angle at all.
     */
-    public void driveAllianceRelative(double x, double y, double rotationRateOrHeading, boolean headingDrive) {
+    public void driveAllianceRelative(double x, double y, double rotationRate, boolean headingDrive) {
         if(headingDrive) {
             driveFieldOriented(swerveDrive.swerveController.getTargetSpeeds(getAllianceDefaultBlue() == Alliance.Blue ? x : -x, getAllianceDefaultBlue() == Alliance.Blue ? y : -y, 
                 currentTargetAngle.getRadians(), swerveDrive.getYaw().getRadians(), swerveDrive.getMaximumVelocity()));
         } else {
             swerveDrive.drive(new Translation2d(getAllianceDefaultBlue() == Alliance.Blue ? x : -x, getAllianceDefaultBlue() == Alliance.Blue ? y : -y),
-                rotationRateOrHeading, true, false);
+                rotationRate, true, false);
         }
     }
 
@@ -897,12 +898,7 @@ public class SwerveSubsystem extends SubsystemBase {
             double yInput = scaledDeadbandTranslationInputs[1];
             // Make the robot move
             setTargetAngle(desired_heading);
-            driveFieldOriented(swerveDrive.swerveController.getTargetSpeeds(
-                    xInput * speedFactor,
-                    yInput * speedFactor,
-                    desiredHeadingRad,
-                    swerveDrive.getYaw().getRadians(),
-                    swerveDrive.getMaximumVelocity()));
+            driveAllianceRelative(xInput * speedFactor, yInput * speedFactor, desiredHeadingRad, true);
         });
     }
 
