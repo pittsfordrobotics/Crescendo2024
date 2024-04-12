@@ -897,12 +897,7 @@ public class SwerveSubsystem extends SubsystemBase {
             double yInput = scaledDeadbandTranslationInputs[1];
             // Make the robot move
             setTargetAngle(desired_heading);
-            driveFieldOriented(swerveDrive.swerveController.getTargetSpeeds(
-                    xInput * speedFactor,
-                    yInput * speedFactor,
-                    desiredHeadingRad,
-                    swerveDrive.getYaw().getRadians(),
-                    swerveDrive.getMaximumVelocity()));
+            driveAllianceRelative(xInput * speedFactor, yInput * speedFactor, desiredHeadingRad, true);
         });
     }
 
