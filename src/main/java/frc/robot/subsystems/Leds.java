@@ -232,9 +232,6 @@ public class Leds extends SubsystemBase {
             setLedAll(Color.kHotPink, Color.kBlack, LedMode.solid, LedSpeed.slow);
         });
     }
-    public void setLEDNormalMethod() {
-        setLedAll(Color.kHotPink, Color.kBlack, LedMode.solid, LedSpeed.slow);
-    }
 
     // When the robot is intaking
     public Command setLEDIntake() {
