@@ -10,6 +10,7 @@ import com.pathplanner.lib.util.PathPlannerLogging;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -191,15 +192,21 @@ public class RobotContainer {
       storedCommand.schedule();
     }));
 
-    PathPlannerPath redampPath = PathPlannerPath.fromPathFile("RedAMPPath");
-    PathPlannerPath blueampPath = PathPlannerPath.fromPathFile("BlueAmpPath");
+    Transform2d ampOffset = new Transform2d(0.0, -2.0, Rotation2d.fromDegrees(-30.0));
     Pose2d ampPose = new Pose2d(FieldConstants.ampCenter.plus(new Translation2d(0.0, -0.35)), Rotation2d.fromDegrees(-90));
+    Pose2d ampPose_Offset = ampPose.plus(ampOffset);
     Pose2d ampPoseRed = new Pose2d(FieldConstants.ampCenterRED_THISIFFORREDAMP.plus(new Translation2d(0.0, -0.35)), Rotation2d.fromDegrees(-90));
+    Pose2d ampPoseRed_Offset = ampPoseRed.plus(ampOffset);
 
     m_driverController.b().onTrue(
         new ParallelCommandGroup(
-          Commands.runOnce(() -> swerveSubsystem.setTargetAngle(Rotation2d.fromDegrees(-90))),
+          Commands.runOnce(() -> swerveSubsystem.setTargetAngle(Rotation2d.fromDegrees(-120))),
             new BetterAMPCommand(shooter, intake),
+            new ConditionalCommand(swerveSubsystem.driveToPose(ampPose_Offset).beforeStarting(swerveSubsystem.correctHeading(Rotation2d.fromDegrees(-90))),
+          swerveSubsystem.driveToPose(ampPoseRed_Offset).beforeStarting(swerveSubsystem.correctHeading(Rotation2d.fromDegrees(-90))),
+          () -> getAllianceDefaultBlue() == Alliance.Blue),
+          Commands.runOnce(() -> swerveSubsystem.setTargetAngle(Rotation2d.fromDegrees(-90))),
+          new WaitCommand(.5),
           new ConditionalCommand(swerveSubsystem.driveToPose(ampPose).beforeStarting(swerveSubsystem.correctHeading(Rotation2d.fromDegrees(-90))),
           swerveSubsystem.driveToPose(ampPoseRed).beforeStarting(swerveSubsystem.correctHeading(Rotation2d.fromDegrees(-90))),
           () -> getAllianceDefaultBlue() == Alliance.Blue)
