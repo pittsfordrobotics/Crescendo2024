@@ -31,12 +31,14 @@ public class Climber extends SubsystemBase {
                 leftMotor = new CANSparkMax(ClimberConstants.CAN_CLIMBER_L, MotorType.kBrushless);
                 leftMotor.restoreFactoryDefaults();
                 leftMotor.setSmartCurrentLimit(40);
+                leftMotor.setOpenLoopRampRate(1);
                 leftMotor.burnFlash();
 
                 // Initialize the right motor.
                 rightMotor = new CANSparkMax(ClimberConstants.CAN_CLIMBER_R, MotorType.kBrushless);
                 rightMotor.restoreFactoryDefaults();
                 rightMotor.setSmartCurrentLimit(40);
+                rightMotor.setOpenLoopRampRate(1);
                 rightMotor.burnFlash();
 
                 rightEncoder = rightMotor.getEncoder();
@@ -64,8 +66,8 @@ public class Climber extends SubsystemBase {
 
                 Shuffleboard.getTab("Climber").add("Zero Encoder", new DisabledInstantCommand(this::zeroEncoder));
 
-                Shuffleboard.getTab("Climber").add("Climber UP", new InstantCommand(() -> setSpeed(0.3)));
-                Shuffleboard.getTab("Climber").add("Climber DOWN", new InstantCommand(() -> setSpeed(-0.3)));
+                Shuffleboard.getTab("Climber").add("Climber UP", new InstantCommand(() -> setSpeed(0.1)));
+                Shuffleboard.getTab("Climber").add("Climber DOWN", new InstantCommand(() -> setSpeed(-0.1)));
                 Shuffleboard.getTab("Climber").add("Climber STOP", new InstantCommand(() -> setSpeed(0)));
         }
 

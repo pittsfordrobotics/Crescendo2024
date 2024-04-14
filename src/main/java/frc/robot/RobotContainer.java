@@ -230,8 +230,8 @@ public class RobotContainer {
       }
     }));
 
-    m_operatorController.rightBumper().onTrue(climber.setSpeedCommand(0.5));
-    m_operatorController.rightBumper().onFalse(climber.setSpeedCommand(-0.5));
+    m_operatorController.rightBumper().onTrue(climber.setSpeedCommand(0.2));
+    m_operatorController.rightBumper().onFalse(climber.setSpeedCommand(-0.2));
   }
 
   private void configure_TEST_Bindings() {
