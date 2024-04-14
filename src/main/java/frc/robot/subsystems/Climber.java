@@ -30,13 +30,13 @@ public class Climber extends SubsystemBase {
                 // Initialize the left motor.
                 leftMotor = new CANSparkMax(ClimberConstants.CAN_CLIMBER_L, MotorType.kBrushless);
                 leftMotor.restoreFactoryDefaults();
-                leftMotor.setSmartCurrentLimit(20);
+                leftMotor.setSmartCurrentLimit(40);
                 leftMotor.burnFlash();
 
                 // Initialize the right motor.
                 rightMotor = new CANSparkMax(ClimberConstants.CAN_CLIMBER_R, MotorType.kBrushless);
                 rightMotor.restoreFactoryDefaults();
-                rightMotor.setSmartCurrentLimit(20);
+                rightMotor.setSmartCurrentLimit(40);
                 rightMotor.burnFlash();
 
                 rightEncoder = rightMotor.getEncoder();
