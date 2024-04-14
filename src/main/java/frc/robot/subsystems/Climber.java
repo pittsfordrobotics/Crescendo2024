@@ -42,9 +42,7 @@ public class Climber extends SubsystemBase {
                 rightEncoder = rightMotor.getEncoder();
                 leftEncoder = leftMotor.getEncoder();
 
-                // Zero encoder (assumed zero at startup)
-                rightEncoder.setPosition(0);
-                leftEncoder.setPosition(0);
+                zeroEncoder();
 
                 // soft limits
                 leftMotor.setSoftLimit(CANSparkBase.SoftLimitDirection.kForward,
