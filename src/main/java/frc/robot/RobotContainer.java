@@ -199,14 +199,14 @@ public class RobotContainer {
     Pose2d ampPoseRed_Offset = ampPoseRed.plus(ampOffset);
 
     m_driverController.b().onTrue(
-        new ParallelCommandGroup(
+        new SequentialCommandGroup(
           Commands.runOnce(() -> swerveSubsystem.setTargetAngle(Rotation2d.fromDegrees(-120))),
             new BetterAMPCommand(shooter, intake),
             new ConditionalCommand(swerveSubsystem.driveToPose(ampPose_Offset).beforeStarting(swerveSubsystem.correctHeading(Rotation2d.fromDegrees(-90))),
           swerveSubsystem.driveToPose(ampPoseRed_Offset).beforeStarting(swerveSubsystem.correctHeading(Rotation2d.fromDegrees(-90))),
           () -> getAllianceDefaultBlue() == Alliance.Blue),
           Commands.runOnce(() -> swerveSubsystem.setTargetAngle(Rotation2d.fromDegrees(-90))),
-          new WaitCommand(.5),
+          new WaitCommand(0.5),
           new ConditionalCommand(swerveSubsystem.driveToPose(ampPose).beforeStarting(swerveSubsystem.correctHeading(Rotation2d.fromDegrees(-90))),
           swerveSubsystem.driveToPose(ampPoseRed).beforeStarting(swerveSubsystem.correctHeading(Rotation2d.fromDegrees(-90))),
           () -> getAllianceDefaultBlue() == Alliance.Blue)
