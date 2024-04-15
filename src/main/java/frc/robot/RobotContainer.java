@@ -143,7 +143,7 @@ public class RobotContainer {
   }
 
   private void configure_COMP_Bindings() {
-    //SYSID button on shuffleboard
+    // SYSID button on shuffleboard
     Shuffleboard.getTab("CONFIG").add("SysID drive motor routine", swerveSubsystem.sysIdDriveMotorCommand());
     Shuffleboard.getTab("CONFIG").add("SysID angle motor routine", swerveSubsystem.sysIdAngleMotorCommand());
     // ToDo:
@@ -155,7 +155,6 @@ public class RobotContainer {
       swerveSubsystem.zeroGyro();
       System.out.println("Resetting gyro");
     }));
-
 
     // // states
     StoredCommand storedCommand = new StoredCommand(shooter, intake);
@@ -192,33 +191,47 @@ public class RobotContainer {
       storedCommand.schedule();
     }));
 
-    Transform2d ampOffset = new Transform2d(0.0, -2.0, Rotation2d.fromDegrees(-30.0));
-    Pose2d ampPose = new Pose2d(FieldConstants.ampCenter.plus(new Translation2d(0.0, -0.35)), Rotation2d.fromDegrees(-90));
-    Pose2d ampPose_Offset = ampPose.plus(ampOffset);
-    Pose2d ampPoseRed = new Pose2d(FieldConstants.ampCenterRED_THISIFFORREDAMP.plus(new Translation2d(0.0, -0.35)), Rotation2d.fromDegrees(-90));
-    Pose2d ampPoseRed_Offset = ampPoseRed.plus(ampOffset);
+    Pose2d ampPose = new Pose2d(FieldConstants.ampCenter.plus(new Translation2d(0.0, -0.35)),
+        Rotation2d.fromDegrees(-90));
+    Pose2d ampPose_Offset = new Pose2d(FieldConstants.ampCenter.plus(new Translation2d(0.0, -1)),
+        Rotation2d.fromDegrees(-120));
+    Pose2d ampPoseRed = new Pose2d(FieldConstants.ampCenterRED_THISIFFORREDAMP.plus(new Translation2d(0.0, -0.35)),
+        Rotation2d.fromDegrees(-90));
+    Pose2d ampPoseRed_Offset = new Pose2d(FieldConstants.ampCenterRED_THISIFFORREDAMP.plus(new Translation2d(0.0, -4.35)),
+        Rotation2d.fromDegrees(-120));
 
     m_driverController.b().onTrue(
         new SequentialCommandGroup(
-          Commands.runOnce(() -> swerveSubsystem.setTargetAngle(Rotation2d.fromDegrees(-120))),
-            new BetterAMPCommand(shooter, intake),
-            new ConditionalCommand(swerveSubsystem.driveToPose(ampPose_Offset).beforeStarting(swerveSubsystem.correctHeading(Rotation2d.fromDegrees(-90))),
-          swerveSubsystem.driveToPose(ampPoseRed_Offset).beforeStarting(swerveSubsystem.correctHeading(Rotation2d.fromDegrees(-90))),
-          () -> getAllianceDefaultBlue() == Alliance.Blue),
-          Commands.runOnce(() -> swerveSubsystem.setTargetAngle(Rotation2d.fromDegrees(-90))),
-          new WaitCommand(0.5),
-          new ConditionalCommand(swerveSubsystem.driveToPose(ampPose).beforeStarting(swerveSubsystem.correctHeading(Rotation2d.fromDegrees(-90))),
-          swerveSubsystem.driveToPose(ampPoseRed).beforeStarting(swerveSubsystem.correctHeading(Rotation2d.fromDegrees(-90))),
-          () -> getAllianceDefaultBlue() == Alliance.Blue)
-        ));
+            new ParallelCommandGroup(
+                Commands.runOnce(() -> swerveSubsystem.setTargetAngle(Rotation2d.fromDegrees(-120))),
+                new BetterAMPCommand(shooter, intake),
+                new ConditionalCommand(
+                    swerveSubsystem.driveToPose(ampPose_Offset)
+                        .beforeStarting(swerveSubsystem.correctHeading(Rotation2d.fromDegrees(-120))),
+                    swerveSubsystem.driveToPose(ampPoseRed_Offset)
+                        .beforeStarting(swerveSubsystem.correctHeading(Rotation2d.fromDegrees(-120))),
+                    () -> getAllianceDefaultBlue() == Alliance.Blue)).withTimeout(3),
+            new WaitCommand(0.5),
+            new ParallelCommandGroup(
+                Commands.runOnce(() -> vision.setUseVision(false)),
+                Commands.runOnce(() -> swerveSubsystem.setTargetAngle(Rotation2d.fromDegrees(-90))),
+                new BetterAMPCommand(shooter, intake),
+                new ConditionalCommand(
+                    swerveSubsystem.driveToPose(ampPose)
+                        .beforeStarting(swerveSubsystem.correctHeading(Rotation2d.fromDegrees(-90))),
+                    swerveSubsystem.driveToPose(ampPoseRed)
+                        .beforeStarting(swerveSubsystem.correctHeading(Rotation2d.fromDegrees(-90))),
+                    () -> getAllianceDefaultBlue() == Alliance.Blue))));
+
     m_driverController.b().onFalse(
         new SequentialCommandGroup(
-            // Commands.runOnce(() -> vision.useVision(true)),
+            Commands.runOnce(() -> vision.setUseVision(true)),
             AmpShootIntake,
             new WaitCommand(.75),
             new StoredCommand(shooter, intake)));
 
-    // m_driverController.b().onTrue(Commands.runOnce(() -> swerveSubsystem.setTargetAngle(Rotation2d.fromDegrees(-90))));
+    // m_driverController.b().onTrue(Commands.runOnce(() ->
+    // swerveSubsystem.setTargetAngle(Rotation2d.fromDegrees(-90))));
 
     // Old amp scoring approach
     // Runs the intake on left bummper true
@@ -296,9 +309,10 @@ public class RobotContainer {
       System.out.println("What is the perceived initial pathplanner pose?:" + pathPlannerTargetPose.getTranslation()
           + " " + (pathPlannerTargetPose.getRotation()));
       Rotation2d actualFieldRelativeRotation = pathPlannerTargetPose.getRotation();
-//      Rotation2d allianceRelativeRotation = DriverStation.getAlliance().get() == Alliance.Blue
-//          ? actualFieldRelativeRotation
-//          : actualFieldRelativeRotation.plus(Rotation2d.fromDegrees(180));
+      // Rotation2d allianceRelativeRotation = DriverStation.getAlliance().get() ==
+      // Alliance.Blue
+      // ? actualFieldRelativeRotation
+      // : actualFieldRelativeRotation.plus(Rotation2d.fromDegrees(180));
       swerveSubsystem.setGyroAngle(actualFieldRelativeRotation);
     });
   }
