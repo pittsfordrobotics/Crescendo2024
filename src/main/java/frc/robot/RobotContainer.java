@@ -230,8 +230,10 @@ public class RobotContainer {
             new WaitCommand(.75),
             new StoredCommand(shooter, intake)));
 
-    // m_driverController.b().onTrue(Commands.runOnce(() ->
-    // swerveSubsystem.setTargetAngle(Rotation2d.fromDegrees(-90))));
+    // m_driverController.b().onTrue(
+    //     new ParallelCommandGroup(
+    //         Commands.runOnce(() -> swerveSubsystem.setTargetAngle(Rotation2d.fromDegrees(-90))),
+    //         new BetterAMPCommand(shooter, intake)));
 
     // Old amp scoring approach
     // Runs the intake on left bummper true

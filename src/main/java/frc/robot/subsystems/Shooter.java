@@ -47,6 +47,7 @@ public class Shooter extends SubsystemBase {
   private SparkAbsoluteEncoder pivotRABSEncoder;
   private double pivotAngleSetpointDeg;
   private double shooterRPMSetpoint;
+  private boolean useLimitSwitch = true;
 
   /** Creates a new Shooter. */
   public Shooter() {
@@ -159,7 +160,8 @@ public class Shooter extends SubsystemBase {
     // DisabledInstantCommand(this::brakeShooter));
 
     Shuffleboard.getTab("SHOOTER").add("Shooter Pivot Zero", new DisabledInstantCommand(this::zeroPivot));
-
+    Shuffleboard.getTab("SHOOTER").add("Toggle Use Limit Switch", new DisabledInstantCommand(() -> useLimitSwitch = !useLimitSwitch));
+    Shuffleboard.getTab("SHOOTER").addBoolean("Useing Limit Switch", () -> useLimitSwitch);
   }
 
   @Override
@@ -217,6 +219,10 @@ public class Shooter extends SubsystemBase {
     return !backLimitSwitch1.get() || !backLimitSwitch2.get(); // TODO: see if we need to invert
   }
 
+  public boolean getUseLimitSwitch() {
+    return useLimitSwitch;
+  }
+
   // Returns the angle of the shooter pivot (Right motor in deg)
   public double getPivotAngleDeg() {
     return pivotRABSEncoder.getPosition();
@@ -225,6 +231,7 @@ public class Shooter extends SubsystemBase {
   public double getPivotAngleSetpointDeg() {
     return pivotAngleSetpointDeg;
   }
+
 
   // Drives both shooters to a common RPM setpoint
   public Command setShooterRPMCommand(double setpointRPM) {
