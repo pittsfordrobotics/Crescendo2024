@@ -148,7 +148,7 @@ public class RobotContainer {
   }
 
   private void configure_COMP_Bindings() {
-    //SYSID button on shuffleboard
+    // SYSID button on shuffleboard
     Shuffleboard.getTab("CONFIG").add("SysID drive motor routine", swerveSubsystem.sysIdDriveMotorCommand());
     Shuffleboard.getTab("CONFIG").add("SysID angle motor routine", swerveSubsystem.sysIdAngleMotorCommand());
     // ToDo:
@@ -160,7 +160,6 @@ public class RobotContainer {
       swerveSubsystem.zeroGyro();
       System.out.println("Resetting gyro");
     }));
-
 
     // // states
     StoredCommand storedCommand = new StoredCommand(shooter, intake, leds);
@@ -199,17 +198,23 @@ public class RobotContainer {
 
     PathPlannerPath redampPath = PathPlannerPath.fromPathFile("RedAMPPath");
     PathPlannerPath blueampPath = PathPlannerPath.fromPathFile("BlueAmpPath");
-    Pose2d ampPose = new Pose2d(FieldConstants.ampCenter.plus(new Translation2d(0.0, -0.35)), Rotation2d.fromDegrees(-90));
-    Pose2d ampPoseRed = new Pose2d(FieldConstants.ampCenterRED_THISIFFORREDAMP.plus(new Translation2d(0.0, -0.35)), Rotation2d.fromDegrees(-90));
+    Pose2d ampPose = new Pose2d(FieldConstants.ampCenter.plus(new Translation2d(0.0, -0.35)),
+        Rotation2d.fromDegrees(-90));
+    Pose2d ampPoseRed = new Pose2d(FieldConstants.ampCenterRED_THISIFFORREDAMP.plus(new Translation2d(0.0, -0.35)),
+        Rotation2d.fromDegrees(-90));
 
-    m_driverController.b().onTrue(
-        new ParallelCommandGroup(
-          Commands.runOnce(() -> swerveSubsystem.setTargetAngle(Rotation2d.fromDegrees(-90))),
-            new BetterAMPCommand(shooter, intake),
-          new ConditionalCommand(swerveSubsystem.driveToPose(ampPose).beforeStarting(swerveSubsystem.correctHeading(Rotation2d.fromDegrees(-90))),
-          swerveSubsystem.driveToPose(ampPoseRed).beforeStarting(swerveSubsystem.correctHeading(Rotation2d.fromDegrees(-90))),
-          () -> getAllianceDefaultBlue() == Alliance.Blue)
-        ));
+    // m_driverController.b().onTrue(
+    // new ParallelCommandGroup(
+    // Commands.runOnce(() ->
+    // swerveSubsystem.setTargetAngle(Rotation2d.fromDegrees(-90))),
+    // new BetterAMPCommand(shooter, intake),
+    // new ConditionalCommand(
+    // swerveSubsystem.driveToPose(ampPose)
+    // .beforeStarting(swerveSubsystem.correctHeading(Rotation2d.fromDegrees(-90))),
+    // swerveSubsystem.driveToPose(ampPoseRed)
+    // .beforeStarting(swerveSubsystem.correctHeading(Rotation2d.fromDegrees(-90))),
+    // () -> getAllianceDefaultBlue() == Alliance.Blue)));
+
     m_driverController.b().onFalse(
         new SequentialCommandGroup(
             // Commands.runOnce(() -> vision.useVision(true)),
@@ -217,7 +222,10 @@ public class RobotContainer {
             new WaitCommand(.75),
             new StoredCommand(shooter, intake, leds)));
 
-    // m_driverController.b().onTrue(Commands.runOnce(() -> swerveSubsystem.setTargetAngle(Rotation2d.fromDegrees(-90))));
+    m_driverController.b().onTrue(
+        new ParallelCommandGroup(
+            Commands.runOnce(() -> swerveSubsystem.setTargetAngle(Rotation2d.fromDegrees(-90))),
+            new BetterAMPCommand(shooter, intake)));
 
     // Old amp scoring approach
     // Runs the intake on left bummper true

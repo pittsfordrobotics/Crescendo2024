@@ -4,6 +4,7 @@
 
 package frc.robot.commands.NewPrettyCommands;
 
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -33,9 +34,10 @@ public class IntakeCommand extends SequentialCommandGroup {
 						intake.waitForPivotAngleCommand(),
 						shooter.setPivotAngleCommand(RobotConstants.INTAKE_ShooterPivotAngle),
 						shooter.waitForPivotAngleCommand()),
-				new WaitUntilCommand(() -> shooter.getLimitSwitch()),
-				new StoredCommand(shooter, intake, leds));
-
+				// new WaitUntilCommand(() -> shooter.getLimitSwitch(),
+				// new StoredCommand(shooter, intake)
+				new ConditionalCommand(new WaitUntilCommand(() -> shooter.getLimitSwitch())
+						.andThen(new StoredCommand(shooter, intake, leds)), null, () -> shooter.getUseLimitSwitch()));
 	}
 	
 }
