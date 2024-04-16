@@ -32,6 +32,9 @@ public class FieldConstants {
   public static double podiumX = Units.inchesToMeters(126.75);
   public static double startingLineX = Units.inchesToMeters(74.111);
 
+  public static Pose2d ampSideStartPose = new Pose2d(0.753, 6.669, new Rotation2d(Math.toRadians(-60)));
+  public static Pose2d podiumSideStartPose = new Pose2d(); // TODO: SET THIS
+
   public static Translation2d ampCenter = new Translation2d(Units.inchesToMeters(72.455),
       Units.inchesToMeters(322.996));
 

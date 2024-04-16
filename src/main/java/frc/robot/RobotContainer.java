@@ -106,6 +106,8 @@ public class RobotContainer {
         swerveSubsystem.correctHeading(pathPlannerTargetPoseSupplier).withTimeout(0.5));
     NamedCommands.registerCommand("AlignStuffOnStart", new SequentialCommandGroup(setGyroBasedOnPathPlannerTrajectory(),
         swerveSubsystem.resetOdometry(pathPlannerTargetPoseSupplier)));
+    NamedCommands.registerCommand("AlignStuffOnStartAmpside", new SequentialCommandGroup(Commands.runOnce(() -> {swerveSubsystem.setGyroAngle(AllianceFlipUtil.apply(new Rotation2d(Math.toRadians(-60))));}),
+        swerveSubsystem.resetOdometry(pathPlannerTargetPoseSupplier)));
     // instantiates autoChooser based on PathPlanner files (exists at code deploy,
     // no need to wait)
     autoChooser = AutoBuilder.buildAutoChooser();
@@ -283,7 +285,7 @@ public class RobotContainer {
     m_operatorController.y().onFalse(shooter.spinIndexerCommand(-0.1));
   }
 
-  public Command setGyroBasedOnPathPlannerTrajectory() {
+  public Command setGyroBasedOnPathPlannerTrajectory() { // pathplanner does flipping for you
     return Commands.runOnce(() -> {
       System.out.println("Is alliance present when setting initial gyro? " + DriverStation.getAlliance().isPresent());
       System.out.println("What is the perceived initial pathplanner pose?:" + pathPlannerTargetPose.getTranslation()
@@ -295,6 +297,7 @@ public class RobotContainer {
       swerveSubsystem.setGyroAngle(actualFieldRelativeRotation);
     });
   }
+  public Command setGyroAmpsideStart
 
   public Command useVision(boolean useVision) {
     return Commands.runOnce(() -> vision.setUseVision(useVision));
