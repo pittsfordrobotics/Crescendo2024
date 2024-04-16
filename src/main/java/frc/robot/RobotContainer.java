@@ -39,6 +39,7 @@ import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.SwerveSubsystem;
 import java.io.File;
+import java.util.Optional;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
@@ -64,6 +65,7 @@ public class RobotContainer {
   Command enhancedHeadingSteeringCommand;
   Command speakerTargetSteeringCommand;
   private static Pose2d pathPlannerTargetPose;
+  // SendableChooser climber_heading_chooser = new SendableChooser<>();
 
   // The container for the robot. Contains subsystems, OI devices, and commands.
   public RobotContainer() {
@@ -154,6 +156,21 @@ public class RobotContainer {
       swerveSubsystem.zeroGyro();
       System.out.println("Resetting gyro");
     }));
+
+    SendableChooser<Double> climber_heading_chooser = new SendableChooser<>();
+    climber_heading_chooser.addOption("Stage Center", 180.0);
+    climber_heading_chooser.addOption("Stage Left", -60.0);
+    climber_heading_chooser.addOption("Stage Right", 60.0);    
+    // negate add 180 to get on red
+    Shuffleboard.getTab("COMP").add("Climb Chooser", climber_heading_chooser);
+
+    Command setClimbHeading = Commands.runOnce(() -> {
+      Rotation2d climbHeading = new Rotation2d(Math.toRadians(climber_heading_chooser.getSelected()));
+      climbHeading = AllianceFlipUtil.apply(climbHeading);
+      swerveSubsystem.setTargetAngle(climbHeading);
+    });
+
+    m_driverController.y().onTrue(setClimbHeading);
 
     // // states
     StoredCommand storedCommand = new StoredCommand(shooter, intake);
