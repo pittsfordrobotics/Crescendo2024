@@ -32,8 +32,11 @@ public class FieldConstants {
   public static double podiumX = Units.inchesToMeters(126.75);
   public static double startingLineX = Units.inchesToMeters(74.111);
 
-  public static Pose2d ampSideStartPose = new Pose2d(0.753, 6.669, new Rotation2d(Math.toRadians(-60)));
-  public static Pose2d podiumSideStartPose = new Pose2d(); // TODO: SET THIS
+  // these 3 are taken from the initial poses in pathplanner for the shoot and stay autos from each position
+  // they may not be the same as the ones used in autos that do move, and they should not be used for those without checking first
+  public static Pose2d ampsideStartPose = new Pose2d(0.753, 6.669, new Rotation2d(Math.toRadians(-120)));
+  public static Pose2d middleStartPose = new Pose2d(1.343, 5.550, new Rotation2d(Math.toRadians(180)));
+  public static Pose2d podiumsideStartPose = new Pose2d(0.760, 4.449, new Rotation2d(Math.toRadians(120)));
 
   public static Translation2d ampCenter = new Translation2d(Units.inchesToMeters(72.455),
       Units.inchesToMeters(322.996));
