@@ -14,6 +14,28 @@ import frc.robot.commands.DisabledInstantCommand;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+/* Process to instal soft limits
+Find Limits:
+        1. Comment out soft limits setting
+        2. Run CLimber down with the .2 button (right trigger on operator)
+        3. Zero Encoder
+        4. Run climber up w/ .2 button
+        5. Record the encoder values when at the top (well call it X for now)
+Find Drift:
+        1. In climber conmstants set the fwrd limit to X * .8
+        2. Set the bkwd limit to X * .2
+        3. Run the climber at .5
+        4. If the drift isnt over X*.025 run at .7
+        5. Continue till running at 1 or the drift is X*.025. 
+        7. If at 1 speed lower the ramp rate till an aceptable level (>.25)
+                ** Keeping drift below X*.025**
+        6. Redord max drift at 1 speed (call it D)
+Final Test:
+        1. Set the soft limits to X -3D and 0 + 3D
+        2. Set the speed bound to right trigger to 1
+        3. Run and pray it doesnt break
+        4. commit
+*/
 public class Climber extends SubsystemBase {
 
         private CANSparkMax leftMotor;
