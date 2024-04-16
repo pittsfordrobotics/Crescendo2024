@@ -37,7 +37,7 @@ public class IntakeCommand extends SequentialCommandGroup {
 				// new WaitUntilCommand(() -> shooter.getLimitSwitch(),
 				// new StoredCommand(shooter, intake)
 				new ConditionalCommand(new WaitUntilCommand(() -> shooter.getLimitSwitch())
-						.andThen(new StoredCommand(shooter, intake, leds)), null, () -> shooter.getUseLimitSwitch()));
+						.andThen(new StoredCommand(shooter, intake, leds)), new InstantCommand(), () -> shooter.getUseLimitSwitch()));
 	}
 	
 }
