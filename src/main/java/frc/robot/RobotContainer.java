@@ -159,8 +159,8 @@ public class RobotContainer {
 
     SendableChooser<Double> climber_heading_chooser = new SendableChooser<>();
     climber_heading_chooser.addOption("Stage Center", 180.0);
-    climber_heading_chooser.addOption("Stage Left", -30.0);
-    climber_heading_chooser.addOption("Stage Right", 30.0);    
+    climber_heading_chooser.addOption("Stage Left", -60.0);
+    climber_heading_chooser.addOption("Stage Right", 60.0);    
     // negate add 180 to get on red
     Shuffleboard.getTab("COMP").add("Climb Chooser", climber_heading_chooser);
 
