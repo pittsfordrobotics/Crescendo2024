@@ -505,15 +505,5 @@
       "timestamp": 4.069953849485618
     }
   ],
-  "eventMarkers": [
-    {
-      "timestamp": 3.568238678647332,
-      "command": {
-        "type": "named",
-        "data": {
-          "name": "AimSpeaker"
-        }
-      }
-    }
-  ]
+  "eventMarkers": []
 }

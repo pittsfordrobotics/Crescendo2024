@@ -2,10 +2,10 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 0.76,
-      "y": 4.449
+      "x": 0.753,
+      "y": 6.669
     },
-    "rotation": 119.97736230039438
+    "rotation": -119.97736230039438
   },
   "command": {
     "type": "sequential",
@@ -14,19 +14,19 @@
         {
           "type": "named",
           "data": {
-            "name": "ShootSubwoof"
+            "name": "ShootSubwoofSide"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "twonotepodiumsidenew"
+            "pathName": "twonoteampsidenew"
           }
         },
         {
           "type": "wait",
           "data": {
-            "waitTime": 0.25
+            "waitTime": 0.5
           }
         },
         {
@@ -87,7 +87,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "thirdnotecenterfrompodiumside"
+            "pathName": "thirdnotecenterfromampside"
           }
         },
         {
@@ -101,21 +101,28 @@
           "data": {
             "commands": [
               {
-                "type": "named",
+                "type": "sequential",
                 "data": {
-                  "name": "CorrectHeading"
-                }
-              },
-              {
-                "type": "wait",
-                "data": {
-                  "waitTime": 0.5
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "AutoFireNote"
+                  "commands": [
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "CorrectHeading"
+                      }
+                    },
+                    {
+                      "type": "wait",
+                      "data": {
+                        "waitTime": 0.5
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "AutoFireNote"
+                      }
+                    }
+                  ]
                 }
               }
             ]
@@ -124,7 +131,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "4th noteampside"
+            "pathName": "ampside 4th note podiumside"
           }
         },
         {
@@ -142,7 +149,7 @@
         {
           "type": "wait",
           "data": {
-            "waitTime": 0.5
+            "waitTime": 0.2
           }
         },
         {
