@@ -2,11 +2,24 @@
   "NTProvider": {
     "types": {
       "/FMSInfo": "FMSInfo",
+      "/Shuffleboard/COMP/Climb Chooser": "String Chooser",
       "/Shuffleboard/COMP/PathPlanner Auto Chooser": "String Chooser",
       "/Shuffleboard/COMP/Reset Intake Motor": "Command",
+      "/Shuffleboard/COMP/Toggle Use Limit Switch": "Command",
+      "/Shuffleboard/COMP/Toggle Use Pathing Amp": "Command",
       "/Shuffleboard/CONFIG/SwerveSubsystem": "Subsystem",
+      "/Shuffleboard/CONFIG/SysID angle motor routine": "Command",
+      "/Shuffleboard/CONFIG/SysID drive motor routine": "Command",
       "/Shuffleboard/CONFIG/Zero Swerve Module Offsets": "Command",
+      "/Shuffleboard/Climber/Climber DOWN": "Command",
+      "/Shuffleboard/Climber/Climber STOP": "Command",
+      "/Shuffleboard/Climber/Climber UP": "Command",
+      "/Shuffleboard/Climber/Zero Encoder": "Command",
       "/Shuffleboard/Intake/Zero Intake Pivot": "Command",
+      "/Shuffleboard/LEDS/Color": "String Chooser",
+      "/Shuffleboard/LEDS/Mode": "String Chooser",
+      "/Shuffleboard/LEDS/Secondary Color": "String Chooser",
+      "/Shuffleboard/LEDS/Speed": "String Chooser",
       "/Shuffleboard/SHOOTER/Shooter": "Subsystem",
       "/Shuffleboard/SHOOTER/Shooter Pivot Zero": "Command",
       "/Shuffleboard/Vision/UseVisionToggle": "Command",
@@ -15,6 +28,11 @@
     },
     "windows": {
       "/Shuffleboard/COMP/PathPlanner Auto Chooser": {
+        "window": {
+          "visible": true
+        }
+      },
+      "/Shuffleboard/COMP/Toggle Use Pathing Amp": {
         "window": {
           "visible": true
         }
@@ -33,6 +51,12 @@
     }
   },
   "NetworkTables Info": {
+    "Connections": {
+      "open": true
+    },
+    "Server": {
+      "open": true
+    },
     "visible": true
   },
   "NetworkTables View": {

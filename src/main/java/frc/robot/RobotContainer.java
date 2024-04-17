@@ -230,8 +230,8 @@ public class RobotContainer {
         Rotation2d.fromDegrees(-120));
     Pose2d ampPoseRed = new Pose2d(FieldConstants.ampCenterRED_THISIFFORREDAMP.plus(new Translation2d(0.0, -0.35)),
         Rotation2d.fromDegrees(-90));
-    Pose2d ampPoseRed_Offset = new Pose2d(FieldConstants.ampCenterRED_THISIFFORREDAMP.plus(new Translation2d(0.0, -4.35)),
-        Rotation2d.fromDegrees(-120));
+    Pose2d ampPoseRed_Offset = new Pose2d(FieldConstants.ampCenterRED_THISIFFORREDAMP.plus(new Translation2d(0.0, -1)),
+        Rotation2d.fromDegrees(-30));
 
     Shuffleboard.getTab("COMP").add("Toggle Use Pathing Amp", new DisabledInstantCommand(() -> usePathingAmp = !usePathingAmp));
     Shuffleboard.getTab("COMP").addBoolean("Pathing being used for AMP", () -> usePathingAmp);
