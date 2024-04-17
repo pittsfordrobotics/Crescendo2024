@@ -58,6 +58,78 @@
           "data": {
             "name": "StoredCommand"
           }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "ampside 4th note podiumside end 1900cm"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.1
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "CorrectHeading"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.1
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "AutoFireNote"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.1
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "StoredCommand"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "thirdnotemiddletoampside"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.1
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "CorrectHeading"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.1
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "AutoFireNote"
+          }
         }
       ]
     }
