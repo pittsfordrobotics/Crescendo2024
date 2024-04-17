@@ -5,10 +5,10 @@ public class ClimberConstants {
     public static final int CAN_CLIMBER_L = 31;
     public static final int CAN_CLIMBER_R = 32;
 
-    public static final double CAN_CLIMBER_P = .5;
-    public static final double CAN_CLIMBER_I = 0;
-    public static final double CAN_CLIMBER_D = 0;
+    public static final double SOFT_LIMIT_FORWARD_LEFT = 164;
+    public static final double SOFT_LIMIT_REVERSE_LEFT = 6;
+    public static final double SOFT_LIMIT_FORWARD_RIGHT = 164;
+    public static final double SOFT_LIMIT_REVERSE_RIGHT = 6;
 
-    public static final double EXTENSION_SETPOINT = 250;
-    public static final double RETRACTION_SETPOINT = 1;
+    public static final double CLIMBER_CURRENT_THRESHOLD = 3;
 }
