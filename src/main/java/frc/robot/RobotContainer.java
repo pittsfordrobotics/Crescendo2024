@@ -108,6 +108,12 @@ public class RobotContainer {
         swerveSubsystem.correctHeading(pathPlannerTargetPoseSupplier).withTimeout(0.5));
     NamedCommands.registerCommand("AlignStuffOnStart", new SequentialCommandGroup(setGyroBasedOnPathPlannerTrajectory(),
         swerveSubsystem.resetOdometry(pathPlannerTargetPoseSupplier)));
+    NamedCommands.registerCommand("AlignStuffOnStartAmpside", new SequentialCommandGroup(setGyroAmpsideStart(),
+        Commands.runOnce(() -> {swerveSubsystem.resetOdometry(AllianceFlipUtil.apply(FieldConstants.ampsideStartPose));})));
+    NamedCommands.registerCommand("AlignStuffOnStartMiddle", new SequentialCommandGroup(setGyroMiddleStart(),
+        Commands.runOnce(() -> {swerveSubsystem.resetOdometry(AllianceFlipUtil.apply(FieldConstants.middleStartPose));})));
+    NamedCommands.registerCommand("AlignStuffOnStartPodiumside", new SequentialCommandGroup(setGyroPodiumsideStart(),
+        Commands.runOnce(() -> {swerveSubsystem.resetOdometry(AllianceFlipUtil.apply(FieldConstants.podiumsideStartPose));})));
     // instantiates autoChooser based on PathPlanner files (exists at code deploy,
     // no need to wait)
     autoChooser = AutoBuilder.buildAutoChooser();
@@ -311,16 +317,39 @@ public class RobotContainer {
     m_operatorController.y().onFalse(shooter.spinIndexerCommand(-0.1));
   }
 
-  public Command setGyroBasedOnPathPlannerTrajectory() {
+  public Command setGyroBasedOnPathPlannerTrajectory() { // pathplanner does flipping for you
     return Commands.runOnce(() -> {
       System.out.println("Is alliance present when setting initial gyro? " + DriverStation.getAlliance().isPresent());
-      System.out.println("What is the perceived initial pathplanner pose?:" + pathPlannerTargetPose.getTranslation()
+      System.out.println("Setting gyro based on perceived PathPlanner pose:" + pathPlannerTargetPose.getTranslation()
           + " " + (pathPlannerTargetPose.getRotation()));
       Rotation2d actualFieldRelativeRotation = pathPlannerTargetPose.getRotation();
 //      Rotation2d allianceRelativeRotation = DriverStation.getAlliance().get() == Alliance.Blue
 //          ? actualFieldRelativeRotation
 //          : actualFieldRelativeRotation.plus(Rotation2d.fromDegrees(180));
       swerveSubsystem.setGyroAngle(actualFieldRelativeRotation);
+    });
+  }
+  public Command setGyroAmpsideStart() { // override for autos that shoot and don't move & start on ampside of subwoof
+    return Commands.runOnce(() -> {
+      System.out.println("Is alliance present when setting initial gyro? " + DriverStation.getAlliance().isPresent());
+      System.out.println("Setting initial gyro pose to ampside: " + FieldConstants.ampsideStartPose.getTranslation() + " " + FieldConstants.ampsideStartPose.getRotation());
+      swerveSubsystem.setGyroAngle(AllianceFlipUtil.apply(FieldConstants.ampsideStartPose.getRotation()));
+    });
+  }
+
+  public Command setGyroMiddleStart() { // override for autos that shoot and don't move & start on podiumside of subwoof
+    return Commands.runOnce(() -> {
+      System.out.println("Is alliance present when setting initial gyro? " + DriverStation.getAlliance().isPresent());
+      System.out.println("Setting initial gyro pose to middle: " + FieldConstants.middleStartPose.getTranslation() + " " + FieldConstants.middleStartPose.getRotation());
+      swerveSubsystem.setGyroAngle(AllianceFlipUtil.apply(FieldConstants.middleStartPose.getRotation()));
+    });
+  }
+
+  public Command setGyroPodiumsideStart() { // override for autos that shoot and don't move & start on podiumside of subwoof
+    return Commands.runOnce(() -> {
+      System.out.println("Is alliance present when setting initial gyro? " + DriverStation.getAlliance().isPresent());
+      System.out.println("Setting initial gyro pose to podiumside: " + FieldConstants.podiumsideStartPose.getTranslation() + " " + FieldConstants.podiumsideStartPose.getRotation());
+      swerveSubsystem.setGyroAngle(AllianceFlipUtil.apply(FieldConstants.podiumsideStartPose.getRotation()));
     });
   }
 
