@@ -164,15 +164,18 @@ public class RobotContainer {
     }));
 
     SendableChooser<Double> climber_heading_chooser = new SendableChooser<>();
-    climber_heading_chooser.addOption("Stage Center", 180.0);
-    climber_heading_chooser.addOption("Stage Left", -60.0);
-    climber_heading_chooser.addOption("Stage Right", 60.0);    
+    climber_heading_chooser.addOption("Stage Center Blue", 180.0); 
+    climber_heading_chooser.addOption("Stage Left Blue", -60.0); 
+    climber_heading_chooser.addOption("Stage Right Blue", 60.0);    
+    climber_heading_chooser.addOption("Stage Center Red", 0.0); 
+    climber_heading_chooser.addOption("Stage Left Red", 120.0); 
+    climber_heading_chooser.addOption("Stage Right Red", -120.0);   
+
     // negate add 180 to get on red
     Shuffleboard.getTab("COMP").add("Climb Chooser", climber_heading_chooser);
 
     Command setClimbHeading = Commands.runOnce(() -> {
       Rotation2d climbHeading = new Rotation2d(Math.toRadians(climber_heading_chooser.getSelected()));
-      climbHeading = AllianceFlipUtil.apply(climbHeading);
       swerveSubsystem.setTargetAngle(climbHeading);
     });
 
