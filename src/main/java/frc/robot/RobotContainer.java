@@ -109,11 +109,11 @@ public class RobotContainer {
     NamedCommands.registerCommand("AlignStuffOnStart", new SequentialCommandGroup(setGyroBasedOnPathPlannerTrajectory(),
         swerveSubsystem.resetOdometry(pathPlannerTargetPoseSupplier)));
     NamedCommands.registerCommand("AlignStuffOnStartAmpside", new SequentialCommandGroup(setGyroAmpsideStart(),
-        Commands.runOnce(() -> {swerveSubsystem.resetOdometry(FieldConstants.ampsideStartPose);})));
+        Commands.runOnce(() -> {swerveSubsystem.resetOdometry(AllianceFlipUtil.apply(FieldConstants.ampsideStartPose));})));
     NamedCommands.registerCommand("AlignStuffOnStartMiddle", new SequentialCommandGroup(setGyroMiddleStart(),
-        Commands.runOnce(() -> {swerveSubsystem.resetOdometry(FieldConstants.middleStartPose);})));
+        Commands.runOnce(() -> {swerveSubsystem.resetOdometry(AllianceFlipUtil.apply(FieldConstants.middleStartPose));})));
     NamedCommands.registerCommand("AlignStuffOnStartPodiumside", new SequentialCommandGroup(setGyroPodiumsideStart(),
-        Commands.runOnce(() -> {swerveSubsystem.resetOdometry(FieldConstants.podiumsideStartPose);})));
+        Commands.runOnce(() -> {swerveSubsystem.resetOdometry(AllianceFlipUtil.apply(FieldConstants.podiumsideStartPose));})));
     // instantiates autoChooser based on PathPlanner files (exists at code deploy,
     // no need to wait)
     autoChooser = AutoBuilder.buildAutoChooser();
