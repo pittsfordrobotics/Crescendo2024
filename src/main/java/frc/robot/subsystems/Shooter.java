@@ -160,8 +160,8 @@ public class Shooter extends SubsystemBase {
     // DisabledInstantCommand(this::brakeShooter));
 
     Shuffleboard.getTab("SHOOTER").add("Shooter Pivot Zero", new DisabledInstantCommand(this::zeroPivot));
-    Shuffleboard.getTab("SHOOTER").add("Toggle Use Limit Switch", new DisabledInstantCommand(() -> useLimitSwitch = !useLimitSwitch));
-    Shuffleboard.getTab("SHOOTER").addBoolean("Useing Limit Switch", () -> useLimitSwitch);
+    Shuffleboard.getTab("COMP").add("Toggle Use Limit Switch", new DisabledInstantCommand(() -> useLimitSwitch = !useLimitSwitch));
+    Shuffleboard.getTab("COMP").addBoolean("Useing Limit Switch", () -> useLimitSwitch);
   }
 
   @Override
