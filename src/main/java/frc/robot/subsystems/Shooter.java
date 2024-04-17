@@ -148,6 +148,11 @@ public class Shooter extends SubsystemBase {
 
     Shuffleboard.getTab("SHOOTER").add(this);
 
+    Shuffleboard.getTab("SHOOTER").addBoolean("Shooter Limit Switch", this::getLimitSwitch);
+    Shuffleboard.getTab("SHOOTER").addBoolean("Shooter Limit Switch 1", backLimitSwitch1::get);
+    Shuffleboard.getTab("SHOOTER").addBoolean("Shooter Limit Switch 2", backLimitSwitch2::get);
+
+
     Shuffleboard.getTab("COMP").addDouble("Shooter RPM R", this::getShooterRRPM);
     Shuffleboard.getTab("COMP").addDouble("Shooter RPM L", this::getShooterLRPM);
 
