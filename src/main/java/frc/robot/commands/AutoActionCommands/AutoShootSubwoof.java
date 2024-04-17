@@ -11,6 +11,7 @@ import frc.robot.Constants.RobotConstants;
 import frc.robot.commands.NewPrettyCommands.SUBWOOFCommand;
 import frc.robot.commands.NewPrettyCommands.StoredCommand;
 import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.Leds;
 import frc.robot.subsystems.Shooter;
 
 // NOTE:  Consider using this command inline, rather than writing a subclass.  For more
@@ -18,7 +19,7 @@ import frc.robot.subsystems.Shooter;
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
 public class AutoShootSubwoof extends SequentialCommandGroup {
   /** Creates a new AutoShootSubwoof. */
-  public AutoShootSubwoof(Shooter shooter, Intake intake) {
+  public AutoShootSubwoof(Shooter shooter, Intake intake, Leds leds) {
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
     addCommands(
@@ -27,7 +28,7 @@ public class AutoShootSubwoof extends SequentialCommandGroup {
       shooter.spinIndexerCommand(RobotConstants.INDEXER_SHOOT_SPEED),
       Commands.waitSeconds(0.25),
       shooter.spinIndexerCommand(RobotConstants.INDEXER_IDLE_SPEED), // Idle indexer and prepare to intake
-      new StoredCommand(shooter, intake)
+      new StoredCommand(shooter, intake, leds)
     );
   }
 }

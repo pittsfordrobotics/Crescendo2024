@@ -7,10 +7,11 @@ import frc.robot.Constants.RobotConstants;
 import frc.robot.commands.NewPrettyCommands.CommonSpeakerCommand;
 import frc.robot.commands.NewPrettyCommands.StoredCommand;
 import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.Leds;
 import frc.robot.subsystems.Shooter;
 
 public class AutoShoot extends SequentialCommandGroup {
-    public AutoShoot(Shooter shooter, Intake intake, double shooterAngleDeg, double shooterRPM) {
+    public AutoShoot(Shooter shooter, Intake intake, double shooterAngleDeg, double shooterRPM, Leds leds) {
         // Add your commands in the addCommands() call, e.g.
         // addCommands(new FooCommand(), new BarCommand());
         addCommands(
@@ -19,7 +20,7 @@ public class AutoShoot extends SequentialCommandGroup {
                 shooter.spinIndexerCommand(RobotConstants.INDEXER_SHOOT_SPEED),
                 Commands.waitSeconds(0.25),
                 shooter.spinIndexerCommand(RobotConstants.INDEXER_IDLE_SPEED), // Idle indexer and prepare to intake
-                new StoredCommand(shooter, intake)
+                new StoredCommand(shooter, intake, leds)
         );
     }
 }
