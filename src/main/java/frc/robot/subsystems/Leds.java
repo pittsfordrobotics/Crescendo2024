@@ -38,6 +38,7 @@ public class Leds extends SubsystemBase {
     SendableChooser<Color> secondaryColorChooser = new SendableChooser<Color>();
     SendableChooser<LedMode> modeChooser = new SendableChooser<LedMode>();
     SendableChooser<LedSpeed> speedChooser = new SendableChooser<LedSpeed>();
+    int i = 0;
 
     /** Creates a new Leds. */
     public Leds() {
@@ -83,7 +84,7 @@ public class Leds extends SubsystemBase {
             setLedAutomatedMode();
         }
 
-        int i = 0;
+        // int i = 0;
         int q = 0;
         switch (ledSpeed) {
             case slow:
@@ -103,21 +104,21 @@ public class Leds extends SubsystemBase {
             case blink:
                 switch (ledSpeed) {
                     case slow:
-                        if (i % 2 == 0) {
+                        if ((i/50) % 2 == 0) {
                             setFullLengthofBuffer(ledBuffer, MainColor);
                         } else {
                             setFullLengthofBuffer(ledBuffer, Color.kBlack);
                         }
                         break;
                     case mid:
-                        if (i % 3 == 0) {
+                        if (i/30 % 2 == 0) {
                             setFullLengthofBuffer(ledBuffer, MainColor);
                         } else {
                             setFullLengthofBuffer(ledBuffer, Color.kBlack);
                         }
                         break;
                     case fast:
-                        if (i % 4 == 0) {
+                        if (i/15 % 2 == 0) {
                             setFullLengthofBuffer(ledBuffer, MainColor);
                         } else {
                             setFullLengthofBuffer(ledBuffer, Color.kBlack);
@@ -128,21 +129,21 @@ public class Leds extends SubsystemBase {
             case blinkDual:
                 switch (ledSpeed) {
                     case slow:
-                        if (i % 2 == 0) {
+                        if (i/50 % 2 == 0) {
                             setFullLengthofBuffer(ledBuffer, MainColor);
                         } else {
                             setFullLengthofBuffer(ledBuffer, SecondaryColor);
                         }
                         break;
                     case mid:
-                        if (i % 3 == 0) {
+                        if (i/30 % 2 == 0) {
                             setFullLengthofBuffer(ledBuffer, MainColor);
                         } else {
                             setFullLengthofBuffer(ledBuffer, SecondaryColor);
                         }
                         break;
                     case fast:
-                        if (i % 4 == 0) {
+                        if (i/15 % 2 == 0) {
                             setFullLengthofBuffer(ledBuffer, MainColor);
                         } else {
                             setFullLengthofBuffer(ledBuffer, SecondaryColor);
