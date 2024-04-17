@@ -475,7 +475,7 @@
       "command": {
         "type": "named",
         "data": {
-          "name": "CommonSpeakerCommandNoDelays"
+          "name": "AimSpeaker"
         }
       }
     }
