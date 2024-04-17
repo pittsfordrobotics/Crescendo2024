@@ -67,16 +67,20 @@ public class Vision extends SubsystemBase {
 
         Shuffleboard.getTab("Vision").addBoolean("Is Vison Being Used?", this::usingVision);
         Shuffleboard.getTab("Vision").add("UseVisionToggle", new DisabledInstantCommand(this::useVisionToggle));
-        
+
         for (int i = 0; i < io.length; i++) {
             int number = i; // why are ints dumb
             Shuffleboard.getTab("Vision").addDouble(i + "/AvgTagDist", () -> this.inputs[number].avgTagDist);
             Shuffleboard.getTab("Vision").addInteger(i + "/NumTags", () -> this.inputs[number].tagCount);
             Shuffleboard.getTab("Vision").addDoubleArray(i + "/TagDistances", () -> this.inputs[number].tagDistances);
-            Shuffleboard.getTab("Vision").addString(i + "/TagIDs", () -> this.inputs[number].tagIDs.toString()); //why are ints dumb
+            Shuffleboard.getTab("Vision").addString(i + "/TagIDs", () -> Arrays.toString(this.inputs[number].tagIDs)); // why
+            // // are
+            // // ints
+            // // dumb
             Shuffleboard.getTab("Vision").addDouble(i + "/Pose2d_X", () -> this.inputs[number].pose.getX());
             Shuffleboard.getTab("Vision").addDouble(i + "/Pose2d_Y", () -> this.inputs[number].pose.getY());
-            Shuffleboard.getTab("Vision").addDouble(i + "/Pose2d_Theta", () -> this.inputs[number].pose.getRotation().getDegrees());
+            Shuffleboard.getTab("Vision").addDouble(i + "/Pose2d_Theta",
+                    () -> this.inputs[number].pose.getRotation().getDegrees());
         }
         Shuffleboard.getTab("Vision").addDouble("XY_std", this::getXYstdDev);
         Shuffleboard.getTab("Vision").addBoolean("Has Great Speaker Reading", this::hasGreatSpeakerReading);
@@ -117,6 +121,10 @@ public class Vision extends SubsystemBase {
 
     @Override
     public void periodic() {
+        if (!useVision) {
+            return;
+        }
+
         for (int i = 0; i < io.length; i++) {
             // update the inputs from the netwrork tables named camNames[i]
             io[i].updateInputs(inputs[i], camNames[i], gyroangle.get().getDegrees());
@@ -127,9 +135,6 @@ public class Vision extends SubsystemBase {
         List<Pose2d> allRobotPoses = new ArrayList<>();
 
         // exit if boolean
-        if (!useVision) {
-            return;
-        }
 
         // Pose estimation
         for (int i = 0; i < io.length; i++) {

@@ -39,6 +39,7 @@ import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.SwerveSubsystem;
 import java.io.File;
+import java.util.Optional;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
@@ -64,6 +65,7 @@ public class RobotContainer {
   Command enhancedHeadingSteeringCommand;
   Command speakerTargetSteeringCommand;
   private static Pose2d pathPlannerTargetPose;
+  // SendableChooser climber_heading_chooser = new SendableChooser<>();
 
   // The container for the robot. Contains subsystems, OI devices, and commands.
   public RobotContainer() {
@@ -142,7 +144,7 @@ public class RobotContainer {
   }
 
   private void configure_COMP_Bindings() {
-    //SYSID button on shuffleboard
+    // SYSID button on shuffleboard
     Shuffleboard.getTab("CONFIG").add("SysID drive motor routine", swerveSubsystem.sysIdDriveMotorCommand());
     Shuffleboard.getTab("CONFIG").add("SysID angle motor routine", swerveSubsystem.sysIdAngleMotorCommand());
     // ToDo:
@@ -155,6 +157,23 @@ public class RobotContainer {
       System.out.println("Resetting gyro");
     }));
 
+    SendableChooser<Double> climber_heading_chooser = new SendableChooser<>();
+    climber_heading_chooser.addOption("Stage Center Blue", 180.0); 
+    climber_heading_chooser.addOption("Stage Left Blue", -60.0); 
+    climber_heading_chooser.addOption("Stage Right Blue", 60.0);    
+    climber_heading_chooser.addOption("Stage Center Red", 0.0); 
+    climber_heading_chooser.addOption("Stage Left Red", 120.0); 
+    climber_heading_chooser.addOption("Stage Right Red", -120.0);   
+
+    // negate add 180 to get on red
+    Shuffleboard.getTab("COMP").add("Climb Chooser", climber_heading_chooser);
+
+    Command setClimbHeading = Commands.runOnce(() -> {
+      Rotation2d climbHeading = new Rotation2d(Math.toRadians(climber_heading_chooser.getSelected()));
+      swerveSubsystem.setTargetAngle(climbHeading);
+    });
+
+    m_driverController.y().onTrue(setClimbHeading);
 
     // // states
     StoredCommand storedCommand = new StoredCommand(shooter, intake);
@@ -193,17 +212,23 @@ public class RobotContainer {
 
     PathPlannerPath redampPath = PathPlannerPath.fromPathFile("RedAMPPath");
     PathPlannerPath blueampPath = PathPlannerPath.fromPathFile("BlueAmpPath");
-    Pose2d ampPose = new Pose2d(FieldConstants.ampCenter.plus(new Translation2d(0.0, -0.35)), Rotation2d.fromDegrees(-90));
-    Pose2d ampPoseRed = new Pose2d(FieldConstants.ampCenterRED_THISIFFORREDAMP.plus(new Translation2d(0.0, -0.35)), Rotation2d.fromDegrees(-90));
+    Pose2d ampPose = new Pose2d(FieldConstants.ampCenter.plus(new Translation2d(0.0, -0.35)),
+        Rotation2d.fromDegrees(-90));
+    Pose2d ampPoseRed = new Pose2d(FieldConstants.ampCenterRED_THISIFFORREDAMP.plus(new Translation2d(0.0, -0.35)),
+        Rotation2d.fromDegrees(-90));
 
-    m_driverController.b().onTrue(
-        new ParallelCommandGroup(
-          Commands.runOnce(() -> swerveSubsystem.setTargetAngle(Rotation2d.fromDegrees(-90))),
-            new BetterAMPCommand(shooter, intake),
-          new ConditionalCommand(swerveSubsystem.driveToPose(ampPose).beforeStarting(swerveSubsystem.correctHeading(Rotation2d.fromDegrees(-90))),
-          swerveSubsystem.driveToPose(ampPoseRed).beforeStarting(swerveSubsystem.correctHeading(Rotation2d.fromDegrees(-90))),
-          () -> getAllianceDefaultBlue() == Alliance.Blue)
-        ));
+    // m_driverController.b().onTrue(
+    // new ParallelCommandGroup(
+    // Commands.runOnce(() ->
+    // swerveSubsystem.setTargetAngle(Rotation2d.fromDegrees(-90))),
+    // new BetterAMPCommand(shooter, intake),
+    // new ConditionalCommand(
+    // swerveSubsystem.driveToPose(ampPose)
+    // .beforeStarting(swerveSubsystem.correctHeading(Rotation2d.fromDegrees(-90))),
+    // swerveSubsystem.driveToPose(ampPoseRed)
+    // .beforeStarting(swerveSubsystem.correctHeading(Rotation2d.fromDegrees(-90))),
+    // () -> getAllianceDefaultBlue() == Alliance.Blue)));
+
     m_driverController.b().onFalse(
         new SequentialCommandGroup(
             // Commands.runOnce(() -> vision.useVision(true)),
@@ -211,7 +236,10 @@ public class RobotContainer {
             new WaitCommand(.75),
             new StoredCommand(shooter, intake)));
 
-    // m_driverController.b().onTrue(Commands.runOnce(() -> swerveSubsystem.setTargetAngle(Rotation2d.fromDegrees(-90))));
+    m_driverController.b().onTrue(
+        new ParallelCommandGroup(
+            Commands.runOnce(() -> swerveSubsystem.setTargetAngle(Rotation2d.fromDegrees(-90))),
+            new BetterAMPCommand(shooter, intake)));
 
     // Old amp scoring approach
     // Runs the intake on left bummper true

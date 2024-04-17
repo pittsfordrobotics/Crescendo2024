@@ -41,8 +41,9 @@ public class Robot extends LoggedRobot {
       PortForwarder.add(port, "limelight.local", port);
     }
 
-    DataLogManager.start();
-    DriverStation.startDataLog(DataLogManager.getLog());
+    // DataLogManager.start();
+    // DriverStation.startDataLog(DataLogManager.getLog());
+
     // Instantiate our RobotContainer. This will perform all our button bindings,
     // and put our
     // autonomous chooser on the dashboard.
@@ -74,9 +75,10 @@ public class Robot extends LoggedRobot {
     // and running subsystem periodic() methods. This must be called from the
     // robot's periodic
     // block in order for anything in the Command-based framework to work.
-    if(Runtime.getRuntime().freeMemory() / 1024 / 1024 <= 1) {
-      Runtime.getRuntime().gc();
-    }
+
+    // if(Runtime.getRuntime().freeMemory() / 1024 / 1024 <= 1) {
+    //   Runtime.getRuntime().gc();
+    // }
     CommandScheduler.getInstance().run();
   }
 
