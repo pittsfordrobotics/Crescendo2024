@@ -613,6 +613,15 @@
           "name": "AlignStuffOnStart"
         }
       }
+    },
+    {
+      "timestamp": 1.1434193215875228,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "CorrectHeading"
+        }
+      }
     }
   ]
 }

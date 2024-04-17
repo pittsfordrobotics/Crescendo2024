@@ -699,6 +699,19 @@
                             "name": "AlignStuffOnStart"
                         }
                     }
+                },
+                {
+                    "name": "CorrectHeading",
+                    "target": 1,
+                    "trajTargetIndex": 1,
+                    "targetTimestamp": 1.2123737944994077,
+                    "offset": 0,
+                    "command": {
+                        "type": "named",
+                        "data": {
+                            "name": "CorrectHeading"
+                        }
+                    }
                 }
             ],
             "isTrajectoryStale": false
@@ -1479,6 +1492,19 @@
                         "type": "named",
                         "data": {
                             "name": "AlignStuffOnStart"
+                        }
+                    }
+                },
+                {
+                    "name": "CorrectHeading",
+                    "target": 2,
+                    "trajTargetIndex": 2,
+                    "targetTimestamp": 1.1434193215875228,
+                    "offset": 0,
+                    "command": {
+                        "type": "named",
+                        "data": {
+                            "name": "CorrectHeading"
                         }
                     }
                 }
