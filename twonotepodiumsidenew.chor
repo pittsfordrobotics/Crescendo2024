@@ -1,5 +1,5 @@
 {
-    "version": "v0.3",
+    "version": "v0.3.1",
     "robotConfiguration": {
         "mass": 64.20958006934634,
         "rotationalInertia": 4.955753417331741,
@@ -707,7 +707,8 @@
                 {
                     "name": "StartIntakeNoDelaysCommand",
                     "target": 1,
-                    "targetTimestamp": null,
+                    "trajTargetIndex": 1,
+                    "targetTimestamp": 0.2161752381867698,
                     "offset": 0,
                     "command": {
                         "type": "named",
@@ -719,7 +720,8 @@
                 {
                     "name": "AimSpeaker",
                     "target": 4,
-                    "targetTimestamp": null,
+                    "trajTargetIndex": 4,
+                    "targetTimestamp": 1.9914041997290508,
                     "offset": 0.5,
                     "command": {
                         "type": "named",
@@ -731,7 +733,8 @@
                 {
                     "name": "AlignStuffOnStart",
                     "target": 0,
-                    "targetTimestamp": null,
+                    "trajTargetIndex": 0,
+                    "targetTimestamp": 0,
                     "offset": 0,
                     "command": {
                         "type": "named",
@@ -741,7 +744,7 @@
                     }
                 }
             ],
-            "isTrajectoryStale": true
+            "isTrajectoryStale": false
         },
         "twonotepodiumsidemoveoutoftheway": {
             "waypoints": [
@@ -944,7 +947,7 @@
             "usesDefaultFieldObstacles": true,
             "circleObstacles": [],
             "eventMarkers": [],
-            "isTrajectoryStale": true
+            "isTrajectoryStale": false
         },
         "thirdnotepodiumside": {
             "waypoints": [
@@ -2216,7 +2219,8 @@
                 {
                     "name": "StartIntakeNoDelaysCommand",
                     "target": 2,
-                    "targetTimestamp": null,
+                    "trajTargetIndex": 2,
+                    "targetTimestamp": 2.5001926949763855,
                     "offset": -1.5,
                     "command": {
                         "type": "named",
@@ -2228,7 +2232,8 @@
                 {
                     "name": "AimSpeaker",
                     "target": 5,
-                    "targetTimestamp": null,
+                    "trajTargetIndex": 5,
+                    "targetTimestamp": 6.051153685161655,
                     "offset": -1.5,
                     "command": {
                         "type": "named",
@@ -2238,7 +2243,7 @@
                     }
                 }
             ],
-            "isTrajectoryStale": true
+            "isTrajectoryStale": false
         },
         "thirdnotecenterfrompodiumside": {
             "waypoints": [
@@ -2902,7 +2907,8 @@
                 {
                     "name": "AimSpeaker",
                     "target": 3,
-                    "targetTimestamp": null,
+                    "trajTargetIndex": 3,
+                    "targetTimestamp": 3.318238678647332,
                     "offset": 0.25,
                     "command": {
                         "type": "named",
@@ -2912,7 +2918,7 @@
                     }
                 }
             ],
-            "isTrajectoryStale": true
+            "isTrajectoryStale": false
         },
         "thirdnotepodiumsideedge": {
             "waypoints": [
@@ -4274,7 +4280,8 @@
                 {
                     "name": "StartIntakeNoDelaysCommand",
                     "target": 3,
-                    "targetTimestamp": null,
+                    "trajTargetIndex": 3,
+                    "targetTimestamp": 2.439903774597491,
                     "offset": -1.5,
                     "command": {
                         "type": "named",
@@ -4286,7 +4293,8 @@
                 {
                     "name": "AimSpeaker",
                     "target": 6,
-                    "targetTimestamp": null,
+                    "trajTargetIndex": 6,
+                    "targetTimestamp": 6.003972008531141,
                     "offset": -1.5,
                     "command": {
                         "type": "named",
@@ -4296,7 +4304,7 @@
                     }
                 }
             ],
-            "isTrajectoryStale": true
+            "isTrajectoryStale": false
         },
         "4thnotecenteredge": {
             "waypoints": [
@@ -5384,7 +5392,8 @@
                 {
                     "name": "StartIntakeNoDelaysCommand",
                     "target": 2,
-                    "targetTimestamp": null,
+                    "trajTargetIndex": 2,
+                    "targetTimestamp": 2.7477245201806584,
                     "offset": -1.5,
                     "command": {
                         "type": "named",
@@ -5396,7 +5405,8 @@
                 {
                     "name": "AimSpeaker",
                     "target": 4,
-                    "targetTimestamp": null,
+                    "trajTargetIndex": 4,
+                    "targetTimestamp": 6.620274740514506,
                     "offset": -1.5,
                     "command": {
                         "type": "named",
@@ -5406,7 +5416,7 @@
                     }
                 }
             ],
-            "isTrajectoryStale": true
+            "isTrajectoryStale": false
         },
         "twonotemidlinebottom": {
             "waypoints": [
@@ -6572,7 +6582,8 @@
                 {
                     "name": "StartIntakeNoDelaysCommand",
                     "target": 2,
-                    "targetTimestamp": null,
+                    "trajTargetIndex": 2,
+                    "targetTimestamp": 3.0501505338713497,
                     "offset": -1.5,
                     "command": {
                         "type": "named",
@@ -6584,7 +6595,8 @@
                 {
                     "name": "AimSpeaker",
                     "target": 4,
-                    "targetTimestamp": null,
+                    "trajTargetIndex": 4,
+                    "targetTimestamp": 6.188232241843211,
                     "offset": -1.5,
                     "command": {
                         "type": "named",
@@ -6594,7 +6606,7 @@
                     }
                 }
             ],
-            "isTrajectoryStale": true
+            "isTrajectoryStale": false
         },
         "4th noteampside": {
             "waypoints": [
@@ -7192,6 +7204,7 @@
                 {
                     "name": "start intake",
                     "target": 1,
+                    "trajTargetIndex": 1,
                     "targetTimestamp": 0.6711280171330183,
                     "offset": -0.5,
                     "command": {
@@ -7204,6 +7217,7 @@
                 {
                     "name": "aim",
                     "target": 3,
+                    "trajTargetIndex": 3,
                     "targetTimestamp": 2.88049131559262,
                     "offset": -0.8,
                     "command": {
