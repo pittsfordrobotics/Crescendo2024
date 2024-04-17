@@ -550,12 +550,14 @@ public class SwerveSubsystem extends SubsystemBase {
      *  If using heading drive, it does not use the target angle at all.
     */
     public void driveAllianceRelative(double x, double y, double rotationRate, boolean headingDrive) {
-        if(headingDrive) {
-            driveFieldOriented(swerveDrive.swerveController.getTargetSpeeds(getAllianceDefaultBlue() == Alliance.Blue ? x : -x, getAllianceDefaultBlue() == Alliance.Blue ? y : -y, 
-                currentTargetAngle.getRadians(), swerveDrive.getYaw().getRadians(), swerveDrive.getMaximumVelocity()));
+        if (headingDrive) {
+            driveFieldOriented(swerveDrive.swerveController.getTargetSpeeds(getAllianceDefaultBlue() == Alliance.Blue ? x : -x, getAllianceDefaultBlue() == Alliance.Blue ? y : -y,
+                    currentTargetAngle.getRadians(), swerveDrive.getYaw().getRadians(), swerveDrive.getMaximumVelocity()));
         } else {
             swerveDrive.drive(new Translation2d(getAllianceDefaultBlue() == Alliance.Blue ? x : -x, getAllianceDefaultBlue() == Alliance.Blue ? y : -y),
-                rotationRate, true, false);
+                    rotationRate, true, false);
+        }
+    }
     /**
      *
      * @param chassisSpeeds Chassis Speeds to set.
