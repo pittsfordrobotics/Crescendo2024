@@ -226,11 +226,11 @@ public class RobotContainer {
 
     Pose2d ampPose = new Pose2d(FieldConstants.ampCenter.plus(new Translation2d(0.0, -0.35)),
         Rotation2d.fromDegrees(-90));
-    Pose2d ampPose_Offset = new Pose2d(FieldConstants.ampCenter.plus(new Translation2d(0.0, -1)),
+    Pose2d ampPose_Offset = new Pose2d(FieldConstants.ampCenter.plus(new Translation2d(0.0, -1.5)),
         Rotation2d.fromDegrees(-120));
     Pose2d ampPoseRed = new Pose2d(FieldConstants.ampCenterRED_THISIFFORREDAMP.plus(new Translation2d(0.0, -0.35)),
         Rotation2d.fromDegrees(-90));
-    Pose2d ampPoseRed_Offset = new Pose2d(FieldConstants.ampCenterRED_THISIFFORREDAMP.plus(new Translation2d(0.0, -1)),
+    Pose2d ampPoseRed_Offset = new Pose2d(FieldConstants.ampCenterRED_THISIFFORREDAMP.plus(new Translation2d(0.0, -1.5)),
         Rotation2d.fromDegrees(-30));
 
     Shuffleboard.getTab("COMP").add("Toggle Use Pathing Amp", new DisabledInstantCommand(() -> usePathingAmp = !usePathingAmp));
@@ -247,19 +247,18 @@ public class RobotContainer {
                         .beforeStarting(swerveSubsystem.correctHeading(Rotation2d.fromDegrees(-120))),
                     swerveSubsystem.driveToPose(ampPoseRed_Offset)
                         .beforeStarting(swerveSubsystem.correctHeading(Rotation2d.fromDegrees(-120))),
-                    () -> getAllianceDefaultBlue() == Alliance.Blue)).withTimeout(3),
+                    () -> getAllianceDefaultBlue() == Alliance.Blue)).withTimeout(5),
             new WaitCommand(0.5),
             new ParallelCommandGroup(
                 Commands.runOnce(() -> vision.setUseVision(false)),
                 Commands.runOnce(() -> swerveSubsystem.setTargetAngle(Rotation2d.fromDegrees(-90))),
-                new BetterAMPCommand(shooter, intake),
                 new ConditionalCommand(
                     swerveSubsystem.driveToPose(ampPose)
                         .beforeStarting(swerveSubsystem.correctHeading(Rotation2d.fromDegrees(-90))),
                     swerveSubsystem.driveToPose(ampPoseRed)
                         .beforeStarting(swerveSubsystem.correctHeading(Rotation2d.fromDegrees(-90))),
                     () -> getAllianceDefaultBlue() == Alliance.Blue))),
-        new ParallelCommandGroup(
+        new SequentialCommandGroup(
             Commands.runOnce(() -> swerveSubsystem.setTargetAngle(Rotation2d.fromDegrees(-90))),
             new BetterAMPCommand(shooter, intake)), 
         () -> usePathingAmp));
