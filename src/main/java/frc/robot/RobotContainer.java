@@ -208,7 +208,7 @@ public class RobotContainer {
 
     m_driverController.a().onFalse(new SequentialCommandGroup(
         shooter.spinIndexerCommand(RobotConstants.INDEXER_SHOOT_SPEED),
-        new WaitCommand(.25),
+        new WaitCommand(.6),
         shooter.spinIndexerCommand(RobotConstants.INDEXER_IDLE_SPEED),
         new StoredCommand(shooter, intake, leds)));
 

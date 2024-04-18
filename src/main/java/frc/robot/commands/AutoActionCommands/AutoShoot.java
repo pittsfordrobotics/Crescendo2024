@@ -18,7 +18,7 @@ public class AutoShoot extends SequentialCommandGroup {
                 new CommonSpeakerCommand(shooter, intake, shooterAngleDeg, shooterRPM), // Also waits for shooter to reach position with 2 deg tolerance
                 shooter.waitForShooterRPMCommand().withTimeout(1.0),
                 shooter.spinIndexerCommand(RobotConstants.INDEXER_SHOOT_SPEED),
-                Commands.waitSeconds(0.25),
+                Commands.waitSeconds(0.6),
                 shooter.spinIndexerCommand(RobotConstants.INDEXER_IDLE_SPEED), // Idle indexer and prepare to intake
                 new StoredCommand(shooter, intake, leds)
         );
