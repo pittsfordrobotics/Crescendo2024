@@ -258,7 +258,7 @@ public class RobotContainer {
                     swerveSubsystem.driveToPose(ampPoseRed)
                         .beforeStarting(swerveSubsystem.correctHeading(Rotation2d.fromDegrees(-90))),
                     () -> getAllianceDefaultBlue() == Alliance.Blue))),
-        new SequentialCommandGroup(
+        new ParallelCommandGroup(
             Commands.runOnce(() -> swerveSubsystem.setTargetAngle(Rotation2d.fromDegrees(-90))),
             new BetterAMPCommand(shooter, intake)), 
         () -> usePathingAmp));
