@@ -1,0 +1,42 @@
+{
+  "samples": [
+    {
+      "x": 1.353,
+      "y": 5.55,
+      "heading": 3.14159,
+      "angularVelocity": 3.0393053482784535e-34,
+      "velocityX": -1.4211354114695762e-19,
+      "velocityY": 1.1046635328784978e-46,
+      "timestamp": 0
+    },
+    {
+      "x": 1.4,
+      "y": 5.55,
+      "heading": 3.14159,
+      "angularVelocity": 5.614102990190419e-22,
+      "velocityX": 0.6260129914418041,
+      "velocityY": -3.886210563067794e-28,
+      "timestamp": 0.07507831409656814
+    },
+    {
+      "x": 1.4,
+      "y": 5.55,
+      "heading": 3.14159,
+      "angularVelocity": 8.85243486624032e-34,
+      "velocityX": -4.0552599323776366e-19,
+      "velocityY": 3.2494170111492566e-46,
+      "timestamp": 0.15015662819313627
+    }
+  ],
+  "eventMarkers": [
+    {
+      "timestamp": 0,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "AlignStuffOnStart"
+        }
+      }
+    }
+  ]
+}
