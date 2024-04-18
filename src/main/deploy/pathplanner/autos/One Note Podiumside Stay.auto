@@ -2,10 +2,10 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 0.76,
-      "y": 4.449
+      "x": 1.353,
+      "y": 5.55
     },
-    "rotation": 120.0
+    "rotation": 179.99984796050427
   },
   "command": {
     "type": "sequential",
@@ -14,13 +14,13 @@
         {
           "type": "named",
           "data": {
-            "name": "AlignStuffOnStartPodiumside"
+            "name": "ShootSubwoof"
           }
         },
         {
-          "type": "named",
+          "type": "path",
           "data": {
-            "name": "ShootSubwoof"
+            "pathName": "shootandstaypodiumside"
           }
         }
       ]

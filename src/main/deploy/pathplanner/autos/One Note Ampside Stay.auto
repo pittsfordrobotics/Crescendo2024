@@ -5,7 +5,7 @@
       "x": 0.753,
       "y": 6.669
     },
-    "rotation": -120.0
+    "rotation": -120.0002806121996
   },
   "command": {
     "type": "sequential",
@@ -14,13 +14,13 @@
         {
           "type": "named",
           "data": {
-            "name": "AlignStuffOnStartAmpside"
+            "name": "ShootSubwoof"
           }
         },
         {
-          "type": "named",
+          "type": "path",
           "data": {
-            "name": "ShootSubwoof"
+            "pathName": "shootandstayampside"
           }
         }
       ]
