@@ -38,7 +38,7 @@ public class ShooterInterpolationHelper {
     */
     public static double getShooterRPM(double distance) {
         // decreases RPM from usual 6000 if close to the speaker
-        return 5600;
+        return RobotConstants.SUBWOOF_ShooterRPM;
     }
 
     public static DoubleSupplier getShooterRPM (DoubleSupplier distance) {
