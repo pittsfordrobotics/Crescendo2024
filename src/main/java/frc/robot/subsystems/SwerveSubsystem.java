@@ -93,7 +93,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
     private Rotation2d currentTargetAngle = new Rotation2d();
     private Pose2d allianceRelPose = new Pose2d();
-    private double speedFactor = 1;
+    private double speedFactor = 1.25;
 
     StructPublisher<Pose2d> publisher = NetworkTableInstance.getDefault()
             .getStructTopic("SwervePose", Pose2d.struct).publish();
