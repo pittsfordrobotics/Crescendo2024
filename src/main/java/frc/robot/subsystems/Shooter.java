@@ -57,7 +57,7 @@ public class Shooter extends SubsystemBase {
     shooterMotorL = new CANSparkMax(ShooterConstants.CAN_SHOOTER_L, MotorType.kBrushless);
     shooterMotorL.restoreFactoryDefaults();
     shooterMotorL.setIdleMode(IdleMode.kCoast);
-    shooterMotorL.setSmartCurrentLimit(45);
+    shooterMotorL.setSmartCurrentLimit(55);
     // Shooter left pid
     shooterLPID = shooterMotorL.getPIDController();
     shooterLPID.setFeedbackDevice(shooterMotorL.getEncoder());
@@ -72,7 +72,7 @@ public class Shooter extends SubsystemBase {
     shooterMotorR = new CANSparkMax(ShooterConstants.CAN_SHOOTER_R, MotorType.kBrushless);
     shooterMotorR.restoreFactoryDefaults();
     shooterMotorR.setIdleMode(IdleMode.kCoast);
-    shooterMotorR.setSmartCurrentLimit(45);
+    shooterMotorR.setSmartCurrentLimit(55);
     shooterMotorR.setInverted(true);
     // Shooter right pid
     shooterRPID = shooterMotorR.getPIDController();
