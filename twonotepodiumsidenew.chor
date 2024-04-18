@@ -722,7 +722,7 @@
                     "target": 4,
                     "trajTargetIndex": 4,
                     "targetTimestamp": 1.9914041997290508,
-                    "offset": 0.5,
+                    "offset": 0.6,
                     "command": {
                         "type": "named",
                         "data": {
@@ -2909,7 +2909,7 @@
                     "target": 3,
                     "trajTargetIndex": 3,
                     "targetTimestamp": 3.318238678647332,
-                    "offset": 0.25,
+                    "offset": 0.6,
                     "command": {
                         "type": "named",
                         "data": {
@@ -7216,10 +7216,10 @@
                 },
                 {
                     "name": "aim",
-                    "target": 3,
-                    "trajTargetIndex": 3,
-                    "targetTimestamp": 2.88049131559262,
-                    "offset": -0.8,
+                    "target": 2,
+                    "trajTargetIndex": 2,
+                    "targetTimestamp": 1.7415680288762092,
+                    "offset": 0.6,
                     "command": {
                         "type": "named",
                         "data": {
