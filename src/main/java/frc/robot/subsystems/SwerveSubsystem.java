@@ -163,6 +163,15 @@ public class SwerveSubsystem extends SubsystemBase {
         Shuffleboard.getTab("CONFIG").add(this); // for debug
 
         Shuffleboard.getTab("COMP").addBoolean("Vision Ok", this::isvisionOk);
+    //     Supplier<double[]> swerveModuleSpeeds = () -> {
+    //         double[] swerveModuleSpeedsArray = new double[4];
+    //         for(int i = 0; i < 4; i++) {
+    //         swerveModuleSpeedsArray[i] = swerveDrive.getStates()[i].speedMetersPerSecond;
+    //     }
+    //     return swerveModuleSpeedsArray;
+    // };
+        
+        // Shuffleboard.getTab("CONFIG").addDoubleArray("Swerve drive motor velocity", swerveModuleSpeeds);
     }
 
     /**

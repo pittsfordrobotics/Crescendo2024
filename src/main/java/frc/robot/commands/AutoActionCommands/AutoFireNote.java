@@ -18,9 +18,9 @@ public class AutoFireNote extends SequentialCommandGroup {
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
     addCommands(
-      shooter.waitForShooterRPMCommand().withTimeout(1),
+      shooter.waitForShooterRPMCommand().withTimeout(2),
       shooter.spinIndexerCommand(RobotConstants.INDEXER_SHOOT_SPEED),
-      Commands.waitSeconds(0.6),
+      Commands.waitSeconds(1),
       shooter.spinIndexerCommand(RobotConstants.INDEXER_IDLE_SPEED)
     );
   }

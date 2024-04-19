@@ -100,6 +100,7 @@ public class RobotContainer {
         new RepeatCommand(new CommonSpeakerCommandNoDelays(shooter, intake, angleSupplier, RPMSupplier)));
     NamedCommands.registerCommand("ShootSubwoof", new SequentialCommandGroup(
         new SUBWOOFCommand(shooter, intake),
+        new WaitCommand(2),
         new AutoFireNote(shooter),
         new StoredCommand(shooter, intake, leds)));
     NamedCommands.registerCommand("ShootSubwoofSide", new SequentialCommandGroup(
