@@ -36,6 +36,7 @@ import frc.robot.lib.util.AllianceFlipUtil;
 import frc.robot.lib.util.ShooterInterpolationHelper;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.Leds;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.SwerveSubsystem;
 import java.io.File;
@@ -53,6 +54,7 @@ public class RobotContainer {
   private final Climber climber;
   private final Shooter shooter;
   private final Intake intake;
+  public final Leds leds;
   private final Vision vision;
 
   private final AutoCommandFactory autoCommandFactory;
@@ -72,11 +74,13 @@ public class RobotContainer {
     climber = new Climber();
     shooter = new Shooter();
     intake = new Intake();
+    leds = new Leds();
     swerveSubsystem = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve/maxSwerve"));
     vision = new Vision(VisionConstants.LIMELIGHT1, VisionConstants.LIMELIGHT2, swerveSubsystem::getGyroYaw,
         swerveSubsystem::getAngularAccelerationRad_Sec, swerveSubsystem::addVisionData);
     pathPlannerTargetPose = new Pose2d();
 
+    // Auto Stuff //
     DoubleSupplier distanceSupplier = (() -> swerveSubsystem.getPose().getTranslation()
         .getDistance(AllianceFlipUtil.apply(FieldConstants.Speaker.centerSpeakerOpening.getTranslation())));
 
@@ -85,23 +89,24 @@ public class RobotContainer {
     Supplier<Pose2d> pathPlannerTargetPoseSupplier = (() -> pathPlannerTargetPose);
 
     NamedCommands.registerCommand("StartIntakeNoDelaysCommand", new SequentialCommandGroup(
-        new StoredCommand(shooter, intake),
+        new StoredCommand(shooter, intake, leds),
         Commands.waitSeconds(0.5),
         new StartIntakeNoDelaysCommand(shooter, intake)));
     NamedCommands.registerCommand("AutoFireNote", new AutoFireNote(shooter)); // waits for spinner rpm (MUST be
                                                                               // previously set to spin up), then fires
                                                                               // note
-    NamedCommands.registerCommand("StoredCommand", new StoredCommand(shooter, intake));
+    NamedCommands.registerCommand("StoredCommand", new StoredCommand(shooter, intake, leds));
     NamedCommands.registerCommand("AimSpeaker",
         new RepeatCommand(new CommonSpeakerCommandNoDelays(shooter, intake, angleSupplier, RPMSupplier)));
     NamedCommands.registerCommand("ShootSubwoof", new SequentialCommandGroup(
         new SUBWOOFCommand(shooter, intake),
+        new WaitCommand(2),
         new AutoFireNote(shooter),
-        new StoredCommand(shooter, intake)));
+        new StoredCommand(shooter, intake, leds)));
     NamedCommands.registerCommand("ShootSubwoofSide", new SequentialCommandGroup(
         new SUBWOOFCommandSide(shooter, intake),
         new AutoFireNote(shooter),
-        new StoredCommand(shooter, intake)));
+        new StoredCommand(shooter, intake, leds)));
     NamedCommands.registerCommand("CorrectHeading",
         swerveSubsystem.correctHeading(pathPlannerTargetPoseSupplier).withTimeout(1.5));
     NamedCommands.registerCommand("CorrectHeadingShortTimeout",
@@ -120,6 +125,7 @@ public class RobotContainer {
     Shuffleboard.getTab(RobotConstants.SHUFFLEBOARD_COMP_TAB_NAME).add("PathPlanner Auto Chooser", autoChooser)
         .withSize(2, 1);
     PathPlannerLogging.setLogTargetPoseCallback((pose) -> pathPlannerTargetPose = pose);
+    // End Auto Stuff //
 
     FFCalculator c = FFCalculator.getInstance();
     c.updateIntakePivotAngle(intake::getPivotAngleDeg);
@@ -143,6 +149,7 @@ public class RobotContainer {
     zeroOffsetCommand.setName("Zero Offsets");
     Shuffleboard.getTab("CONFIG").add("Zero Swerve Module Offsets", zeroOffsetCommand);
     StructureStates.setCurrentState(StructureStates.structureState.startup);
+
     // Configure the trigger bindings
     configure_COMP_Bindings();
     // configure_TEST_Bindings();
@@ -182,8 +189,8 @@ public class RobotContainer {
     m_driverController.y().onTrue(setClimbHeading);
 
     // // states
-    StoredCommand storedCommand = new StoredCommand(shooter, intake);
-    IntakeCommand intakeCommand = new IntakeCommand(shooter, intake);
+    StoredCommand storedCommand = new StoredCommand(shooter, intake, leds);
+    IntakeCommand intakeCommand = new IntakeCommand(shooter, intake, leds);
     BetterAMPCommand betterAmpCommand = new BetterAMPCommand(shooter, intake);
     SUBWOOFCommand subwoofCommand = new SUBWOOFCommand(shooter, intake);
     PODIUMCommand podiumCommand = new PODIUMCommand(shooter, intake);
@@ -202,9 +209,9 @@ public class RobotContainer {
 
     m_driverController.a().onFalse(new SequentialCommandGroup(
         shooter.spinIndexerCommand(RobotConstants.INDEXER_SHOOT_SPEED),
-        new WaitCommand(.25),
+        new WaitCommand(.6),
         shooter.spinIndexerCommand(RobotConstants.INDEXER_IDLE_SPEED),
-        new StoredCommand(shooter, intake)));
+        new StoredCommand(shooter, intake, leds)));
 
     // old point at speaker
     // m_driverController.a().whileTrue(speakerTargetSteeringCommand);
@@ -240,7 +247,7 @@ public class RobotContainer {
             // Commands.runOnce(() -> vision.useVision(true)),
             AmpShootIntake,
             new WaitCommand(.75),
-            new StoredCommand(shooter, intake)));
+            new StoredCommand(shooter, intake, leds)));
 
     m_driverController.b().onTrue(
         new ParallelCommandGroup(
@@ -264,8 +271,8 @@ public class RobotContainer {
       }
     }));
 
-    m_operatorController.rightBumper().onTrue(climber.setSpeedCommand(0.5));
-    m_operatorController.rightBumper().onFalse(climber.setSpeedCommand(-0.5));
+    m_operatorController.rightBumper().onTrue(climber.setSpeedCommand(1));
+    m_operatorController.rightBumper().onFalse(climber.setSpeedCommand(-1));
   }
 
   private void configure_TEST_Bindings() {

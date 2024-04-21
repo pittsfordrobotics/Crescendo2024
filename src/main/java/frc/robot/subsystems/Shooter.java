@@ -57,7 +57,7 @@ public class Shooter extends SubsystemBase {
     shooterMotorL = new CANSparkMax(ShooterConstants.CAN_SHOOTER_L, MotorType.kBrushless);
     shooterMotorL.restoreFactoryDefaults();
     shooterMotorL.setIdleMode(IdleMode.kCoast);
-    shooterMotorL.setSmartCurrentLimit(45);
+    shooterMotorL.setSmartCurrentLimit(55);
     // Shooter left pid
     shooterLPID = shooterMotorL.getPIDController();
     shooterLPID.setFeedbackDevice(shooterMotorL.getEncoder());
@@ -72,7 +72,7 @@ public class Shooter extends SubsystemBase {
     shooterMotorR = new CANSparkMax(ShooterConstants.CAN_SHOOTER_R, MotorType.kBrushless);
     shooterMotorR.restoreFactoryDefaults();
     shooterMotorR.setIdleMode(IdleMode.kCoast);
-    shooterMotorR.setSmartCurrentLimit(45);
+    shooterMotorR.setSmartCurrentLimit(55);
     shooterMotorR.setInverted(true);
     // Shooter right pid
     shooterRPID = shooterMotorR.getPIDController();
@@ -148,6 +148,11 @@ public class Shooter extends SubsystemBase {
 
     Shuffleboard.getTab("SHOOTER").add(this);
 
+    Shuffleboard.getTab("SHOOTER").addBoolean("Shooter Limit Switch", this::getLimitSwitch);
+    Shuffleboard.getTab("SHOOTER").addBoolean("Shooter Limit Switch 1", backLimitSwitch1::get);
+    Shuffleboard.getTab("SHOOTER").addBoolean("Shooter Limit Switch 2", backLimitSwitch2::get);
+
+
     Shuffleboard.getTab("COMP").addDouble("Shooter RPM R", this::getShooterRRPM);
     Shuffleboard.getTab("COMP").addDouble("Shooter RPM L", this::getShooterLRPM);
 
@@ -160,8 +165,8 @@ public class Shooter extends SubsystemBase {
     // DisabledInstantCommand(this::brakeShooter));
 
     Shuffleboard.getTab("SHOOTER").add("Shooter Pivot Zero", new DisabledInstantCommand(this::zeroPivot));
-    Shuffleboard.getTab("SHOOTER").add("Toggle Use Limit Switch", new DisabledInstantCommand(() -> useLimitSwitch = !useLimitSwitch));
-    Shuffleboard.getTab("SHOOTER").addBoolean("Useing Limit Switch", () -> useLimitSwitch);
+    Shuffleboard.getTab("COMP").add("Toggle Use Limit Switch", new DisabledInstantCommand(() -> useLimitSwitch = !useLimitSwitch));
+    Shuffleboard.getTab("COMP").addBoolean("Useing Limit Switch", () -> useLimitSwitch);
   }
 
   @Override

@@ -41,8 +41,8 @@ public class Robot extends LoggedRobot {
       PortForwarder.add(port, "limelight.local", port);
     }
 
-    // DataLogManager.start();
-    // DriverStation.startDataLog(DataLogManager.getLog());
+    DataLogManager.start();
+    DriverStation.startDataLog(DataLogManager.getLog());
 
     // Instantiate our RobotContainer. This will perform all our button bindings,
     // and put our
@@ -121,6 +121,7 @@ public class Robot extends LoggedRobot {
     }
     m_robotContainer.useVision(true).schedule();
     m_robotContainer.zeroOdometryAngleOffset().schedule();
+    m_robotContainer.leds.setLEDNormal().schedule();
 
   }
 

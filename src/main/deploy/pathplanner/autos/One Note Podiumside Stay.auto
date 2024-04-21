@@ -5,7 +5,7 @@
       "x": 0.76,
       "y": 4.449
     },
-    "rotation": 120.0
+    "rotation": 120.0002806121996
   },
   "command": {
     "type": "sequential",
@@ -14,13 +14,19 @@
         {
           "type": "named",
           "data": {
-            "name": "AlignStuffOnStartPodiumside"
+            "name": "ShootSubwoof"
           }
         },
         {
-          "type": "named",
+          "type": "wait",
           "data": {
-            "name": "ShootSubwoof"
+            "waitTime": 2.0
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "shootandstaypodiumside"
           }
         }
       ]

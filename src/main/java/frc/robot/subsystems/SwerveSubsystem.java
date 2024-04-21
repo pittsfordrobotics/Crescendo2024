@@ -93,7 +93,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
     private Rotation2d currentTargetAngle = new Rotation2d();
     private Pose2d allianceRelPose = new Pose2d();
-    private double speedFactor = 1;
+    private double speedFactor = 1.25;
 
     StructPublisher<Pose2d> publisher = NetworkTableInstance.getDefault()
             .getStructTopic("SwervePose", Pose2d.struct).publish();
@@ -163,6 +163,15 @@ public class SwerveSubsystem extends SubsystemBase {
         Shuffleboard.getTab("CONFIG").add(this); // for debug
 
         Shuffleboard.getTab("COMP").addBoolean("Vision Ok", this::isvisionOk);
+    //     Supplier<double[]> swerveModuleSpeeds = () -> {
+    //         double[] swerveModuleSpeedsArray = new double[4];
+    //         for(int i = 0; i < 4; i++) {
+    //         swerveModuleSpeedsArray[i] = swerveDrive.getStates()[i].speedMetersPerSecond;
+    //     }
+    //     return swerveModuleSpeedsArray;
+    // };
+        
+        // Shuffleboard.getTab("CONFIG").addDoubleArray("Swerve drive motor velocity", swerveModuleSpeeds);
     }
 
     /**
@@ -550,17 +559,15 @@ public class SwerveSubsystem extends SubsystemBase {
      *  If using heading drive, it does not use the target angle at all.
     */
     public void driveAllianceRelative(double x, double y, double rotationRate, boolean headingDrive) {
-        if(headingDrive) {
-            driveFieldOriented(swerveDrive.swerveController.getTargetSpeeds(getAllianceDefaultBlue() == Alliance.Blue ? x : -x, getAllianceDefaultBlue() == Alliance.Blue ? y : -y, 
-                currentTargetAngle.getRadians(), swerveDrive.getYaw().getRadians(), swerveDrive.getMaximumVelocity()));
+        if (headingDrive) {
+            driveFieldOriented(swerveDrive.swerveController.getTargetSpeeds(getAllianceDefaultBlue() == Alliance.Blue ? x : -x, getAllianceDefaultBlue() == Alliance.Blue ? y : -y,
+                    currentTargetAngle.getRadians(), swerveDrive.getYaw().getRadians(), swerveDrive.getMaximumVelocity()));
         } else {
             swerveDrive.drive(new Translation2d(getAllianceDefaultBlue() == Alliance.Blue ? x : -x, getAllianceDefaultBlue() == Alliance.Blue ? y : -y),
-                rotationRate, true, false);
+                    rotationRate, true, false);
         }
     }
-
     /**
-     * Set chassis speeds with closed-loop velocity control.
      *
      * @param chassisSpeeds Chassis Speeds to set.
      */
