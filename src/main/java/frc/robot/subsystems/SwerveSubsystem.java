@@ -392,6 +392,73 @@ public class SwerveSubsystem extends SubsystemBase {
         });
     }
 
+    // Additional drive methods from commit
+    // 987cd6edf8c94e07fd143933b2a99e1061836b16
+    /**
+     * Command to drive the robot using translative values and heading as a
+     * setpoint.
+     *
+     * @param translationX Translation in the X direction. Cubed for smoother
+     *                     controls.
+     * @param translationY Translation in the Y direction. Cubed for smoother
+     *                     controls.
+     * @param headingX     Heading X to calculate angle of the joystick.
+     * @param headingY     Heading Y to calculate angle of the joystick.
+     * @return Drive command.
+     */
+    public Command headingDriveCommand(DoubleSupplier translationX, DoubleSupplier translationY,
+            DoubleSupplier headingX,
+            DoubleSupplier headingY) {
+        return run(() -> {
+            swerveDrive.setHeadingCorrection(true);
+            double[] deadbandRotationInputs = AllDeadbands
+                    .applyCircularDeadband(new double[] { headingX.getAsDouble(), headingY.getAsDouble() }, 0.95);
+            double rawXInput = translationX.getAsDouble();
+            double rawYInput = translationY.getAsDouble();
+            double[] scaledDeadbandTranslationInputs = AllDeadbands
+                    .applyScaledSquaredCircularDeadband(new double[] { rawXInput, rawYInput }, 0.1);
+            double xInput = scaledDeadbandTranslationInputs[0];
+            double yInput = scaledDeadbandTranslationInputs[1];
+            // Make the robot move
+            driveFieldOriented(swerveDrive.swerveController.getTargetSpeeds(xInput * speedFactor, yInput * speedFactor,
+                    deadbandRotationInputs[0],
+                    deadbandRotationInputs[1],
+                    swerveDrive.getYaw().getRadians(),
+                    swerveDrive.getMaximumVelocity()));
+        });
+    }
+
+    /**
+     * Command to drive the robot using translative values and heading as angular
+     * velocity.
+     *
+     * @param translationX     Translation in the X direction. Cubed for smoother
+     *                         controls.
+     * @param translationY     Translation in the Y direction. Cubed for smoother
+     *                         controls.
+     * @param angularRotationX Angular velocity of the robot to set. Cubed for
+     *                         smoother controls.
+     * @return Drive command.
+     */
+    public Command rotationRateDriveCommand(DoubleSupplier translationX, DoubleSupplier translationY,
+            DoubleSupplier angularRotationX) {
+        return run(() -> {
+            double rawXInput = translationX.getAsDouble();
+            double rawYInput = translationY.getAsDouble();
+            double[] scaledDeadbandTranslationInputs = AllDeadbands
+                    .applyScaledSquaredCircularDeadband(new double[] { rawXInput, rawYInput }, 0.1);
+            double xInput = scaledDeadbandTranslationInputs[0];
+            double yInput = scaledDeadbandTranslationInputs[1];
+            double rotationRate = Math.pow(MathUtil.applyDeadband(angularRotationX.getAsDouble(), 0.1), 3);
+            swerveDrive.setHeadingCorrection(false);
+            // Make the robot move
+            swerveDrive.drive(new Translation2d(xInput * swerveDrive.getMaximumVelocity() * speedFactor,
+                    yInput * swerveDrive.getMaximumVelocity() * speedFactor),
+                    Math.pow(rotationRate, 3) * swerveDrive.getMaximumAngularVelocity() * speedFactor,
+                    true, false);
+        });
+    }
+
     /**
      * The primary method for controlling the drivebase. Takes a
      * {@link Translation2d} and a rotation rate, and

@@ -58,6 +58,7 @@ public class RobotContainer {
   private final AutoCommandFactory autoCommandFactory;
 
   private SendableChooser<Command> autoChooser = new SendableChooser<>();
+  private final SendableChooser<Command> driveModeChooser = new SendableChooser<>();;
   private final CommandXboxController m_driverController = new CommandXboxController(
       OperatorConstants.kDriverControllerPort);
   private final CommandXboxController m_operatorController = new CommandXboxController(
@@ -133,6 +134,23 @@ public class RobotContainer {
         m_driverController::getLeftTriggerAxis,
         m_driverController::getRightTriggerAxis);
     enhancedHeadingSteeringCommand.setName("Enhanced Heading Steer");
+
+    Command headingSteeringCommand = swerveSubsystem.headingDriveCommand(
+        () -> -m_driverController.getLeftY(),
+        () -> -m_driverController.getLeftX(),
+        () -> -m_driverController.getRightX(),
+        () -> -m_driverController.getRightY());
+    headingSteeringCommand.setName("Heading Steer");
+    Command rotationRateSteeringCommand = swerveSubsystem.rotationRateDriveCommand(
+        () -> -m_driverController.getLeftY(),
+        () -> -m_driverController.getLeftX(),
+        () -> -m_driverController.getRightX());
+    rotationRateSteeringCommand.setName("Rotation Rate Steer");
+    driveModeChooser.setDefaultOption("Enhanced Steering (Old Comp)", enhancedHeadingSteeringCommand);
+    driveModeChooser.addOption("Heading Steering", headingSteeringCommand);
+    driveModeChooser.addOption("Rotation Rate Steering", rotationRateSteeringCommand);
+    Shuffleboard.getTab("CONFIG").add(driveModeChooser);
+
 
     Pose2d speaker = FieldConstants.Speaker.centerSpeakerOpening;
     speakerTargetSteeringCommand = swerveSubsystem.driveTranslationAndPointAtTarget(
