@@ -284,6 +284,18 @@ public class RobotContainer {
 
     m_operatorController.rightBumper().onTrue(climber.setSpeedCommand(0.5));
     m_operatorController.rightBumper().onFalse(climber.setSpeedCommand(-0.5));
+
+    // Drive mode chooser
+    Command driveCommand = driveModeChooser.getSelected();
+    swerveSubsystem.setDefaultCommand(driveCommand);
+    driveModeChooser.onChange(command -> {
+      Command currentDefault = swerveSubsystem.getDefaultCommand();
+      swerveSubsystem.removeDefaultCommand();
+      CommandScheduler.getInstance().cancel(currentDefault);
+      swerveSubsystem.setDefaultCommand(command);
+      System.out.println(swerveSubsystem.getDefaultCommand().getName());
+    });
+
   }
 
   private void configure_TEST_Bindings() {
