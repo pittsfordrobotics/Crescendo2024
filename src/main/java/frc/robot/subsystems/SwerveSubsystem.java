@@ -449,7 +449,7 @@ public class SwerveSubsystem extends SubsystemBase {
                     .applyScaledSquaredCircularDeadband(new double[] { rawXInput, rawYInput }, 0.1);
             double xInput = scaledDeadbandTranslationInputs[0];
             double yInput = scaledDeadbandTranslationInputs[1];
-            double rotationRate = Math.pow(MathUtil.applyDeadband(angularRotationX.getAsDouble(), 0.1), 3);
+            double rotationRate = MathUtil.applyDeadband(angularRotationX.getAsDouble(), 0.1);
             swerveDrive.setHeadingCorrection(false);
             // Make the robot move
             swerveDrive.drive(new Translation2d(xInput * swerveDrive.getMaximumVelocity() * speedFactor,
